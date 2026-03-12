@@ -18,7 +18,8 @@ public class Config {
     public static final float PLAYER_ATTACK_COOLDOWN = 0.1f;
     public static final float PLAYER_PICKUP_RANGE = TILE_SIZE*2;
 
-
+    public static final float DAY_DURATION = 5f;
+    public static final float NIGHT_DURATION = 5;
 
     public static final float ZOMBIE_SPEED = 60f;
 

@@ -4,7 +4,6 @@ import com.ashveil.Config;
 import com.ashveil.entities.Entity;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.ZombieEnemy;
-import com.ashveil.items.Inventory;
 import com.ashveil.items.ItemType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -16,6 +15,7 @@ public class World {
 
     private TileMap tileMap;
     private Player player;
+    private DayNightCycle dayNightCycle;
     private List<ZombieEnemy> zombies;
     private List<WorldItem> groundItems;
 
@@ -39,6 +39,7 @@ public class World {
         groundItems.add(new WorldItem(Config.WORLD_HEIGHT * Config.TILE_SIZE / 2f + 150f,
             Config.WORLD_WIDTH * Config.TILE_SIZE / 2f + 50f,
             ItemType.STONE, 2));
+        dayNightCycle = new DayNightCycle();
     }
 
     public void update(float delta){
@@ -64,6 +65,7 @@ public class World {
             if (toRemove != null) groundItems.remove(toRemove);
         }
 
+        dayNightCycle.update(delta);
     }
 
     private boolean isColliding(Entity a, Entity b){
@@ -77,4 +79,5 @@ public class World {
     public Player getPlayer(){return player;}
     public List<ZombieEnemy> getZombies() { return zombies; }
     public List<WorldItem> getGroundItems() {return groundItems;}
+    public DayNightCycle getDayNightCycle() {return dayNightCycle;}
 }

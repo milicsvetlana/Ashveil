@@ -3,7 +3,9 @@ package com.ashveil;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.ZombieEnemy;
 import com.ashveil.world.*;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
@@ -89,7 +91,19 @@ public class GameScreen implements Screen {
                 Config.TILE_DRAW_SIZE);
         }
         shapeRenderer.end();
-        hudRenderer.render(world.getPlayer());
+        if (world.getDayNightCycle().isNight()){
+            shapeRenderer.setProjectionMatrix(
+                new Matrix4().setToOrtho2D(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
+            );
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0f, 0f, 0.3f, 0.5f);
+            shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
+            shapeRenderer.end();
+            Gdx.gl.glDisable(GL20.GL_BLEND);
+        }
+        hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
     }
 
     @Override
