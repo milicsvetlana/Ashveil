@@ -10,10 +10,15 @@ public class Config {
     public static final int SCREEN_WIDTH = 1280;
     public static final int SCREEN_HEIGHT = 720;
 
+    public static final int INVENTORY_SIZE = 5;
+
     public static final float PLAYER_SPEED = 100f;
-    public static final float PLAYER_ATTACK_RANGE = 60f;
     public static final float DAMAGE_COOLDOWN_MAX = 1f;
+    public static final float PLAYER_ATTACK_RANGE = 60f;
     public static final float PLAYER_ATTACK_COOLDOWN = 0.1f;
+    public static final float PLAYER_PICKUP_RANGE = TILE_SIZE*2;
+
+
 
     public static final float ZOMBIE_SPEED = 60f;
 

@@ -2,10 +2,7 @@ package com.ashveil;
 
 import com.ashveil.entities.Player;
 import com.ashveil.entities.ZombieEnemy;
-import com.ashveil.world.CameraController;
-import com.ashveil.world.TileMap;
-import com.ashveil.world.TileType;
-import com.ashveil.world.World;
+import com.ashveil.world.*;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -78,6 +75,13 @@ public class GameScreen implements Screen {
                                 Config.TILE_DRAW_SIZE);
         }
 
+        shapeRenderer.setColor(0.5f, 0.5f, 0f, 1f);
+        for (WorldItem i : world.getGroundItems()){
+            shapeRenderer.rect(i.getX()  * Config.SCALE,
+                i.getY() * Config.SCALE,
+                Config.TILE_DRAW_SIZE,
+                Config.TILE_DRAW_SIZE);
+        }
         shapeRenderer.end();
     }
 

@@ -1,15 +1,19 @@
 package com.ashveil.entities;
 
 import com.ashveil.Config;
+import com.ashveil.items.Inventory;
 import com.ashveil.world.TileMap;
+import com.ashveil.world.WorldItem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player extends Entity{
 
     private TileMap tileMap;
+    private Inventory inventory;
 
     private float damageCooldown = 0f;
     private float attackCooldown = 0f;
@@ -17,6 +21,7 @@ public class Player extends Entity{
     public Player(float x, float y, int maxHp, int currentHp, TileMap tileMap) {
         super(x, y, maxHp, currentHp, Config.PLAYER_SPEED);
         this.tileMap = tileMap;
+        inventory = new Inventory();
     }
 
     @Override
@@ -87,10 +92,24 @@ public class Player extends Entity{
         }
     }
 
+    public WorldItem pickUp(List<WorldItem> groundItems){
+        for (WorldItem i : groundItems){
+            float dimX = i.getX() - x;
+            float dimY = i.getY() - y;
+            double dist = Math.sqrt(dimX * dimX + dimY * dimY);
+            if (dist > Config.PLAYER_PICKUP_RANGE) continue;
+            inventory.addItem(i.getType(), i.getAmount());
+            return i;
+        }
+        return null;
+    }
+
+
     public boolean canAttack(){return attackCooldown <= 0;}
     public void resetAttackCooldown() {attackCooldown = Config.PLAYER_ATTACK_COOLDOWN;}
 
     public Facing getFacing() {return facing;}
     public int getCurrentHp() {return currentHp;}
     public int getMaxHp() {return maxHp;}
+    public Inventory getInventory() {return inventory;}
 }
