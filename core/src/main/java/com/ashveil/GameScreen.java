@@ -6,13 +6,18 @@ import com.ashveil.world.*;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import static com.ashveil.Config.SCREEN_HEIGHT;
+import static com.ashveil.Config.SCREEN_WIDTH;
 
 public class GameScreen implements Screen {
 
     private GameApp game;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
+    private HudRenderer hudRenderer;
     private World world;
     private CameraController cameraController;
 
@@ -22,6 +27,7 @@ public class GameScreen implements Screen {
         shapeRenderer = new ShapeRenderer();
         cameraController = new CameraController();
         world = new World();
+        hudRenderer = new HudRenderer();
     }
 
     @Override
@@ -83,11 +89,13 @@ public class GameScreen implements Screen {
                 Config.TILE_DRAW_SIZE);
         }
         shapeRenderer.end();
+        hudRenderer.render(world.getPlayer());
     }
 
     @Override
     public void dispose() {
         shapeRenderer.dispose();
+        hudRenderer.dispose();
     }
 
     @Override public void resize(int i, int i1) {}
