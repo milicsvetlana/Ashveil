@@ -1,33 +1,53 @@
 # Ashveil
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+2D top-down survival game built with Java and LibGDX.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+## About
 
-## Platforms
+Ashveil is a 2D top-down survival game built in Java using LibGDX.
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+The project focuses on building solid gameplay systems first (movement, combat, world logic), while the visual side (pixel art, atmosphere, assets) will be developed alongside and improved over time.
 
-## Gradle
+## Current State
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+The game is still in early development.
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+Core systems are already implemented, while visuals are currently simple placeholders used for testing and iteration. Custom pixel art and proper visuals are planned as the project evolves.
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+## Features
+
+* tile-based world
+* player movement with collision
+* simple enemy AI (zombies)
+* melee combat (direction-based)
+* item pickup system
+* day/night cycle
+* basic HUD (health + day counter)
+
+## Structure
+
+The project is organized around a central `World` class that handles game state and updates.
+
+Rendering is separated into a `WorldRenderer`, so game logic and drawing are not mixed.
+
+Player input is handled outside of the entity itself, keeping entities focused on behavior rather than controls.
+
+## Controls
+
+* WASD — movement
+* K — attack
+* E — interact / pick up
+
+## Screenshot
+
+![Gameplay](screenshot.jpg)
+
+## Notes
+
+This project is mainly used to practice:
+
+* game architecture
+* system separation
+* real-time update loops
+
+More features and proper visuals are planned.
