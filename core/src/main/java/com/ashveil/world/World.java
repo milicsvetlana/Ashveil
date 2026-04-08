@@ -44,28 +44,48 @@ public class World {
 
     public void update(float delta){
         player.update(delta);
+        float dx = 0f;
+        float dy = 0f;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) dy += 1f;
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) dy -= 1f;
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) dx -= 1f;
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) dx += 1f;
+
+        player.move(dx, dy, delta);
+
         for (ZombieEnemy z : zombies) {
             z.update(delta);
         }
 
+        handleCollisions();
+        handleCombat();
+        handlePickup();
+
+        dayNightCycle.update(delta);
+    }
+
+    private void handleCollisions() {
         for (ZombieEnemy z : zombies){
             if (isColliding(player, z)){
                 player.takeDamage(1);
             }
         }
+    }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.K) && player.canAttack()){
+    private void handleCombat(){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.K) && player.canAttack()){
             player.attack(zombies);
             player.resetAttackCooldown();
             zombies.removeIf(ZombieEnemy::isDead);
         }
+    }
 
+    private void handlePickup() {
         if (Gdx.input.isKeyPressed(Input.Keys.E)){
             WorldItem toRemove = player.pickUp(groundItems);
             if (toRemove != null) groundItems.remove(toRemove);
         }
-
-        dayNightCycle.update(delta);
     }
 
     private boolean isColliding(Entity a, Entity b){

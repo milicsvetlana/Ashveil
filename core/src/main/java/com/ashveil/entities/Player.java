@@ -4,8 +4,6 @@ import com.ashveil.Config;
 import com.ashveil.items.Inventory;
 import com.ashveil.world.TileMap;
 import com.ashveil.world.WorldItem;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,29 +26,16 @@ public class Player extends Entity{
     public void update(float delta) {
         if (damageCooldown > 0) damageCooldown -= delta;
         if (attackCooldown > 0) attackCooldown -= delta;
+    }
 
-        float newX = x;
-        float newY = y;
+    public void move(float dx, float dy, float delta) {
+        float newX = x + dx * speed * delta;
+        float newY = y + dy * speed * delta;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)){
-            newY += speed * delta;
-            facing = Facing.UP;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            newX -= speed * delta;
-            facing = Facing.LEFT;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            newY -= speed * delta;
-            facing = Facing.DOWN;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            newX += speed * delta;
-            facing = Facing.RIGHT;
-        }
-
-        int tileX = (int)(newX / Config.TILE_SIZE);
-        int tileY = (int)(newY / Config.TILE_SIZE);
+        if (dx > 0) facing = Facing.RIGHT;
+        else if (dx < 0) facing = Facing.LEFT;
+        else if (dy > 0) facing = Facing.UP;
+        else if (dy < 0) facing = Facing.DOWN;
 
         if (!isCollidingAt(newX, y)) {
             x = newX;
