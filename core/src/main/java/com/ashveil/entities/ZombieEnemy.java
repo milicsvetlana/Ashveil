@@ -6,8 +6,8 @@ public class ZombieEnemy extends Entity{
 
     private final Player target;
 
-    public ZombieEnemy(float x, float y, int maxHp, int currentHp, Player target) {
-        super(x, y, maxHp, currentHp, Config.ZOMBIE_SPEED);
+    public ZombieEnemy(float x, float y, Player target) {
+        super(x, y, Config.ZOMBIE_HP, Config.ZOMBIE_SPEED);
         this.target = target;
     }
 

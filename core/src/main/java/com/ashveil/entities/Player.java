@@ -2,10 +2,11 @@ package com.ashveil.entities;
 
 import com.ashveil.Config;
 import com.ashveil.items.Inventory;
+import com.ashveil.objects.ResourceObject;
+import com.ashveil.objects.ResourceType;
 import com.ashveil.world.TileMap;
 import com.ashveil.world.WorldItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Player extends Entity{
@@ -15,9 +16,10 @@ public class Player extends Entity{
 
     private float damageCooldown = 0f;
     private float attackCooldown = 0f;
+    private float harvestCooldown = 0f;
 
-    public Player(float x, float y, int maxHp, int currentHp, TileMap tileMap) {
-        super(x, y, maxHp, currentHp, Config.PLAYER_SPEED);
+    public Player(float x, float y, TileMap tileMap) {
+        super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED);
         this.tileMap = tileMap;
         inventory = new Inventory();
     }
@@ -26,6 +28,7 @@ public class Player extends Entity{
     public void update(float delta) {
         if (damageCooldown > 0) damageCooldown -= delta;
         if (attackCooldown > 0) attackCooldown -= delta;
+        if (harvestCooldown > 0) harvestCooldown -= delta;
     }
 
     public void move(float dx, float dy, float delta) {
@@ -72,8 +75,23 @@ public class Player extends Entity{
             float dx = z.getX() - x;
             float dy = z.getY() - y;
             double dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > Config.PLAYER_ATTACK_RANGE) continue;
+            if (dist > Config.PLAYER_ATTACK_HARVEST_RANGE) continue;
             z.takeDamage(1);
+        }
+    }
+
+    public void harvest(List<ResourceObject> objects){
+        for (ResourceObject o : objects){
+            if (facing == Facing.UP && o.getY() <= y){continue;}
+            if (facing == Facing.DOWN && o.getY() >= y){continue;}
+            if (facing == Facing.RIGHT && o.getX() <= x){continue;}
+            if (facing == Facing.LEFT && o.getX() >= x){continue;}
+
+            float dx = o.getX() - x;
+            float dy = o.getY() - y;
+            double dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > Config.PLAYER_ATTACK_HARVEST_RANGE) continue;
+            o.hit(1);
         }
     }
 
@@ -92,6 +110,9 @@ public class Player extends Entity{
 
     public boolean canAttack(){return attackCooldown <= 0;}
     public void resetAttackCooldown() {attackCooldown = Config.PLAYER_ATTACK_COOLDOWN;}
+
+    public boolean canHarvest(){return harvestCooldown <= 0;}
+    public void resetHarvestCooldown() {harvestCooldown = Config.PLAYER_HARVEST_COOLDOWN;}
 
     public Facing getFacing() {return facing;}
     public int getCurrentHp() {return currentHp;}

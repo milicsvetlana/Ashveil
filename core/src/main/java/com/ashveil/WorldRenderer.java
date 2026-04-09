@@ -1,6 +1,8 @@
 package com.ashveil;
 
 import com.ashveil.entities.ZombieEnemy;
+import com.ashveil.objects.ResourceObject;
+import com.ashveil.objects.ResourceType;
 import com.ashveil.world.CameraController;
 import com.ashveil.world.TileType;
 import com.ashveil.world.World;
@@ -59,6 +61,17 @@ public class WorldRenderer {
             shapeRenderer.rect(
                 z.getX() * Config.SCALE,
                 z.getY() * Config.SCALE,
+                Config.TILE_DRAW_SIZE,
+                Config.TILE_DRAW_SIZE
+            );
+        }
+
+        for (ResourceObject o : world.getResourceObjects()) {
+            if (o.getType() == ResourceType.TREE) shapeRenderer.setColor(0.1f, 0.4f, 0.1f, 1f);
+            else shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
+            shapeRenderer.rect(
+                o.getX() * Config.SCALE,
+                o.getY() * Config.SCALE,
                 Config.TILE_DRAW_SIZE,
                 Config.TILE_DRAW_SIZE
             );

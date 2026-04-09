@@ -7,11 +7,11 @@ public abstract class Entity {
     protected float speed;
     protected Facing facing = Facing.DOWN;
 
-    public Entity (float x, float y, int maxHp, int currentHp, float speed){
+    public Entity (float x, float y, int maxHp, float speed){
         this.x = x;
         this.y = y;
         this.maxHp = maxHp;
-        this.currentHp= currentHp;
+        this.currentHp = maxHp;
         this.speed = speed;
     }
 
