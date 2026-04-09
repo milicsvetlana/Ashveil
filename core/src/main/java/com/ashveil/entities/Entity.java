@@ -1,5 +1,7 @@
 package com.ashveil.entities;
 
+import com.ashveil.Config;
+
 public abstract class Entity {
     protected float x, y;
     int maxHp;
@@ -30,6 +32,14 @@ public abstract class Entity {
 
     public float getY() {
         return y;
+    }
+
+    public float getCenterX() {
+        return x + Config.TILE_SIZE / 2f;
+    }
+
+    public float getCenterY() {
+        return y + Config.TILE_SIZE / 2f;
     }
 
     public abstract void update(float delta);

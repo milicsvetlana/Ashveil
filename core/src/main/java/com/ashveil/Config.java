@@ -20,6 +20,8 @@ public class Config {
     public static final float PLAYER_SPEED = 100f;
     public static final float DAMAGE_COOLDOWN_MAX = 1f;
     public static final float PLAYER_ATTACK_HARVEST_RANGE = 60f;
+    public static final float PLAYER_ATTACK_MIN_DOT = 0.75f; /*For smaller angle, increase*/
+    public static final float PLAYER_HARVEST_MIN_DOT = 0.55f;
     public static final float PLAYER_ATTACK_COOLDOWN = 0.1f;
     public static final float PLAYER_HARVEST_COOLDOWN = 0.5f;
     public static final float PLAYER_PICKUP_RANGE = TILE_SIZE * 2;
@@ -33,7 +35,7 @@ public class Config {
 
     /** HP values */
     public static final int PLAYER_HP = 6;
-    public static final int ZOMBIE_HP = 3;
-    public static final int TREE_HP = 10;
-    public static final int ROCK_HP = 10;
+    public static final int ZOMBIE_HP = 15;
+    public static final int TREE_HP = 3;
+    public static final int ROCK_HP = 3;
 }

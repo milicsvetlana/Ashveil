@@ -65,32 +65,60 @@ public class Player extends Entity{
         damageCooldown = Config.DAMAGE_COOLDOWN_MAX;
     }
 
+    private float getFacingX() {
+        return switch (facing) {
+            case LEFT -> -1f;
+            case RIGHT -> 1f;
+            default -> 0f;
+        };
+    }
+
+    private float getFacingY() {
+        return switch (facing) {
+            case DOWN -> -1f;
+            case UP -> 1f;
+            default -> 0f;
+        };
+    }
+
+    private boolean isTargetInFrontCone(float targetCenterX, float targetCenterY, float range, float minDot) {
+        float dx = targetCenterX - getCenterX();
+        float dy = targetCenterY - getCenterY();
+
+        float distSq = dx * dx + dy * dy;
+        if (distSq > range * range) return false;
+        if (distSq == 0f) return true;
+
+        float invLen = 1f / (float)Math.sqrt(distSq);
+        dx *= invLen;
+        dy *= invLen;
+
+        float dot = dx * getFacingX() + dy * getFacingY();
+        return dot >= minDot;
+    }
+
     public void attack(List<ZombieEnemy> zombies){
         for (ZombieEnemy z : zombies){
-            if (facing == Facing.UP && z.getY() <= y){continue;}
-            if (facing == Facing.DOWN && z.getY() >= y){continue;}
-            if (facing == Facing.RIGHT && z.getX() <= x){continue;}
-            if (facing == Facing.LEFT && z.getX() >= x){continue;}
+            if (!isTargetInFrontCone(
+                z.getCenterX(),
+                z.getCenterY(),
+                Config.PLAYER_ATTACK_HARVEST_RANGE,
+                Config.PLAYER_ATTACK_MIN_DOT
+            )) continue;
 
-            float dx = z.getX() - x;
-            float dy = z.getY() - y;
-            double dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > Config.PLAYER_ATTACK_HARVEST_RANGE) continue;
             z.takeDamage(1);
         }
     }
 
     public void harvest(List<ResourceObject> objects){
         for (ResourceObject o : objects){
-            if (facing == Facing.UP && o.getY() <= y){continue;}
-            if (facing == Facing.DOWN && o.getY() >= y){continue;}
-            if (facing == Facing.RIGHT && o.getX() <= x){continue;}
-            if (facing == Facing.LEFT && o.getX() >= x){continue;}
+            if (!isTargetInFrontCone(
+                o.getCenterX(),
+                o.getCenterY(),
+                Config.PLAYER_ATTACK_HARVEST_RANGE,
+                Config.PLAYER_HARVEST_MIN_DOT
+            )) continue;
 
-            float dx = o.getX() - x;
-            float dy = o.getY() - y;
-            double dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > Config.PLAYER_ATTACK_HARVEST_RANGE) continue;
             o.hit(1);
         }
     }
