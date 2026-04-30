@@ -1,5 +1,9 @@
-package com.ashveil;
+package com.ashveil.screens;
 
+import com.ashveil.Config;
+import com.ashveil.GameApp;
+import com.ashveil.rendering.HudRenderer;
+import com.ashveil.rendering.WorldRenderer;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -32,6 +36,13 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.C)) craftingOpen = !craftingOpen;
+
+        if (craftingOpen && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            float mx = Gdx.input.getX();
+            float my = Config.SCREEN_HEIGHT - Gdx.input.getY();
+            var clicked = hudRenderer.getCategoryAtClick(mx, my);
+            if (clicked != null) hudRenderer.setSelectedCategory(clicked);
+        }
 
         world.update(delta);
         if (world.getPlayer().isDead()){

@@ -1,4 +1,6 @@
-package com.ashveil.items;
+package com.ashveil.items.crafting;
+
+import com.ashveil.items.inventory.ItemType;
 
 import java.util.Map;
 
@@ -18,4 +20,5 @@ public class Recipe {
     public Map<ItemType, Integer> getIngredients() {return ingredients;}
     public ItemType getResultType() {return resultType;}
     public int getResultAmount() {return resultAmount;}
+    public CraftingCategory getCategory() {return category;}
 }

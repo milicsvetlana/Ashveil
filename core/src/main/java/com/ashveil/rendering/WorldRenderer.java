@@ -1,5 +1,6 @@
-package com.ashveil;
+package com.ashveil.rendering;
 
+import com.ashveil.Config;
 import com.ashveil.entities.Shade;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;

@@ -1,5 +1,7 @@
-package com.ashveil;
+package com.ashveil.screens;
 
+import com.ashveil.Config;
+import com.ashveil.GameApp;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;

@@ -1,7 +1,7 @@
 package com.ashveil.objects;
 
 import com.ashveil.Config;
-import com.ashveil.items.ItemType;
+import com.ashveil.items.inventory.ItemType;
 
 public enum ResourceType {
     TREE(Config.TREE_HP, ItemType.WOOD, 1, 4),

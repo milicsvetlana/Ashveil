@@ -1,4 +1,4 @@
-package com.ashveil.items;
+package com.ashveil.items.inventory;
 
 import com.ashveil.Config;
 

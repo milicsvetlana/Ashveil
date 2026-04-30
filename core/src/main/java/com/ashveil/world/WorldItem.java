@@ -1,6 +1,6 @@
 package com.ashveil.world;
 
-import com.ashveil.items.ItemType;
+import com.ashveil.items.inventory.ItemType;
 
 public class WorldItem {
     float x, y;

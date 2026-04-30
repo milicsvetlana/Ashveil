@@ -1,4 +1,4 @@
-package com.ashveil.items;
+package com.ashveil.items.crafting;
 
 public enum CraftingCategory {
     WEAPONS,

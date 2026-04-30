@@ -1,4 +1,7 @@
-package com.ashveil.items;
+package com.ashveil.items.crafting;
+
+import com.ashveil.items.inventory.Inventory;
+import com.ashveil.items.inventory.ItemType;
 
 import java.util.*;
 

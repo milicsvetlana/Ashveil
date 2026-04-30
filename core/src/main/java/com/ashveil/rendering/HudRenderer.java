@@ -1,8 +1,10 @@
-package com.ashveil;
+package com.ashveil.rendering;
 
+import com.ashveil.Config;
 import com.ashveil.entities.Player;
-import com.ashveil.items.ItemStack;
-import com.ashveil.items.Recipe;
+import com.ashveil.items.crafting.CraftingCategory;
+import com.ashveil.items.inventory.ItemStack;
+import com.ashveil.items.crafting.Recipe;
 import com.ashveil.world.DayNightCycle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,10 +21,15 @@ public class HudRenderer {
     private SpriteBatch batch;
     private BitmapFont font;
 
+    private CraftingCategory selectedCategory;
+    private int selectedRecipeIndex;
+
     public HudRenderer(){
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         font = new BitmapFont();
+        selectedCategory = CraftingCategory.WEAPONS;
+        selectedRecipeIndex = 0;
     }
 
     public void render(Player player, DayNightCycle dayNightCycle, boolean craftingOpen, List<Recipe> recipes){
@@ -80,11 +87,23 @@ public class HudRenderer {
             shapeRenderer.end();
 
             batch.begin();
-            int y = SCREEN_HEIGHT - 130;
+            int tabX = 130;
+            for (CraftingCategory cat : CraftingCategory.values()) {
+                if (cat == selectedCategory) {
+                    font.setColor(1f, 1f, 0f, 1f); // žuta = selektovana
+                } else {
+                    font.setColor(1f, 1f, 1f, 1f); // bela = ostale
+                }
+                font.draw(batch, cat.name(), tabX, SCREEN_HEIGHT - 110);
+                tabX += 150;
+            }
+            int y = SCREEN_HEIGHT - 140;
             for (Recipe r : recipes) {
+                if (r.getCategory() != selectedCategory) continue;
                 font.draw(batch, r.getResultType().name(), 130, y);
                 y -= 25;
             }
+
             batch.end();
         }
     }
@@ -94,5 +113,23 @@ public class HudRenderer {
         batch.dispose();
         font.dispose();
     }
+
+    public CraftingCategory getCategoryAtClick(float mouseX, float mouseY) {
+        int tx = 130;
+        for (CraftingCategory cat : CraftingCategory.values()) {
+            if (mouseX >= tx && mouseX <= tx + 140 &&
+                mouseY >= SCREEN_HEIGHT - 125 && mouseY <= SCREEN_HEIGHT - 105) {
+                return cat;
+            }
+            tx += 150;
+        }
+        return null;
+    }
+
+    public void setSelectedCategory(CraftingCategory cat) {
+        selectedCategory = cat;
+        selectedRecipeIndex = 0;
+    }
+
 }
 

@@ -1,7 +1,7 @@
 package com.ashveil.entities;
 
 import com.ashveil.Config;
-import com.ashveil.items.Inventory;
+import com.ashveil.items.inventory.Inventory;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.world.TileMap;
 import com.ashveil.world.WorldItem;
