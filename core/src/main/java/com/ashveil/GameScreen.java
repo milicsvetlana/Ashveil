@@ -1,9 +1,8 @@
 package com.ashveil;
 
-import com.ashveil.entities.Player;
-import com.ashveil.entities.ZombieEnemy;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -16,6 +15,7 @@ public class GameScreen implements Screen {
     private HudRenderer hudRenderer;
     private World world;
     private CameraController cameraController;
+    private boolean craftingOpen;
 
     public GameScreen(GameApp game){
         this.game = game;
@@ -24,11 +24,14 @@ public class GameScreen implements Screen {
         cameraController = new CameraController();
         world = new World();
         hudRenderer = new HudRenderer();
+        craftingOpen = false;
     }
 
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) craftingOpen = !craftingOpen;
 
         world.update(delta);
         if (world.getPlayer().isDead()){
@@ -38,8 +41,7 @@ public class GameScreen implements Screen {
         }
         cameraController.update(world.getPlayer().getX() * Config.SCALE, world.getPlayer().getY() * Config.SCALE);
         worldRenderer.render(world, cameraController);
-        hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
-        hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
+        hudRenderer.render(world.getPlayer(), world.getDayNightCycle(), craftingOpen, world.getRecipes());
     }
 
     @Override

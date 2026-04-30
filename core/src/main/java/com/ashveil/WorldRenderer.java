@@ -1,6 +1,6 @@
 package com.ashveil;
 
-import com.ashveil.entities.ZombieEnemy;
+import com.ashveil.entities.Shade;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
 import com.ashveil.world.CameraController;
@@ -8,7 +8,6 @@ import com.ashveil.world.TileType;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
@@ -58,7 +57,12 @@ public class WorldRenderer {
         );
 
         shapeRenderer.setColor(1f, 0f, 0f, 1f);
-        for (ZombieEnemy z : world.getZombies()) {
+        for (Shade z : world.getShades()) {
+            if (z.getHitFlashTimer() > 0) {
+                shapeRenderer.setColor(1f, 1f, 1f, 1f);
+            } else {
+                shapeRenderer.setColor(1f, 0f, 0f, 1f);
+            }
             shapeRenderer.rect(
                 z.getX() * Config.SCALE,
                 z.getY() * Config.SCALE,

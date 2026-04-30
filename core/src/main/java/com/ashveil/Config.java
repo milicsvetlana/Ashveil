@@ -27,15 +27,15 @@ public class Config {
     public static final float PLAYER_PICKUP_RANGE = TILE_SIZE * 2;
 
     /** Day/night cycle */
-    public static final float DAY_DURATION = 100f;
+    public static final float DAY_DURATION = 10f;
     public static final float NIGHT_DURATION = 5f;
 
     /** Enemy stats */
-    public static final float ZOMBIE_SPEED = 60f;
+    public static final float SHADE_SPEED = 30f;
 
     /** HP values */
     public static final int PLAYER_HP = 6;
-    public static final int ZOMBIE_HP = 15;
+    public static final int SHADE_HP = 15;
     public static final int TREE_HP = 3;
     public static final int ROCK_HP = 3;
 }

@@ -2,11 +2,14 @@ package com.ashveil;
 
 import com.ashveil.entities.Player;
 import com.ashveil.items.ItemStack;
+import com.ashveil.items.Recipe;
 import com.ashveil.world.DayNightCycle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+
+import java.util.List;
 
 import static com.ashveil.Config.SCREEN_HEIGHT;
 import static com.ashveil.Config.SCREEN_WIDTH;
@@ -22,7 +25,7 @@ public class HudRenderer {
         font = new BitmapFont();
     }
 
-    public void render(Player player, DayNightCycle dayNightCycle){
+    public void render(Player player, DayNightCycle dayNightCycle, boolean craftingOpen, List<Recipe> recipes){
         shapeRenderer.setProjectionMatrix(
             new Matrix4().setToOrtho2D(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 
@@ -69,6 +72,21 @@ public class HudRenderer {
             Config.SCREEN_WIDTH - 100,
             Config.SCREEN_HEIGHT - 10);
         batch.end();
+
+        if (craftingOpen) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 1f);
+            shapeRenderer.rect(100, 100, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200);
+            shapeRenderer.end();
+
+            batch.begin();
+            int y = SCREEN_HEIGHT - 130;
+            for (Recipe r : recipes) {
+                font.draw(batch, r.getResultType().name(), 130, y);
+                y -= 25;
+            }
+            batch.end();
+        }
     }
 
     public void dispose(){

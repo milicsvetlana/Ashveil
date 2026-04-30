@@ -3,8 +3,9 @@ package com.ashveil.world;
 import com.ashveil.Config;
 import com.ashveil.entities.Entity;
 import com.ashveil.entities.Player;
-import com.ashveil.entities.ZombieEnemy;
-import com.ashveil.items.ItemType;
+import com.ashveil.entities.Shade;
+import com.ashveil.items.CraftingManager;
+import com.ashveil.items.Recipe;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
 import com.badlogic.gdx.Gdx;
@@ -17,12 +18,16 @@ import java.util.Random;
 public class World {
 
     private Random random = new Random();
+
     private TileMap tileMap;
-    private Player player;
     private DayNightCycle dayNightCycle;
-    private List<ZombieEnemy> zombies;
+
+    private CraftingManager craftingManager;
     private List<WorldItem> groundItems;
     private List<ResourceObject> resourceObjects;
+
+    private Player player;
+    private List<Shade> shades;
 
     public World(){
         tileMap = new TileMap();
@@ -30,9 +35,9 @@ public class World {
             Config.WORLD_WIDTH * Config.TILE_SIZE / 2f,
             Config.WORLD_HEIGHT * Config.TILE_SIZE / 2f,
             tileMap);
-        zombies = new ArrayList<>();
+        shades = new ArrayList<>();
         groundItems = new ArrayList<>();
-
+        craftingManager = new CraftingManager();
         spawnObjects();
 
         dayNightCycle = new DayNightCycle();
@@ -41,7 +46,7 @@ public class World {
     public void update(float delta){
         player.update(delta);
 
-        for (ZombieEnemy z : zombies){
+        for (Shade z : shades){
             z.update(delta);
         }
 
@@ -56,7 +61,7 @@ public class World {
         player.move(dx, dy, delta);
 
         if (dayNightCycle.justBecameNight()){
-            spawnZombies();
+            spawnShades();
         }
 
         handleCollisions();
@@ -68,7 +73,7 @@ public class World {
     }
 
     private void handleCollisions() {
-        for (ZombieEnemy z : zombies){
+        for (Shade z : shades){
             if (isColliding(player, z)){
                 player.takeDamage(1);
             }
@@ -77,9 +82,9 @@ public class World {
 
     private void handleCombat(){
         if (Gdx.input.isKeyJustPressed(Input.Keys.K) && player.canAttack()){
-            player.attack(zombies);
+            player.attack(shades);
             player.resetAttackCooldown();
-            zombies.removeIf(ZombieEnemy::isDead);
+            shades.removeIf(Shade::isDead);
         }
     }
 
@@ -114,7 +119,7 @@ public class World {
             a.getY() + Config.TILE_SIZE > b.getY();
     }
 
-    private void spawnZombies(){
+    private void spawnShades(){
         int zx;
         int zy;
         for (int i=0; i < dayNightCycle.getDayCount()*2; i++) {
@@ -123,7 +128,7 @@ public class World {
                 zy = random.nextInt(Config.WORLD_HEIGHT);
             } while (tileMap.getTile(zx, zy) == TileType.WATER);
 
-            zombies.add(new ZombieEnemy(zx * Config.TILE_SIZE, zy * Config.TILE_SIZE, player));
+            shades.add(new Shade(zx * Config.TILE_SIZE, zy * Config.TILE_SIZE, player));
         }
     }
 
@@ -144,9 +149,17 @@ public class World {
         }
     }
 
+    public void tryCraft(Recipe recipe) {
+        craftingManager.craft(recipe, player.getInventory());
+    }
+
+    public List<Recipe> getRecipes(){
+        return craftingManager.getRecipes();
+    }
+
     public TileMap getTileMap(){return tileMap;}
     public Player getPlayer(){return player;}
-    public List<ZombieEnemy> getZombies() { return zombies; }
+    public List<Shade> getShades() { return shades; }
     public List<WorldItem> getGroundItems() {return groundItems;}
     public List<ResourceObject> getResourceObjects() {return resourceObjects;}
     public DayNightCycle getDayNightCycle() {return dayNightCycle;}

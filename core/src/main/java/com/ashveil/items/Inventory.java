@@ -12,7 +12,7 @@ public class Inventory {
     public void addItem(ItemType type, int amount){
         boolean found = false;
         for (ItemStack item : slots){
-            if(item == null) break;
+            if(item == null) continue;
             if (type.equals(item.getType())){
                 int current = item.getQuantity();
                 item.setQuantity(current += amount);
@@ -29,7 +29,38 @@ public class Inventory {
         }
     }
 
+    public void removeItem(ItemType type, int amount){
+        int i = 0;
+        for (ItemStack item : slots){
+            if(item == null) continue;
+            if (type.equals(item.getType())){
+                int current = item.getQuantity();
+                if (current <= amount){
+                    amount -= current;
+                    slots[i] = null;
+                }
+                else{
+                    item.setQuantity(current - amount);
+                    return;
+                }
+            }
+            i++;
+        }
+    }
+
+    public int getQuantity(ItemType type){
+        boolean found = false;
+        for (ItemStack item : slots){
+            if(item == null) continue;
+            if (type.equals(item.getType())){
+                return item.getQuantity();
+            }
+        }
+        return 0;
+    }
+
     public ItemStack[] getSlots() {
         return slots;
     }
+
 }

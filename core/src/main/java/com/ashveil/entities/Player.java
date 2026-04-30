@@ -3,7 +3,6 @@ package com.ashveil.entities;
 import com.ashveil.Config;
 import com.ashveil.items.Inventory;
 import com.ashveil.objects.ResourceObject;
-import com.ashveil.objects.ResourceType;
 import com.ashveil.world.TileMap;
 import com.ashveil.world.WorldItem;
 
@@ -97,8 +96,8 @@ public class Player extends Entity{
         return dot >= minDot;
     }
 
-    public void attack(List<ZombieEnemy> zombies){
-        for (ZombieEnemy z : zombies){
+    public void attack(List<Shade> shades){
+        for (Shade z : shades){
             if (!isTargetInFrontCone(
                 z.getCenterX(),
                 z.getCenterY(),
