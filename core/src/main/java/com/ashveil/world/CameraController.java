@@ -11,7 +11,7 @@ public class CameraController {
         camera.setToOrtho(false, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
     }
 
-    public void update(float playerX, float playerY) {
+    public void update(float playerX, float playerY, float delta) {
 
         float mapWidth = Config.WORLD_WIDTH * Config.TILE_DRAW_SIZE;
         float mapHeight = Config.WORLD_HEIGHT * Config.TILE_DRAW_SIZE;
@@ -22,8 +22,12 @@ public class CameraController {
         float targetY = Math.max(Config.SCREEN_HEIGHT / 2f,
                      Math.min(playerY, mapHeight - Config.SCREEN_HEIGHT / 2f));
 
-        camera.position.x += (targetX - camera.position.x) * 0.2f;
-        camera.position.y += (targetY - camera.position.y) * 0.2f;
+        //brzina kojom kamera prati igraca, mnozenje s delta cini pracenje nezavisnim od FPS
+        //alpha ogranicavamo na 1 da kamera ne bi presla slucajno preko ciljne pozicije u nekom trenutku
+        float alpha = Math.min(1f, Config.CAMERA_SMOOTHING * delta);
+
+        camera.position.x += (targetX - camera.position.x) * alpha;
+        camera.position.y += (targetY - camera.position.y) * alpha;
 
         camera.update();
     }

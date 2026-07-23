@@ -8,8 +8,7 @@ import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.Recipe;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.ashveil.input.PlayerInput;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,31 +42,24 @@ public class World {
         dayNightCycle = new DayNightCycle();
     }
 
-    public void update(float delta){
+    public void update(float delta, PlayerInput playerInput){
         player.update(delta);
 
         for (Shade z : shades){
             z.update(delta);
         }
 
-        float dx = 0f;
-        float dy = 0f;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) dy += 1f;
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) dy -= 1f;
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) dx -= 1f;
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) dx += 1f;
-
-        player.move(dx, dy, delta);
+        player.move(playerInput.getMoveX(), playerInput.getMoveY(), delta);
 
         if (dayNightCycle.justBecameNight()){
             spawnShades();
         }
 
         handleCollisions();
-        handleCombat();
-        handleHarvesting();
-        handlePickup();
+        handleCombat(playerInput);
+        handleHarvesting(playerInput);
+        handlePickup(playerInput);
 
         dayNightCycle.update(delta);
     }
@@ -80,16 +72,16 @@ public class World {
         }
     }
 
-    private void handleCombat(){
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K) && player.canAttack()){
+    private void handleCombat(PlayerInput playerInput){
+        if (playerInput.isPrimaryActionPressed() && player.canAttack()){
             player.attack(shades);
             player.resetAttackCooldown();
             shades.removeIf(Shade::isDead);
         }
     }
 
-    private void handleHarvesting(){
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K) && player.canHarvest()){
+    private void handleHarvesting(PlayerInput playerInput){
+        if (playerInput.isPrimaryActionPressed() && player.canHarvest()){
             player.harvest(resourceObjects);
             player.resetHarvestCooldown();
             for (ResourceObject o : resourceObjects){
@@ -105,8 +97,8 @@ public class World {
         }
     }
 
-    private void handlePickup() {
-        if (Gdx.input.isKeyPressed(Input.Keys.E)){
+    private void handlePickup(PlayerInput playerInput) {
+        if (playerInput.isInteractPressed()){
             WorldItem toRemove = player.pickUp(groundItems);
             if (toRemove != null) groundItems.remove(toRemove);
         }
@@ -128,7 +120,7 @@ public class World {
                 zy = random.nextInt(Config.WORLD_HEIGHT);
             } while (tileMap.getTile(zx, zy) == TileType.WATER);
 
-            shades.add(new Shade(zx * Config.TILE_SIZE, zy * Config.TILE_SIZE, player));
+            shades.add(new Shade(zx * Config.TILE_SIZE, zy * Config.TILE_SIZE, player, tileMap));
         }
     }
 

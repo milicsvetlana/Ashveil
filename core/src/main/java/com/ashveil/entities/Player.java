@@ -31,18 +31,30 @@ public class Player extends Entity{
     }
 
     public void move(float dx, float dy, float delta) {
-        float newX = x + dx * speed * delta;
-        float newY = y + dy * speed * delta;
-
         if (dx > 0) facing = Facing.RIGHT;
         else if (dx < 0) facing = Facing.LEFT;
         else if (dy > 0) facing = Facing.UP;
         else if (dy < 0) facing = Facing.DOWN;
 
+        //deo koji normalizuje dijagonalno kretanje, jer bi se inače
+        //dijagonalno kretao 41% brže, (koren iz 2 naspram 1)
+        float length = (float) Math.sqrt(dx * dx + dy * dy);
+
+        if (length > 0f) {
+            dx /= length;
+            dy /= length;
+        }
+
+        float newX = x + dx * speed * delta;
+        float newY = y + dy * speed * delta;
+
+
+        //to sto se kolizija proverava odvojeno za X i Y je dobro zato
+        //sto omogucava bolje kretanje uz zid - da ne blokira ako drzimo
+        //i desno i gore, da, ako je iznad nas zid, i dalje mozemo desno
         if (!isCollidingAt(newX, y)) {
             x = newX;
         }
-
         if (!isCollidingAt(x, newY)) {
             y = newY;
         }
@@ -128,8 +140,9 @@ public class Player extends Entity{
             float dimY = i.getY() - y;
             double dist = Math.sqrt(dimX * dimX + dimY * dimY);
             if (dist > Config.PLAYER_PICKUP_RANGE) continue;
-            inventory.addItem(i.getType(), i.getAmount());
-            return i;
+
+            boolean added = inventory.addItem(i.getType(), i.getAmount());
+            if (added) return i;
         }
         return null;
     }

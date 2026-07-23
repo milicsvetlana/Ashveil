@@ -9,29 +9,29 @@ public class Inventory {
         this.slots = new ItemStack[Config.INVENTORY_SIZE];
     }
 
-    public void addItem(ItemType type, int amount){
-        boolean found = false;
+    //true znači da je predmet dodat ili spojen s postojećim stackom
+    //false znači da je inventori pun
+    public boolean addItem(ItemType type, int amount){
         for (ItemStack item : slots){
             if(item == null) continue;
             if (type.equals(item.getType())){
                 int current = item.getQuantity();
-                item.setQuantity(current += amount);
-                found = true;
+                item.setQuantity(current + amount);
+                return true;
             }
         }
-        if (!found){
-            for (int i = 0; i < slots.length; i++) {
-                if (slots[i] == null) {
-                    slots[i] = new ItemStack(type, amount);
-                    return;
-                }
+        for (int i = 0; i < slots.length; i++) {
+            if (slots[i] == null) {
+                slots[i] = new ItemStack(type, amount);
+                return true;
             }
         }
+        return false;
     }
 
     public void removeItem(ItemType type, int amount){
-        int i = 0;
-        for (ItemStack item : slots){
+        for (int i=0; i< slots.length; i++){
+            ItemStack item = slots[i];
             if(item == null) continue;
             if (type.equals(item.getType())){
                 int current = item.getQuantity();

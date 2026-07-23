@@ -23,6 +23,7 @@ public class HudRenderer {
 
     private CraftingCategory selectedCategory;
     private int selectedRecipeIndex;
+    Recipe selectedRecipe;
 
     public HudRenderer(){
         shapeRenderer = new ShapeRenderer();
@@ -30,6 +31,7 @@ public class HudRenderer {
         font = new BitmapFont();
         selectedCategory = CraftingCategory.WEAPONS;
         selectedRecipeIndex = 0;
+        selectedRecipe = null;
     }
 
     public void render(Player player, DayNightCycle dayNightCycle, boolean craftingOpen, List<Recipe> recipes){
@@ -132,4 +134,3 @@ public class HudRenderer {
     }
 
 }
-

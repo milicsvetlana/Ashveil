@@ -12,6 +12,7 @@ public class Config {
     public static final int WORLD_HEIGHT = 100;
     public static final int SCREEN_WIDTH = 1280;
     public static final int SCREEN_HEIGHT = 720;
+    public static final float CAMERA_SMOOTHING = 12f;
 
     /** Inventory */
     public static final int INVENTORY_SIZE = 5;
