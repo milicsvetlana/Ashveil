@@ -6,6 +6,7 @@ import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.rendering.HudRenderer;
 import com.ashveil.rendering.WorldRenderer;
 import com.ashveil.input.PlayerInput;
+import com.ashveil.input.KeyBindings;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -20,6 +21,7 @@ public class GameScreen implements Screen {
     private World world;
     private CameraController cameraController;
     private boolean menuOpen;
+    private KeyBindings keyBindings;
 
     public GameScreen(GameApp game){
         this.game = game;
@@ -28,13 +30,14 @@ public class GameScreen implements Screen {
         world = new World();
         hudRenderer = new HudRenderer();
         menuOpen = false;
+        keyBindings = new KeyBindings();
     }
 
     @Override
     public void render(float delta) { // delta je vreme proteklo od prethodnog frejma, u sekundama (za 60FPS je 0.016s)
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
         PlayerInput playerInput = readPlayerInput();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) menuOpen = !menuOpen;
+        if (Gdx.input.isKeyJustPressed(keyBindings.getToggleOverlayKey())) menuOpen = !menuOpen;
 
         if (menuOpen) {
             handleMenuInput();
@@ -62,32 +65,24 @@ public class GameScreen implements Screen {
         float moveX = 0f;
         float moveY = 0f;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) moveY += 1f;
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) moveY -= 1f;
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) moveX -= 1f;
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) moveX += 1f;
+        if (Gdx.input.isKeyPressed(keyBindings.getMoveUpKey())) moveY += 1f;
+        if (Gdx.input.isKeyPressed(keyBindings.getMoveDownKey())) moveY -= 1f;
+        if (Gdx.input.isKeyPressed(keyBindings.getMoveLeftKey())) moveX -= 1f;
+        if (Gdx.input.isKeyPressed(keyBindings.getMoveRightKey())) moveX += 1f;
 
-        boolean primaryActionPressed = Gdx.input.isKeyJustPressed(Input.Keys.K);
-        boolean interactPressed = Gdx.input.isKeyJustPressed(Input.Keys.E);
-        boolean useItemPressed = Gdx.input.isKeyJustPressed(Input.Keys.F);
-        boolean dropItemPressed = Gdx.input.isKeyJustPressed(Input.Keys.Q);
+        boolean primaryActionPressed = Gdx.input.isKeyJustPressed(keyBindings.getPrimaryActionKey());
+        boolean interactPressed = Gdx.input.isKeyJustPressed(keyBindings.getInteractKey());
+        boolean useItemPressed = Gdx.input.isKeyJustPressed(keyBindings.getUseItemKey());
+        boolean dropItemPressed = Gdx.input.isKeyJustPressed(keyBindings.getDropItemKey());
 
-        boolean controlPressed = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT);
+        boolean controlPressed = Gdx.input.isKeyPressed(keyBindings.getDropWholeStackModifierKey());
         boolean dropWholeStack = dropItemPressed && controlPressed;
 
-        boolean dashPressed = Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_RIGHT);
+        boolean dashPressed = Gdx.input.isKeyJustPressed(keyBindings.getDashKey());
         int selectedHotbarSlot = -1;
 
-        int[] hotbarKeys = {
-            Input.Keys.NUM_1,
-            Input.Keys.NUM_2,
-            Input.Keys.NUM_3,
-            Input.Keys.NUM_4,
-            Input.Keys.NUM_5
-        };
-
-        for (int i = 0; i < hotbarKeys.length; i++) {
-            if (Gdx.input.isKeyJustPressed(hotbarKeys[i])) {
+        for (int i = 0; i < keyBindings.getHotbarSize(); i++) {
+            if (Gdx.input.isKeyJustPressed(keyBindings.getHotbarKey(i))) {
                 selectedHotbarSlot = i;
                 break;
             }
