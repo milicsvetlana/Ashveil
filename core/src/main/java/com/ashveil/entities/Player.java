@@ -10,16 +10,19 @@ import java.util.List;
 
 public class Player extends Entity{
 
-    private TileMap tileMap;
-    private Inventory inventory;
+    private final TileMap tileMap;
+    private final Inventory inventory;
 
     private float damageCooldown = 0f;
     private float primaryActionCooldown  = 0f;
+
+    private int selectedHotbarSlot;
 
     public Player(float x, float y, TileMap tileMap) {
         super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED);
         this.tileMap = tileMap;
         inventory = new Inventory();
+        selectedHotbarSlot = 0;
     }
 
     @Override
@@ -153,4 +156,12 @@ public class Player extends Entity{
     public int getCurrentHp() {return currentHp;}
     public int getMaxHp() {return maxHp;}
     public Inventory getInventory() {return inventory;}
+    public int getSelectedHotbarSlot() {
+        return selectedHotbarSlot;
+    }
+
+    public void setSelectedHotbarSlot(int selectedHotbarSlot) {
+        if (selectedHotbarSlot < 0 ||  selectedHotbarSlot >= Config.HOTBAR_SIZE) return;
+        this.selectedHotbarSlot = selectedHotbarSlot;
+    }
 }

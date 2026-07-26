@@ -81,9 +81,9 @@ public class HudRenderer {
     private void drawHotbar(Player player){
         ItemStack[] slots = player.getInventory().getSlots();
         int slotSize = 40;
-        int startX = Config.SCREEN_WIDTH / 2 - (slots.length * slotSize) / 2;
+        int startX = Config.SCREEN_WIDTH / 2 - (Config.HOTBAR_SIZE * slotSize) / 2;
 
-        for (int i = 0; i < slots.length; i++) {
+        for (int i = 0; i < Config.HOTBAR_SIZE; i++) {
             if (slots[i] != null) {
                 shapeRenderer.setColor(0.9f, 0.5f, 0.1f, 1f);
             } else {

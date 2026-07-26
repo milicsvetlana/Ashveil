@@ -3,7 +3,7 @@ package com.ashveil.items.inventory;
 import com.ashveil.Config;
 
 public class Inventory {
-    ItemStack[] slots;
+    private final ItemStack[] slots;
 
     public Inventory() {
         this.slots = new ItemStack[Config.INVENTORY_SIZE];
@@ -44,12 +44,10 @@ public class Inventory {
                     return;
                 }
             }
-            i++;
         }
     }
 
     public int getQuantity(ItemType type){
-        boolean found = false;
         for (ItemStack item : slots){
             if(item == null) continue;
             if (type.equals(item.getType())){
@@ -63,4 +61,28 @@ public class Inventory {
         return slots;
     }
 
+    public ItemType getItemTypeBySlot(int slotIndex){
+        if (slotIndex < 0 || slotIndex >= slots.length) return null;
+        if (slots[slotIndex] == null) return null;
+        return slots[slotIndex].getType();
+    }
+    public int getQuantityBySlot(int slotIndex){
+        if (slotIndex < 0 || slotIndex >= slots.length) return 0;
+        if (slots[slotIndex] == null) return 0;
+        return slots[slotIndex].getQuantity();
+    }
+    public void removeFromSlot(int slotIndex, int amount){
+        if (slotIndex < 0 || slotIndex >= slots.length) return;
+        if (amount <= 0) return;
+        ItemStack item = slots[slotIndex];
+        if(item == null) return;
+
+        int current = item.getQuantity();
+        if (current <= amount){
+            slots[slotIndex] = null;
+        }
+        else{
+            item.setQuantity(current - amount);
+        }
+    }
 }

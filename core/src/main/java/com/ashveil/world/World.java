@@ -6,6 +6,7 @@ import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.Recipe;
+import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
 import com.ashveil.input.PlayerInput;
@@ -50,7 +51,6 @@ public class World {
             z.update(delta);
         }
 
-
         player.move(playerInput.getMoveX(), playerInput.getMoveY(), delta);
 
         if (dayNightCycle.justBecameNight()){
@@ -58,9 +58,10 @@ public class World {
         }
 
         handleCollisions();
+        handleHotbarSelection(playerInput);
         handlePrimaryAction(playerInput);
         handlePickup(playerInput);
-
+        handleDropItem(playerInput);
         dayNightCycle.update(delta);
     }
 
@@ -96,6 +97,27 @@ public class World {
             WorldItem toRemove = player.pickUp(groundItems);
             if (toRemove != null) groundItems.remove(toRemove);
         }
+    }
+
+    private void handleHotbarSelection(PlayerInput playerInput){
+        int selectedSlot = playerInput.getSelectedHotbarSlot();
+        if (selectedSlot == -1) return;
+        player.setSelectedHotbarSlot(selectedSlot);
+    }
+
+    private void handleDropItem(PlayerInput playerInput){
+        if (!playerInput.isDropItemPressed()) return;
+        ItemType itemType = player.getInventory().getItemTypeBySlot(player.getSelectedHotbarSlot());
+        if (itemType == null) return;
+        int quantity = 1;
+
+        if (playerInput.isDropWholeStack()){
+            quantity = player.getInventory().getQuantityBySlot(player.getSelectedHotbarSlot());
+        }
+
+        player.getInventory().removeFromSlot(player.getSelectedHotbarSlot(), quantity);
+        groundItems.add(new WorldItem(player.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+            player.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE, itemType, quantity));
     }
 
     private boolean isColliding(Entity a, Entity b){

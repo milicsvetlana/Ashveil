@@ -69,8 +69,32 @@ public class GameScreen implements Screen {
 
         boolean primaryActionPressed = Gdx.input.isKeyJustPressed(Input.Keys.K);
         boolean interactPressed = Gdx.input.isKeyJustPressed(Input.Keys.E);
+        boolean useItemPressed = Gdx.input.isKeyJustPressed(Input.Keys.F);
+        boolean dropItemPressed = Gdx.input.isKeyJustPressed(Input.Keys.Q);
 
-        return new PlayerInput(moveX, moveY, primaryActionPressed, interactPressed);
+        boolean controlPressed = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT);
+        boolean dropWholeStack = dropItemPressed && controlPressed;
+
+        boolean dashPressed = Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_RIGHT);
+        int selectedHotbarSlot = -1;
+
+        int[] hotbarKeys = {
+            Input.Keys.NUM_1,
+            Input.Keys.NUM_2,
+            Input.Keys.NUM_3,
+            Input.Keys.NUM_4,
+            Input.Keys.NUM_5
+        };
+
+        for (int i = 0; i < hotbarKeys.length; i++) {
+            if (Gdx.input.isKeyJustPressed(hotbarKeys[i])) {
+                selectedHotbarSlot = i;
+                break;
+            }
+        }
+
+        return new PlayerInput(moveX, moveY, primaryActionPressed, interactPressed, useItemPressed, dropItemPressed, dropWholeStack,
+            dashPressed, selectedHotbarSlot);
     }
 
     private void handleMenuInput(){
