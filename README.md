@@ -2,111 +2,61 @@
 
 Ashveil is a 2D top-down survival game developed in Java using LibGDX.
 
-## About
-
-The project focuses on building reliable gameplay systems and a clean object-oriented architecture before introducing final assets, animations, audio, and visual polish.
-
-Gameplay logic, rendering, input handling, world data, and UI are kept separated so that individual systems can be expanded without tightly coupling the entire project.
-
-## Current State
-
-Ashveil is currently in active development.
-
-The core gameplay foundation is functional, while most visual elements are still represented by simple placeholder shapes. The project now uses Tiled maps for world rendering and static collision data.
-
-Custom pixel art, animations, sound effects, multiple areas, and additional gameplay systems will be introduced gradually.
+The project focuses on building gameplay systems and a clean object-oriented architecture. Most visuals are currently placeholders and will be replaced with custom pixel art, animations, audio, and visual effects as development continues.
 
 ## Current Features
 
-- Tiled map loading and rendering
-- Collision defined through a dedicated Tiled collision layer
-- Camera movement limited to map boundaries
-- Player movement with diagonal movement normalization
-- Configurable input-binding structure
-- Simple enemy movement and combat
-- Direction-based melee attacks
+- Tiled map rendering and collision
+- Player movement and camera tracking
+- Enemy movement and melee combat
 - Resource harvesting
 - Procedural resource and enemy spawning
-- Item drops and ground-item pickup
+- Item pickup and dropping
 - Inventory and five-slot hotbar
-- Single-item and full-stack dropping
-- Basic crafting system
+- Basic crafting
 - Day and night cycle
-- Basic health, hotbar, crafting, and day HUD
-- Responsive HUD in windowed and fullscreen modes
+- Responsive HUD
 - Basic death and game-over flow
 
 ## Architecture
 
-The central `World` class owns the current game state and coordinates gameplay updates.
+Gameplay logic, rendering, input, UI, and map data are separated into dedicated classes and packages.
 
-The project separates responsibilities between several systems:
-
-- `World` manages entities, resources, items, crafting, and gameplay events.
-- `TileMap` loads the Tiled map and provides map dimensions and collision information.
-- `WorldRenderer` renders the map, entities, resources, and ground items.
-- `HudRenderer` renders interface elements independently from the game world.
-- `CameraController` follows the player while respecting map boundaries.
-- `PlayerInput` represents gameplay input without directly coupling entities to LibGDX controls.
-- `KeyBindings` stores the current control configuration and prepares the project for future user-defined controls.
+- `World` manages the current game state and gameplay updates.
+- `TileMap` loads the Tiled map and provides collision data.
+- `WorldRenderer` renders the world and entities.
+- `HudRenderer` renders the user interface.
+- `CameraController` follows the player within map boundaries.
+- `PlayerInput` and `KeyBindings` keep controls separate from entity logic.
 
 ## Controls
 
 | Control | Action |
 |---|---|
 | `W`, `A`, `S`, `D` | Move |
-| `K` | Primary action / attack / harvest |
+| `K` | Attack / harvest |
 | `E` | Interact / pick up |
 | `F` | Use item |
-| `Q` | Drop one item from the selected hotbar slot |
-| `Left Ctrl + Q` | Drop the entire selected stack |
+| `Q` | Drop one item |
+| `Left Ctrl + Q` | Drop the full stack |
 | `Left Shift` | Dash |
 | `1–5` | Select hotbar slot |
 | `Tab` | Open or close the crafting overlay |
 
-## Project Structure
+## Planned Features
 
-The project is divided into focused packages for:
+- Improved combat and enemy behavior
+- Tools and durability
+- Farming and building
+- Save and load system
+- Multiple islands and map transitions
+- Settings and control rebinding
+- Tutorial and progression systems
+- Custom pixel art, animations, and audio
 
-- application and screens
-- entities
-- world systems
-- input handling
-- rendering
-- items and inventory
-- crafting
-- resources and world objects
+## Gameplay
 
-This structure is intended to keep gameplay logic independent from rendering and platform-specific input code.
-
-## Screenshot
-
-Gameplay screenshot will be added as the visual side of the project develops.
-
-## Development Goals
-
-Planned systems include:
-
-- improved combat and enemy behavior
-- tools and durability
-- expanded crafting
-- farming and building
-- save and load support
-- settings and control rebinding
-- multiple islands and map transitions
-- tutorial progression
-- shops and progression systems
-- custom pixel art, animations, audio, and visual effects
-
-## Purpose
-
-This project is primarily used to practice:
-
-- object-oriented game architecture
-- separation of responsibilities
-- real-time update loops
-- input abstraction
-- collision systems
-- map integration
-- entity and resource management
-- incremental development of larger gameplay systems
+<p align="center">
+  <img src="assets/screenshots/gameplay1.jpg" alt="Ashveil gameplay screenshot 1" width="48%">
+  <img src="assets/screenshots/gameplay2.jpg" alt="Ashveil gameplay screenshot 2" width="48%">
+</p>
