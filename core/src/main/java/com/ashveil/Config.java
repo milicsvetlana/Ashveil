@@ -23,8 +23,7 @@ public class Config {
     public static final float PLAYER_ATTACK_HARVEST_RANGE = 60f;
     public static final float PLAYER_ATTACK_MIN_DOT = 0.75f; /*For smaller angle, increase*/
     public static final float PLAYER_HARVEST_MIN_DOT = 0.55f;
-    public static final float PLAYER_ATTACK_COOLDOWN = 0.1f;
-    public static final float PLAYER_HARVEST_COOLDOWN = 0.5f;
+    public static final float PLAYER_PRIMARY_ACTION_COOLDOWN = 0.75f;
     public static final float PLAYER_PICKUP_RANGE = TILE_SIZE * 2;
 
     /** Day/night cycle */

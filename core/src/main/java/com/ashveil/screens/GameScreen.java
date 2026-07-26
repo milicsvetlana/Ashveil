@@ -2,6 +2,7 @@ package com.ashveil.screens;
 
 import com.ashveil.Config;
 import com.ashveil.GameApp;
+import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.rendering.HudRenderer;
 import com.ashveil.rendering.WorldRenderer;
 import com.ashveil.input.PlayerInput;
@@ -10,8 +11,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ScreenUtils;
-
-import java.awt.*;
 
 public class GameScreen implements Screen {
 
@@ -34,23 +33,21 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) { // delta je vreme proteklo od prethodnog frejma, u sekundama (za 60FPS je 0.016s)
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
-
+        PlayerInput playerInput = readPlayerInput();
         if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) menuOpen = !menuOpen;
 
-        if (menuOpen && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            float mx = Gdx.input.getX();
-            float my = Config.SCREEN_HEIGHT - Gdx.input.getY();
-            var clicked = hudRenderer.getCategoryAtClick(mx, my);
-            if (clicked != null) hudRenderer.setSelectedCategory(clicked);
+        if (menuOpen) {
+            handleMenuInput();
         }
-        PlayerInput playerInput = readPlayerInput();
-        world.update(delta, playerInput);
-        if (world.getPlayer().isDead()){
-            game.setScreen(new GameOverScreen(game));
-            dispose();
-            return;
+        else {
+            world.update(delta, playerInput);
+            if (world.getPlayer().isDead()){
+                game.setScreen(new GameOverScreen(game));
+                dispose();
+                return;
+            }
+            cameraController.update(world.getPlayer().getCenterX() * Config.SCALE, world.getPlayer().getCenterY() * Config.SCALE, delta);
         }
-        cameraController.update(world.getPlayer().getCenterX() * Config.SCALE, world.getPlayer().getCenterY() * Config.SCALE, delta);
         worldRenderer.render(world, cameraController);
         hudRenderer.render(world.getPlayer(), world.getDayNightCycle(), menuOpen, world.getRecipes());
     }
@@ -74,6 +71,14 @@ public class GameScreen implements Screen {
         boolean interactPressed = Gdx.input.isKeyJustPressed(Input.Keys.E);
 
         return new PlayerInput(moveX, moveY, primaryActionPressed, interactPressed);
+    }
+
+    private void handleMenuInput(){
+        if (!Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) return;
+        float mx = Gdx.input.getX();
+        float my = Config.SCREEN_HEIGHT - Gdx.input.getY();
+        CraftingCategory clicked = hudRenderer.getCategoryAtClick(mx, my);
+        if (clicked != null) hudRenderer.setSelectedCategory(clicked);
     }
 
     @Override public void resize(int i, int i1) {}

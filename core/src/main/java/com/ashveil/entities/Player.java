@@ -14,8 +14,7 @@ public class Player extends Entity{
     private Inventory inventory;
 
     private float damageCooldown = 0f;
-    private float attackCooldown = 0f;
-    private float harvestCooldown = 0f;
+    private float primaryActionCooldown  = 0f;
 
     public Player(float x, float y, TileMap tileMap) {
         super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED);
@@ -26,8 +25,7 @@ public class Player extends Entity{
     @Override
     public void update(float delta) {
         if (damageCooldown > 0) damageCooldown -= delta;
-        if (attackCooldown > 0) attackCooldown -= delta;
-        if (harvestCooldown > 0) harvestCooldown -= delta;
+        if (primaryActionCooldown  > 0) primaryActionCooldown  -= delta;
     }
 
     public void move(float dx, float dy, float delta) {
@@ -148,11 +146,8 @@ public class Player extends Entity{
     }
 
 
-    public boolean canAttack(){return attackCooldown <= 0;}
-    public void resetAttackCooldown() {attackCooldown = Config.PLAYER_ATTACK_COOLDOWN;}
-
-    public boolean canHarvest(){return harvestCooldown <= 0;}
-    public void resetHarvestCooldown() {harvestCooldown = Config.PLAYER_HARVEST_COOLDOWN;}
+    public boolean canUsePrimaryAction(){return primaryActionCooldown <= 0;}
+    public void resetPrimaryActionCooldown() {primaryActionCooldown = Config.PLAYER_PRIMARY_ACTION_COOLDOWN;}
 
     public Facing getFacing() {return facing;}
     public int getCurrentHp() {return currentHp;}

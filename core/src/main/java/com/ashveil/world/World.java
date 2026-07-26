@@ -16,17 +16,17 @@ import java.util.Random;
 
 public class World {
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
-    private TileMap tileMap;
-    private DayNightCycle dayNightCycle;
+    private final TileMap tileMap;
+    private final DayNightCycle dayNightCycle;
 
-    private CraftingManager craftingManager;
-    private List<WorldItem> groundItems;
-    private List<ResourceObject> resourceObjects;
+    private final CraftingManager craftingManager;
+    private final List<WorldItem> groundItems;
+    private final List<ResourceObject> resourceObjects;
 
-    private Player player;
-    private List<Shade> shades;
+    private final Player player;
+    private final List<Shade> shades;
 
     public World(){
         tileMap = new TileMap();
@@ -37,6 +37,7 @@ public class World {
         shades = new ArrayList<>();
         groundItems = new ArrayList<>();
         craftingManager = new CraftingManager();
+        resourceObjects = new ArrayList<>();
         spawnObjects();
 
         dayNightCycle = new DayNightCycle();
@@ -57,8 +58,7 @@ public class World {
         }
 
         handleCollisions();
-        handleCombat(playerInput);
-        handleHarvesting(playerInput);
+        handlePrimaryAction(playerInput);
         handlePickup(playerInput);
 
         dayNightCycle.update(delta);
@@ -72,25 +72,19 @@ public class World {
         }
     }
 
-    private void handleCombat(PlayerInput playerInput){
-        if (playerInput.isPrimaryActionPressed() && player.canAttack()){
+    private void handlePrimaryAction(PlayerInput playerInput){
+        if (playerInput.isPrimaryActionPressed() && player.canUsePrimaryAction()){
             player.attack(shades);
-            player.resetAttackCooldown();
             shades.removeIf(Shade::isDead);
-        }
-    }
-
-    private void handleHarvesting(PlayerInput playerInput){
-        if (playerInput.isPrimaryActionPressed() && player.canHarvest()){
             player.harvest(resourceObjects);
-            player.resetHarvestCooldown();
+            player.resetPrimaryActionCooldown();
             for (ResourceObject o : resourceObjects){
                 if (o.isDestroyed()){
 
                     groundItems.add(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                                  o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                                    o.getType().drop,
-                            random.nextInt(o.getType().maxDrop - o.getType().minDrop + 1) + o.getType().minDrop));
+                        o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                        o.getType().drop,
+                        random.nextInt(o.getType().maxDrop - o.getType().minDrop + 1) + o.getType().minDrop));
                 }
             }
             resourceObjects.removeIf(ResourceObject::isDestroyed);
@@ -129,7 +123,6 @@ public class World {
         int ry;
         int type;
         int numberOfItems = random.nextInt(101) + 50;
-        resourceObjects = new ArrayList<>();
         for (int i=0; i < numberOfItems; i++) {
             do {
                 rx = random.nextInt(Config.WORLD_WIDTH);
