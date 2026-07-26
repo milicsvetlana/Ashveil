@@ -5,47 +5,33 @@ import com.ashveil.entities.Shade;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
 import com.ashveil.world.CameraController;
-import com.ashveil.world.TileType;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.ashveil.world.TileMap;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 
 public class WorldRenderer {
 
     private ShapeRenderer shapeRenderer;
+    private TiledMap tiledMap;
+    private OrthogonalTiledMapRenderer tiledMapRenderer;
 
-    public WorldRenderer() {
+    public WorldRenderer(TileMap tileMap) {
         shapeRenderer = new ShapeRenderer();
+        tiledMap = tileMap.getTiledMap();
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, Config.SCALE);
     }
 
     public void render(World world, CameraController cameraController) {
+        tiledMapRenderer.setView(cameraController.camera);
+        tiledMapRenderer.render();
+
         shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        for (int y = 0; y < Config.WORLD_HEIGHT; y++) {
-            for (int x = 0; x < Config.WORLD_WIDTH; x++) {
-                TileType tile = world.getTileMap().getTile(x, y);
-
-                if (tile == TileType.GRASS) {
-                    shapeRenderer.setColor(0.2f, 0.6f, 0.2f, 1f);
-                } else if (tile == TileType.WATER) {
-                    shapeRenderer.setColor(0.1f, 0.3f, 0.8f, 1f);
-                } else if (tile == TileType.SAND) {
-                    shapeRenderer.setColor(0.9f, 0.8f, 0.5f, 1f);
-                }
-
-                shapeRenderer.rect(
-                    x * Config.TILE_DRAW_SIZE,
-                    y * Config.TILE_DRAW_SIZE,
-                    Config.TILE_DRAW_SIZE,
-                    Config.TILE_DRAW_SIZE
-                );
-            }
-        }
-        shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
@@ -112,7 +98,24 @@ public class WorldRenderer {
         }
     }
 
+    public int getMapWidthInTiles() {
+        return tiledMap.getProperties().get("width", Integer.class);
+    }
+
+    public int getMapHeightInTiles() {
+        return tiledMap.getProperties().get("height", Integer.class);
+    }
+
+    public float getMapRenderWidth() {
+        return getMapWidthInTiles() * Config.TILE_DRAW_SIZE;
+    }
+
+    public float getMapRenderHeight() {
+        return getMapHeightInTiles() * Config.TILE_DRAW_SIZE;
+    }
+
     public void dispose() {
         shapeRenderer.dispose();
+        tiledMapRenderer.dispose();
     }
 }

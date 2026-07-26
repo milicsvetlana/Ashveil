@@ -8,8 +8,6 @@ public class Config {
     public static final float TILE_DRAW_SIZE = TILE_SIZE * SCALE;
 
     /** World and screen dimensions */
-    public static final int WORLD_WIDTH = 100;
-    public static final int WORLD_HEIGHT = 100;
     public static final int SCREEN_WIDTH = 1280;
     public static final int SCREEN_HEIGHT = 720;
     public static final float CAMERA_SMOOTHING = 12f;
@@ -36,7 +34,7 @@ public class Config {
 
     /** HP values */
     public static final int PLAYER_HP = 6;
-    public static final int SHADE_HP = 15;
+    public static final int SHADE_HP = 6;
     public static final int TREE_HP = 3;
     public static final int ROCK_HP = 3;
 }

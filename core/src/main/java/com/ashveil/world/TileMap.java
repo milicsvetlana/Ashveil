@@ -1,38 +1,45 @@
 package com.ashveil.world;
 
 import com.ashveil.Config;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 public class TileMap {
-    private TileType[][] tiles;
+    private final TiledMap tiledMap;
+    private final TiledMapTileLayer collisionLayer;
+
+    private final int width;
+    private final int height;
 
     public TileMap(){
-        tiles = new TileType[Config.WORLD_HEIGHT][Config.WORLD_WIDTH];
-        generate();
-    }
+        tiledMap = new TmxMapLoader().load("maps/test_map.tmx");
 
-    private void generate(){
-        for (int y=0; y < Config.WORLD_HEIGHT; y++){
-            for (int x=0; x < Config.WORLD_WIDTH; x++){
-                if (x < 5 || x >= Config.WORLD_WIDTH - 5 ||
-                    y < 5 || y >= Config.WORLD_HEIGHT - 5){
-                    tiles[y][x] = TileType.WATER;
-                } else if (x < 8 || x >= Config.WORLD_WIDTH - 8 ||
-                    y < 8 || y >= Config.WORLD_HEIGHT - 8) {
-                    tiles[y][x] = TileType.SAND;
-                } else {
-                    tiles[y][x] = TileType.GRASS;
-                }
-            }
-        }
-    }
+        //posto getlayers vraca opsti maplayer, mi kastujemo
+        collisionLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Collision");
 
-    public TileType getTile(int x, int y){
-        return tiles[y][x];
+        width = tiledMap.getProperties().get("width", Integer.class);
+        height = tiledMap.getProperties().get("height", Integer.class);
     }
 
     public boolean isBlocked(int x, int y){
-        if (x < 0 || x >= Config.WORLD_WIDTH || y < 0 || y >= Config.WORLD_HEIGHT) return true;
-        return tiles[y][x] == TileType.WATER;
+        if (x < 0 || x >= width || y < 0 || y >= height) return true;
+        return collisionLayer.getCell(x, y) != null;
     }
 
+    public TiledMap getTiledMap() {
+        return tiledMap;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void dispose() {
+        tiledMap.dispose();
+    }
 }

@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class HudRenderer {
         font = new BitmapFont();
         selectedCategory = CraftingCategory.WEAPONS;
         hudCamera = new OrthographicCamera();
-        hudViewport = new FitViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
+        hudViewport = new ExtendViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
         mousePosition = new Vector2();
     }
 
@@ -74,14 +74,14 @@ public class HudRenderer {
             } else {
                 shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1f);
             }
-            shapeRenderer.rect(10 + i * 25, Config.SCREEN_HEIGHT - 30, 20, 20);
+            shapeRenderer.rect(10 + i * 25, hudViewport.getWorldHeight() - 30, 20, 20);
         }
     }
 
     private void drawHotbar(Player player){
         ItemStack[] slots = player.getInventory().getSlots();
         int slotSize = 40;
-        int startX = Config.SCREEN_WIDTH / 2 - (Config.HOTBAR_SIZE * slotSize) / 2;
+        int startX = (int) ((hudViewport.getWorldWidth() / 2f) - (Config.HOTBAR_SIZE * slotSize) / 2);
 
         for (int i = 0; i < Config.HOTBAR_SIZE; i++) {
             if (slots[i] != null) {
@@ -96,24 +96,24 @@ public class HudRenderer {
     private void drawDayNightIcon(DayNightCycle dayNightCycle){
         if (!dayNightCycle.isNight()){
             shapeRenderer.setColor(1f, 0.9f, 0f, 1f);
-            shapeRenderer.rect(Config.SCREEN_WIDTH - 80f, Config.SCREEN_HEIGHT - 80f, 50, 50);
+            shapeRenderer.rect(hudViewport.getWorldWidth() - 80f, hudViewport.getWorldHeight() - 80f, 50, 50);
         }
         else{
             shapeRenderer.setColor(0.1f, 0.1f, 0.4f, 1f);
-            shapeRenderer.rect(Config.SCREEN_WIDTH - 80f, Config.SCREEN_HEIGHT - 80f, 50, 50);
+            shapeRenderer.rect(hudViewport.getWorldWidth() - 80f, hudViewport.getWorldHeight() - 80f, 50, 50);
         }
     }
 
     private void drawDayText(DayNightCycle dayNightCycle){
         font.draw(batch, "DAY: " + dayNightCycle.getDayCount(),
-            Config.SCREEN_WIDTH - 100,
-            Config.SCREEN_HEIGHT - 10);
+            hudViewport.getWorldWidth() - 100f,
+            hudViewport.getWorldHeight() - 10f);
     }
 
     private void drawMenuBackground(boolean menuOpen) {
         if (menuOpen) {
             shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 1f);
-            shapeRenderer.rect(100, 100, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200);
+            shapeRenderer.rect(100, 100, hudViewport.getWorldWidth() - 200, hudViewport.getWorldWidth() - 200);
         }
     }
 
@@ -126,10 +126,10 @@ public class HudRenderer {
             } else {
                 font.setColor(1f, 1f, 1f, 1f); // bela = ostale
             }
-            font.draw(batch, cat.name(), tabX, SCREEN_HEIGHT - 110);
+            font.draw(batch, cat.name(), tabX, hudViewport.getWorldHeight() - 110);
             tabX += 150;
         }
-        int y = SCREEN_HEIGHT - 140;
+        float y = hudViewport.getWorldHeight() - 140;
         for (Recipe r : recipes) {
             if (r.getCategory() != selectedCategory) continue;
             font.draw(batch, r.getResultType().name(), 130, y);
@@ -153,8 +153,8 @@ public class HudRenderer {
 
         for (CraftingCategory category : CraftingCategory.values()) {
             if (hudX >= tabX && hudX <= tabX + 140
-                && hudY >= SCREEN_HEIGHT - 125
-                && hudY <= SCREEN_HEIGHT - 105) {
+                && hudY >= hudViewport.getWorldWidth() - 125
+                && hudY <= hudViewport.getWorldHeight() - 105) {
                 return category;
             }
 

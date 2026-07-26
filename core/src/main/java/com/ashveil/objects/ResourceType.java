@@ -4,7 +4,7 @@ import com.ashveil.Config;
 import com.ashveil.items.inventory.ItemType;
 
 public enum ResourceType {
-    TREE(Config.TREE_HP, ItemType.WOOD, 1, 4),
+    TREE(Config.TREE_HP, ItemType.WOOD, 1, 3),
     ROCK(Config.ROCK_HP, ItemType.STONE, 1, 3);
 
     public final int hp;

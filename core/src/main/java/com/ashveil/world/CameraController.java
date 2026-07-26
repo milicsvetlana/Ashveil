@@ -11,10 +11,7 @@ public class CameraController {
         camera.setToOrtho(false, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
     }
 
-    public void update(float playerX, float playerY, float delta) {
-
-        float mapWidth = Config.WORLD_WIDTH * Config.TILE_DRAW_SIZE;
-        float mapHeight = Config.WORLD_HEIGHT * Config.TILE_DRAW_SIZE;
+    public void update(float playerX, float playerY, float mapWidth, float mapHeight, float delta) {
 
         float targetX = Math.max(Config.SCREEN_WIDTH / 2f,
                      Math.min(playerX, mapWidth - Config.SCREEN_WIDTH / 2f));

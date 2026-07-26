@@ -32,9 +32,10 @@ public class World {
     public World(){
         tileMap = new TileMap();
         player = new Player(
-            Config.WORLD_WIDTH * Config.TILE_SIZE / 2f,
-            Config.WORLD_HEIGHT * Config.TILE_SIZE / 2f,
-            tileMap);
+            5 * Config.TILE_SIZE,
+            5 * Config.TILE_SIZE,
+            tileMap
+        );
         shades = new ArrayList<>();
         groundItems = new ArrayList<>();
         craftingManager = new CraftingManager();
@@ -132,9 +133,9 @@ public class World {
         int zy;
         for (int i=0; i < dayNightCycle.getDayCount()*2; i++) {
             do {
-                zx = random.nextInt(Config.WORLD_WIDTH);
-                zy = random.nextInt(Config.WORLD_HEIGHT);
-            } while (tileMap.getTile(zx, zy) == TileType.WATER);
+                zx = random.nextInt(tileMap.getWidth());
+                zy = random.nextInt(tileMap.getHeight());
+            } while (tileMap.isBlocked(zx, zy));
 
             shades.add(new Shade(zx * Config.TILE_SIZE, zy * Config.TILE_SIZE, player, tileMap));
         }
@@ -144,13 +145,13 @@ public class World {
         int rx;
         int ry;
         int type;
-        int numberOfItems = random.nextInt(101) + 50;
+        int numberOfItems = random.nextInt(50);
         for (int i=0; i < numberOfItems; i++) {
             do {
-                rx = random.nextInt(Config.WORLD_WIDTH);
-                ry = random.nextInt(Config.WORLD_HEIGHT);
+                rx = random.nextInt(tileMap.getWidth());
+                ry = random.nextInt(tileMap.getHeight());
                 type = random.nextInt(ResourceType.values().length);
-            } while (tileMap.getTile(rx, ry) == TileType.WATER);
+            } while (tileMap.isBlocked(rx, ry));
 
             resourceObjects.add(new ResourceObject(rx * Config.TILE_SIZE, ry * Config.TILE_SIZE, ResourceType.values()[type]));
         }
@@ -160,10 +161,13 @@ public class World {
         craftingManager.craft(recipe, player.getInventory());
     }
 
+    public void dispose(){
+        tileMap.dispose();
+    }
+
     public List<Recipe> getRecipes(){
         return craftingManager.getRecipes();
     }
-
     public TileMap getTileMap(){return tileMap;}
     public Player getPlayer(){return player;}
     public List<Shade> getShades() { return shades; }

@@ -25,9 +25,9 @@ public class GameScreen implements Screen {
 
     public GameScreen(GameApp game){
         this.game = game;
-        worldRenderer = new WorldRenderer();
-        cameraController = new CameraController();
         world = new World();
+        worldRenderer = new WorldRenderer(world.getTileMap());
+        cameraController = new CameraController();
         hudRenderer = new HudRenderer();
         menuOpen = false;
         keyBindings = new KeyBindings();
@@ -49,7 +49,8 @@ public class GameScreen implements Screen {
                 dispose();
                 return;
             }
-            cameraController.update(world.getPlayer().getCenterX() * Config.SCALE, world.getPlayer().getCenterY() * Config.SCALE, delta);
+            cameraController.update(world.getPlayer().getCenterX() * Config.SCALE, world.getPlayer().getCenterY() * Config.SCALE,
+                                    worldRenderer.getMapRenderWidth(), worldRenderer.getMapRenderHeight(), delta);
         }
         worldRenderer.render(world, cameraController);
         hudRenderer.render(world.getPlayer(), world.getDayNightCycle(), menuOpen, world.getRecipes());
@@ -59,6 +60,7 @@ public class GameScreen implements Screen {
     public void dispose() {
         worldRenderer.dispose();
         hudRenderer.dispose();
+        world.dispose();
     }
 
     private PlayerInput readPlayerInput(){
