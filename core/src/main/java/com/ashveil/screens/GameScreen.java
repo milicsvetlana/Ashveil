@@ -75,13 +75,13 @@ public class GameScreen implements Screen {
 
     private void handleMenuInput(){
         if (!Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) return;
-        float mx = Gdx.input.getX();
-        float my = Config.SCREEN_HEIGHT - Gdx.input.getY();
-        CraftingCategory clicked = hudRenderer.getCategoryAtClick(mx, my);
+        CraftingCategory clicked = hudRenderer.getCategoryAtScreenClick(Gdx.input.getX(), Gdx.input.getY());
         if (clicked != null) hudRenderer.setSelectedCategory(clicked);
     }
 
-    @Override public void resize(int i, int i1) {}
+    @Override public void resize(int i, int i1) {
+        hudRenderer.resize(i, i1);
+    }
     @Override public void show(){}
     @Override public void pause() {}
     @Override public void resume() {}

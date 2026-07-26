@@ -9,7 +9,10 @@ import com.ashveil.world.DayNightCycle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.List;
 
@@ -20,25 +23,48 @@ public class HudRenderer {
     private ShapeRenderer shapeRenderer;
     private SpriteBatch batch;
     private BitmapFont font;
+    private OrthographicCamera hudCamera;
+    private Viewport hudViewport;
+    private final Vector2 mousePosition;
+
 
     private CraftingCategory selectedCategory;
-    private int selectedRecipeIndex;
-    Recipe selectedRecipe;
 
     public HudRenderer(){
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         font = new BitmapFont();
         selectedCategory = CraftingCategory.WEAPONS;
-        selectedRecipeIndex = 0;
-        selectedRecipe = null;
+        hudCamera = new OrthographicCamera();
+        hudViewport = new FitViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
+        mousePosition = new Vector2();
     }
 
-    public void render(Player player, DayNightCycle dayNightCycle, boolean craftingOpen, List<Recipe> recipes){
-        shapeRenderer.setProjectionMatrix(
-            new Matrix4().setToOrtho2D(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+    public void render(Player player, DayNightCycle dayNightCycle, boolean menuOpen, List<Recipe> recipes){
+        hudViewport.apply();
+        shapeRenderer.setProjectionMatrix(hudCamera.combined);
+        batch.setProjectionMatrix(hudCamera.combined);
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        drawHearts(player);
+        drawHotbar(player);
+        drawDayNightIcon(dayNightCycle);
+        drawMenuBackground(menuOpen);
+        shapeRenderer.end();
+
+        batch.begin();
+        drawDayText(dayNightCycle);
+        drawMenuContent(menuOpen, recipes);
+        batch.end();
+    }
+
+    public void dispose(){
+        shapeRenderer.dispose();
+        batch.dispose();
+        font.dispose();
+    }
+
+    private void drawHearts(Player player){
         int hp = player.getCurrentHp();
         int maxHp = player.getMaxHp();
 
@@ -50,7 +76,9 @@ public class HudRenderer {
             }
             shapeRenderer.rect(10 + i * 25, Config.SCREEN_HEIGHT - 30, 20, 20);
         }
+    }
 
+    private void drawHotbar(Player player){
         ItemStack[] slots = player.getInventory().getSlots();
         int slotSize = 40;
         int startX = Config.SCREEN_WIDTH / 2 - (slots.length * slotSize) / 2;
@@ -63,7 +91,9 @@ public class HudRenderer {
             }
             shapeRenderer.rect(startX + i * (slotSize + 5), 10, slotSize, slotSize);
         }
+    }
 
+    private void drawDayNightIcon(DayNightCycle dayNightCycle){
         if (!dayNightCycle.isNight()){
             shapeRenderer.setColor(1f, 0.9f, 0f, 1f);
             shapeRenderer.rect(Config.SCREEN_WIDTH - 80f, Config.SCREEN_HEIGHT - 80f, 50, 50);
@@ -72,65 +102,70 @@ public class HudRenderer {
             shapeRenderer.setColor(0.1f, 0.1f, 0.4f, 1f);
             shapeRenderer.rect(Config.SCREEN_WIDTH - 80f, Config.SCREEN_HEIGHT - 80f, 50, 50);
         }
+    }
 
-        shapeRenderer.end();
-
-        batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT));
-        batch.begin();
+    private void drawDayText(DayNightCycle dayNightCycle){
         font.draw(batch, "DAY: " + dayNightCycle.getDayCount(),
             Config.SCREEN_WIDTH - 100,
             Config.SCREEN_HEIGHT - 10);
-        batch.end();
+    }
 
-        if (craftingOpen) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+    private void drawMenuBackground(boolean menuOpen) {
+        if (menuOpen) {
             shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 1f);
             shapeRenderer.rect(100, 100, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200);
-            shapeRenderer.end();
-
-            batch.begin();
-            int tabX = 130;
-            for (CraftingCategory cat : CraftingCategory.values()) {
-                if (cat == selectedCategory) {
-                    font.setColor(1f, 1f, 0f, 1f); // žuta = selektovana
-                } else {
-                    font.setColor(1f, 1f, 1f, 1f); // bela = ostale
-                }
-                font.draw(batch, cat.name(), tabX, SCREEN_HEIGHT - 110);
-                tabX += 150;
-            }
-            int y = SCREEN_HEIGHT - 140;
-            for (Recipe r : recipes) {
-                if (r.getCategory() != selectedCategory) continue;
-                font.draw(batch, r.getResultType().name(), 130, y);
-                y -= 25;
-            }
-
-            batch.end();
         }
     }
 
-    public void dispose(){
-        shapeRenderer.dispose();
-        batch.dispose();
-        font.dispose();
-    }
-
-    public CraftingCategory getCategoryAtClick(float mouseX, float mouseY) {
-        int tx = 130;
+    private void drawMenuContent(boolean menuOpen, List<Recipe> recipes){
+        if(!menuOpen) return;
+        int tabX = 130;
         for (CraftingCategory cat : CraftingCategory.values()) {
-            if (mouseX >= tx && mouseX <= tx + 140 &&
-                mouseY >= SCREEN_HEIGHT - 125 && mouseY <= SCREEN_HEIGHT - 105) {
-                return cat;
+            if (cat == selectedCategory) {
+                font.setColor(1f, 1f, 0f, 1f); // žuta = selektovana
+            } else {
+                font.setColor(1f, 1f, 1f, 1f); // bela = ostale
             }
-            tx += 150;
+            font.draw(batch, cat.name(), tabX, SCREEN_HEIGHT - 110);
+            tabX += 150;
         }
+        int y = SCREEN_HEIGHT - 140;
+        for (Recipe r : recipes) {
+            if (r.getCategory() != selectedCategory) continue;
+            font.draw(batch, r.getResultType().name(), 130, y);
+            y -= 25;
+        }
+    }
+
+    public void resize(int width, int height){
+        hudViewport.update(width, height, true);
+    }
+
+    public CraftingCategory getCategoryAtScreenClick(int screenX, int screenY) {
+        mousePosition.set(screenX, screenY);
+        hudViewport.unproject(mousePosition);
+
+        return getCategoryAtHudClick(mousePosition.x, mousePosition.y);
+    }
+
+    private CraftingCategory getCategoryAtHudClick(float hudX, float hudY) {
+        int tabX = 130;
+
+        for (CraftingCategory category : CraftingCategory.values()) {
+            if (hudX >= tabX && hudX <= tabX + 140
+                && hudY >= SCREEN_HEIGHT - 125
+                && hudY <= SCREEN_HEIGHT - 105) {
+                return category;
+            }
+
+            tabX += 150;
+        }
+
         return null;
     }
 
     public void setSelectedCategory(CraftingCategory cat) {
         selectedCategory = cat;
-        selectedRecipeIndex = 0;
     }
 
 }
