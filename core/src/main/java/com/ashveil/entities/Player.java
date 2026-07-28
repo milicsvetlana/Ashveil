@@ -46,8 +46,10 @@ public class Player extends Entity{
             dy /= length;
         }
 
-        float newX = x + dx * speed * delta;
-        float newY = y + dy * speed * delta;
+        float speedMultiplier = tileMap.getMovementMultiplierAtWorld(x, y);
+
+        float newX = x + dx * speed * speedMultiplier * delta;
+        float newY = y + dy * speed * speedMultiplier * delta;
 
 
         //to sto se kolizija proverava odvojeno za X i Y je dobro zato
@@ -63,10 +65,14 @@ public class Player extends Entity{
 
     private boolean isCollidingAt(float px, float py) {
         int size = Config.TILE_SIZE;
-        return tileMap.isBlocked((int)(px / size), (int)(py / size))
-            || tileMap.isBlocked((int)((px + size - 1) / size), (int)(py / size))
-            || tileMap.isBlocked((int)(px / size), (int)((py + size - 1) / size))
-            || tileMap.isBlocked((int)((px + size - 1) / size), (int)((py + size - 1) / size));
+
+        float rightX = px + size - 1;
+        float topY = py + size - 1;
+
+        return tileMap.isBlockedAtWorld(px, py)
+            || tileMap.isBlockedAtWorld(rightX, py)
+            || tileMap.isBlockedAtWorld(px, topY)
+            || tileMap.isBlockedAtWorld(rightX, topY);
     }
 
     @Override

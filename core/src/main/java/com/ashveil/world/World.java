@@ -31,11 +31,7 @@ public class World {
 
     public World(){
         tileMap = new TileMap();
-        player = new Player(
-            5 * Config.TILE_SIZE,
-            5 * Config.TILE_SIZE,
-            tileMap
-        );
+        player = new Player(tileMap.getPlayerSpawnX(), tileMap.getPlayerSpawnY(), tileMap);
         shades = new ArrayList<>();
         groundItems = new ArrayList<>();
         craftingManager = new CraftingManager();
