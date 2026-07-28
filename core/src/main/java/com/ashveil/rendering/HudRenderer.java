@@ -113,7 +113,7 @@ public class HudRenderer {
     private void drawMenuBackground(boolean menuOpen) {
         if (menuOpen) {
             shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 1f);
-            shapeRenderer.rect(100, 100, hudViewport.getWorldWidth() - 200, hudViewport.getWorldWidth() - 200);
+            shapeRenderer.rect(100, 100, hudViewport.getWorldWidth() - 200, hudViewport.getWorldHeight() - 200);
         }
     }
 
@@ -153,7 +153,7 @@ public class HudRenderer {
 
         for (CraftingCategory category : CraftingCategory.values()) {
             if (hudX >= tabX && hudX <= tabX + 140
-                && hudY >= hudViewport.getWorldWidth() - 125
+                && hudY >= hudViewport.getWorldHeight() - 125
                 && hudY <= hudViewport.getWorldHeight() - 105) {
                 return category;
             }
