@@ -90,9 +90,17 @@ public class World {
     }
 
     private void handlePickup(PlayerInput playerInput) {
-        if (playerInput.isInteractPressed()){
-            WorldItem toRemove = player.pickUp(groundItems);
-            if (toRemove != null) groundItems.remove(toRemove);
+        if (!playerInput.isInteractPressed()) return;
+
+        for (WorldItem item : groundItems){
+            float dimX = item.getX() - player.getX();
+            float dimY = item.getY() - player.getY();
+            double dist = Math.sqrt(dimX * dimX + dimY * dimY);
+            if (dist > Config.PLAYER_PICKUP_RANGE) continue;
+            int remaining = player.pickUp(item.getType(), item.getAmount());
+            if (remaining == 0) groundItems.remove(item);
+            else item.setAmount(remaining);
+            return;
         }
     }
 
@@ -112,9 +120,12 @@ public class World {
             quantity = player.getInventory().getQuantityBySlot(player.getSelectedHotbarSlot());
         }
 
-        player.getInventory().removeFromSlot(player.getSelectedHotbarSlot(), quantity);
-        groundItems.add(new WorldItem(player.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-            player.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE, itemType, quantity));
+        int removed = player.getInventory().removeFromSlot(player.getSelectedHotbarSlot(), quantity);
+        if (removed == 0) return;
+        groundItems.add(new WorldItem(
+            player.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+            player.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+            itemType, removed));
     }
 
     private boolean isColliding(Entity a, Entity b){

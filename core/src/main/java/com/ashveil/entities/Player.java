@@ -2,6 +2,7 @@ package com.ashveil.entities;
 
 import com.ashveil.Config;
 import com.ashveil.items.inventory.Inventory;
+import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.world.TileMap;
 import com.ashveil.world.WorldItem;
@@ -141,17 +142,8 @@ public class Player extends Entity{
         }
     }
 
-    public WorldItem pickUp(List<WorldItem> groundItems){
-        for (WorldItem i : groundItems){
-            float dimX = i.getX() - x;
-            float dimY = i.getY() - y;
-            double dist = Math.sqrt(dimX * dimX + dimY * dimY);
-            if (dist > Config.PLAYER_PICKUP_RANGE) continue;
-
-            boolean added = inventory.addItem(i.getType(), i.getAmount());
-            if (added) return i;
-        }
-        return null;
+    public int pickUp(ItemType itemType, int amount){
+        return inventory.addItem(itemType, amount);
     }
 
 

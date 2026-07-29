@@ -33,7 +33,7 @@ public class ItemStack {
         return 0;
     }
 
-    int removeQuantity(int amount){ //vraca koliko je uklonjeno
+    int reduceQuantity(int amount){ //vraca koliko je uklonjeno
         if (amount <= 0) throw new IllegalArgumentException("Amount must be positive");
         if (quantity < amount){
             int current = quantity;

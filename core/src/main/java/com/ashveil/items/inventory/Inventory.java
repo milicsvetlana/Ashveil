@@ -9,56 +9,69 @@ public class Inventory {
         this.slots = new ItemStack[Config.INVENTORY_SIZE];
     }
 
-    //true znači da je predmet dodat ili spojen s postojećim stackom
-    //false znači da je inventori pun
-    public boolean addItem(ItemType type, int amount){
+    public int addItem(ItemType type, int amount){
+        if (type == null) throw new IllegalArgumentException("Item type cannot be null");
+        if (amount <= 0) throw new IllegalArgumentException("Amount must be positive");
+
         for (ItemStack item : slots){
-            if(item == null) continue;
+            if (item == null) continue;
             if (type.equals(item.getType())){
-                int current = item.getQuantity();
-                item.setQuantity(current + amount);
-                return true;
+                int notAdded = item.addQuantity(amount);
+                if (notAdded == 0) return 0;
+                amount = notAdded;
             }
         }
         for (int i = 0; i < slots.length; i++) {
             if (slots[i] == null) {
+                int notAdded = 0;
+                if (amount > type.getMaxStack()){
+                    notAdded = amount - type.getMaxStack();
+                    amount = type.getMaxStack();
+                }
                 slots[i] = new ItemStack(type, amount);
-                return true;
+                if (notAdded <= 0) return 0;
+                amount = notAdded;
             }
         }
-        return false;
+        return amount;
     }
 
-    public void removeItem(ItemType type, int amount){
-        for (int i=0; i< slots.length; i++){
+    public boolean removeItem(ItemType type, int amount){
+        if (type == null) throw new IllegalArgumentException("Item type cannot be null");
+        if (amount <= 0) throw new IllegalArgumentException("Amount must be positive");
+
+        if (getQuantity(type) < amount) return false;
+        int remaining = amount;
+
+        for (int i=0; i < slots.length; i++){
             ItemStack item = slots[i];
             if(item == null) continue;
-            if (type.equals(item.getType())){
-                int current = item.getQuantity();
-                if (current <= amount){
-                    amount -= current;
-                    slots[i] = null;
-                }
-                else{
-                    item.setQuantity(current - amount);
-                    return;
-                }
-            }
+            if (!type.equals(item.getType())) continue;
+
+            int removed = item.reduceQuantity(remaining);
+            remaining -= removed;
+
+            if (item.isEmpty()) slots[i] = null;
+
+            if (remaining == 0) return true;
         }
+        return remaining == 0;
     }
 
     public int getQuantity(ItemType type){
+        int total = 0;
         for (ItemStack item : slots){
             if(item == null) continue;
             if (type.equals(item.getType())){
-                return item.getQuantity();
+                total += item.getQuantity();
             }
         }
-        return 0;
+        return total;
     }
 
-    public ItemStack[] getSlots() {
-        return slots;
+    public ItemStack getSlot(int slotIndex) {
+        if (slotIndex < 0 || slotIndex >= slots.length) return null;
+        return slots[slotIndex];
     }
 
     public ItemType getItemTypeBySlot(int slotIndex){
@@ -71,18 +84,20 @@ public class Inventory {
         if (slots[slotIndex] == null) return 0;
         return slots[slotIndex].getQuantity();
     }
-    public void removeFromSlot(int slotIndex, int amount){
-        if (slotIndex < 0 || slotIndex >= slots.length) return;
-        if (amount <= 0) return;
+    public int removeFromSlot(int slotIndex, int amount){ //vraca uklonjenu kolicinu
+        if (slotIndex < 0 || slotIndex >= slots.length) return 0;
+        if (amount <= 0) return 0;
         ItemStack item = slots[slotIndex];
-        if(item == null) return;
+        if(item == null) return 0;
 
         int current = item.getQuantity();
         if (current <= amount){
             slots[slotIndex] = null;
+            return current;
         }
         else{
-            item.setQuantity(current - amount);
+            item.reduceQuantity(amount);
+            return amount;
         }
     }
 }
