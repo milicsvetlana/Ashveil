@@ -3,9 +3,7 @@ package com.ashveil.entities;
 import com.ashveil.Config;
 import com.ashveil.items.inventory.Inventory;
 import com.ashveil.items.inventory.ItemType;
-import com.ashveil.objects.ResourceObject;
 import com.ashveil.world.TileMap;
-import com.ashveil.world.WorldItem;
 
 import java.util.List;
 
@@ -84,7 +82,7 @@ public class Player extends Entity{
         damageCooldown = Config.DAMAGE_COOLDOWN_MAX;
     }
 
-    private float getFacingX() {
+    public float getFacingX() {
         return switch (facing) {
             case LEFT -> -1f;
             case RIGHT -> 1f;
@@ -92,7 +90,7 @@ public class Player extends Entity{
         };
     }
 
-    private float getFacingY() {
+    public float getFacingY() {
         return switch (facing) {
             case DOWN -> -1f;
             case UP -> 1f;
@@ -100,52 +98,9 @@ public class Player extends Entity{
         };
     }
 
-    private boolean isTargetInFrontCone(float targetCenterX, float targetCenterY, float range, float minDot) {
-        float dx = targetCenterX - getCenterX();
-        float dy = targetCenterY - getCenterY();
-
-        float distSq = dx * dx + dy * dy;
-        if (distSq > range * range) return false;
-        if (distSq == 0f) return true;
-
-        float invLen = 1f / (float)Math.sqrt(distSq);
-        dx *= invLen;
-        dy *= invLen;
-
-        float dot = dx * getFacingX() + dy * getFacingY();
-        return dot >= minDot;
-    }
-
-    public void attack(List<Shade> shades){
-        for (Shade z : shades){
-            if (!isTargetInFrontCone(
-                z.getCenterX(),
-                z.getCenterY(),
-                Config.PLAYER_ATTACK_HARVEST_RANGE,
-                Config.PLAYER_ATTACK_MIN_DOT
-            )) continue;
-
-            z.takeDamage(1);
-        }
-    }
-
-    public void harvest(List<ResourceObject> objects){
-        for (ResourceObject o : objects){
-            if (!isTargetInFrontCone(
-                o.getCenterX(),
-                o.getCenterY(),
-                Config.PLAYER_ATTACK_HARVEST_RANGE,
-                Config.PLAYER_HARVEST_MIN_DOT
-            )) continue;
-
-            o.hit(1);
-        }
-    }
-
     public int pickUp(ItemType itemType, int amount){
         return inventory.addItem(itemType, amount);
     }
-
 
     public boolean canUsePrimaryAction(){return primaryActionCooldown <= 0;}
     public void resetPrimaryActionCooldown() {primaryActionCooldown = Config.PLAYER_PRIMARY_ACTION_COOLDOWN;}

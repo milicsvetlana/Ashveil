@@ -6,8 +6,8 @@ import com.ashveil.items.inventory.ItemType;
 import java.util.*;
 
 public class CraftingManager {
-    List<Recipe> recipes;
-    private Set<CraftingCategory> unlockedCategories = new HashSet<>();
+    private final List<Recipe> recipes;
+    private final Set<CraftingCategory> unlockedCategories = new HashSet<>();
 
     public CraftingManager() {
         unlockedCategories.add(CraftingCategory.WEAPONS);

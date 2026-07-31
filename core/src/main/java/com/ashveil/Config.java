@@ -19,9 +19,8 @@ public class Config {
     /** Player stats and combat */
     public static final float PLAYER_SPEED = 100f;
     public static final float DAMAGE_COOLDOWN_MAX = 1f;
-    public static final float PLAYER_ATTACK_HARVEST_RANGE = 60f;
-    public static final float PLAYER_ATTACK_MIN_DOT = 0.75f; /*For smaller angle, increase*/
-    public static final float PLAYER_HARVEST_MIN_DOT = 0.55f;
+    public static final float PLAYER_PRIMARY_ACTION_RANGE = 60f;
+    public static final float PLAYER_PRIMARY_ACTION_MIN_DOT = 0.75f; /*For smaller angle, increase*/
     public static final float PLAYER_PRIMARY_ACTION_COOLDOWN = 0.75f;
     public static final float PLAYER_PICKUP_RANGE = TILE_SIZE * 2;
 
@@ -32,9 +31,12 @@ public class Config {
     /** Enemy stats */
     public static final float SHADE_SPEED = 30f;
 
+    /** Damage values */
+    public static final int PLAYER_BASE_DAMAGE = 1;
+
     /** HP values */
     public static final int PLAYER_HP = 6;
     public static final int SHADE_HP = 6;
-    public static final int TREE_HP = 3;
+    public static final int TREE_HP = 1;
     public static final int ROCK_HP = 3;
 }

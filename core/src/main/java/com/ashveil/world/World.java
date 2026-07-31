@@ -1,6 +1,8 @@
 package com.ashveil.world;
 
 import com.ashveil.Config;
+import com.ashveil.combat.CombatSystem;
+import com.ashveil.combat.Hittable;
 import com.ashveil.entities.Entity;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
@@ -23,6 +25,7 @@ public class World {
     private final DayNightCycle dayNightCycle;
 
     private final CraftingManager craftingManager;
+    private final CombatSystem combatSystem;
     private final List<WorldItem> groundItems;
     private final List<ResourceObject> resourceObjects;
 
@@ -33,9 +36,10 @@ public class World {
         tileMap = new TileMap();
         player = new Player(tileMap.getPlayerSpawnX(), tileMap.getPlayerSpawnY(), tileMap);
         shades = new ArrayList<>();
+        resourceObjects = new ArrayList<>();
         groundItems = new ArrayList<>();
         craftingManager = new CraftingManager();
-        resourceObjects = new ArrayList<>();
+        combatSystem = new CombatSystem();
         spawnObjects();
 
         dayNightCycle = new DayNightCycle();
@@ -72,20 +76,26 @@ public class World {
 
     private void handlePrimaryAction(PlayerInput playerInput){
         if (playerInput.isPrimaryActionPressed() && player.canUsePrimaryAction()){
-            player.attack(shades);
-            shades.removeIf(Shade::isDead);
-            player.harvest(resourceObjects);
+
+            List<Hittable> targets = new ArrayList<>();
+            targets.addAll(shades);
+            targets.addAll(resourceObjects);
+
+            int numberOfHits = combatSystem.performPrimaryAction(player, targets);
             player.resetPrimaryActionCooldown();
+
             for (ResourceObject o : resourceObjects){
                 if (o.isDestroyed()){
 
                     groundItems.add(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
                         o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                        o.getType().drop,
-                        random.nextInt(o.getType().maxDrop - o.getType().minDrop + 1) + o.getType().minDrop));
+                        o.getType().getDrop(),
+                        random.nextInt(o.getType().getMaxDrop() - o.getType().getMinDrop() + 1) + o.getType().getMinDrop()));
                 }
             }
+
             resourceObjects.removeIf(ResourceObject::isDestroyed);
+            shades.removeIf(Shade::isDead);
         }
     }
 

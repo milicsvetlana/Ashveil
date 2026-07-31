@@ -5,6 +5,7 @@ import com.ashveil.entities.Player;
 import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.crafting.Recipe;
+import com.ashveil.items.inventory.ItemType;
 import com.ashveil.world.DayNightCycle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -55,6 +56,7 @@ public class HudRenderer {
         batch.begin();
         drawDayText(dayNightCycle);
         drawMenuContent(menuOpen, recipes);
+        drawHotbarText(player);
         batch.end();
     }
 
@@ -78,17 +80,32 @@ public class HudRenderer {
         }
     }
 
-    private void drawHotbar(Player player){
+    private void drawHotbar(Player player) {
         int slotSize = 40;
-        int startX = (int) ((hudViewport.getWorldWidth() / 2f) - (Config.HOTBAR_SIZE * slotSize) / 2);
+        int slotGap = 5;
+        int slotY = 10;
+
+        int hotbarWidth = Config.HOTBAR_SIZE * slotSize
+            + (Config.HOTBAR_SIZE - 1) * slotGap;
+
+        float startX = (hudViewport.getWorldWidth() - hotbarWidth) / 2f;
 
         for (int i = 0; i < Config.HOTBAR_SIZE; i++) {
-            if (player.getInventory().getSlot(i) != null) {
-                shapeRenderer.setColor(0.9f, 0.5f, 0.1f, 1f);
-            } else {
-                shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 1f);
+            float slotX = startX + i * (slotSize + slotGap);
+
+            if (i == player.getSelectedHotbarSlot()) {
+                shapeRenderer.setColor(1f, 1f, 1f, 1f);
+                shapeRenderer.rect(slotX - 3, slotY - 3, slotSize + 6, slotSize + 6);
             }
-            shapeRenderer.rect(startX + i * (slotSize + 5), 10, slotSize, slotSize);
+
+            shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 1f);
+            shapeRenderer.rect(slotX, slotY, slotSize, slotSize);
+
+            ItemStack item = player.getInventory().getSlot(i);
+            if (item == null) continue;
+
+            setTemporaryItemColor(item.getType());
+            shapeRenderer.rect(slotX + 7, slotY + 7, slotSize - 14, slotSize - 14);
         }
     }
 
@@ -161,6 +178,44 @@ public class HudRenderer {
         }
 
         return null;
+    }
+
+    private void setTemporaryItemColor(ItemType type) {
+        switch (type) {
+            case WOOD -> shapeRenderer.setColor(0.45f, 0.25f, 0.1f, 1f);
+            case STONE -> shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
+            case WHEAT, BREAD -> shapeRenderer.setColor(0.9f, 0.75f, 0.2f, 1f);
+            case WHEAT_SEED -> shapeRenderer.setColor(0.2f, 0.65f, 0.2f, 1f);
+            case AXE, PICKAXE, HOE, SWORD -> shapeRenderer.setColor(0.65f, 0.25f, 0.15f, 1f);
+            default -> shapeRenderer.setColor(0.6f, 0.4f, 0.7f, 1f);
+        }
+    }
+
+    private void drawHotbarText(Player player) {
+        int slotSize = 40;
+        int slotGap = 5;
+        int slotY = 10;
+
+        int hotbarWidth = Config.HOTBAR_SIZE * slotSize
+            + (Config.HOTBAR_SIZE - 1) * slotGap;
+
+        float startX = (hudViewport.getWorldWidth() - hotbarWidth) / 2f;
+
+        font.setColor(1f, 1f, 1f, 1f);
+
+        for (int i = 0; i < Config.HOTBAR_SIZE; i++) {
+            ItemStack item = player.getInventory().getSlot(i);
+            if (item == null) continue;
+
+            float slotX = startX + i * (slotSize + slotGap);
+
+            font.draw(
+                batch,
+                String.valueOf(item.getQuantity()),
+                slotX + slotSize - 14,
+                slotY + 14
+            );
+        }
     }
 
     public void setSelectedCategory(CraftingCategory cat) {

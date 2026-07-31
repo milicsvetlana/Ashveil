@@ -1,6 +1,7 @@
 package com.ashveil.entities;
 
 import com.ashveil.Config;
+import com.ashveil.combat.Hittable;
 
 public abstract class Entity {
     protected float x, y;
@@ -29,7 +30,6 @@ public abstract class Entity {
     public float getX() {
         return x;
     }
-
     public float getY() {
         return y;
     }
@@ -37,7 +37,6 @@ public abstract class Entity {
     public float getCenterX() {
         return x + Config.TILE_SIZE / 2f;
     }
-
     public float getCenterY() {
         return y + Config.TILE_SIZE / 2f;
     }

@@ -5,10 +5,10 @@ import com.ashveil.items.inventory.ItemType;
 import java.util.Map;
 
 public class Recipe {
-    private Map<ItemType, Integer> ingredients;
-    private ItemType resultType;
-    private int resultAmount;
-    private CraftingCategory category;
+    private final Map<ItemType, Integer> ingredients;
+    private final ItemType resultType;
+    private final int resultAmount;
+    private final CraftingCategory category;
 
     public Recipe(boolean locked, Map<ItemType, Integer> ingredients, ItemType resultType, int resultAmount, CraftingCategory category) {
         this.ingredients = ingredients;

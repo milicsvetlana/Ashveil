@@ -1,9 +1,11 @@
 package com.ashveil.entities;
 
+import com.ashveil.combat.HitCategory;
+import com.ashveil.combat.Hittable;
 import com.ashveil.world.TileMap;
 import com.ashveil.Config;
 
-public abstract class Enemy extends Entity{
+public abstract class Enemy extends Entity implements Hittable {
 
     protected final Player target;
     protected final TileMap tileMap;
@@ -52,6 +54,12 @@ public abstract class Enemy extends Entity{
         hitFlashTimer = 0.15f;
     }
 
+    @Override
+    public void receiveHit(int amount) {takeDamage(amount);}
+
+    @Override
+    public HitCategory getHitCategory() {return HitCategory.ENTITY;}
+
     public float getHitFlashTimer() {
         return hitFlashTimer;
     }
@@ -65,4 +73,5 @@ public abstract class Enemy extends Entity{
             tileMap.isBlocked((int) ((px + size - 1) / size), (int) ((py + size - 1) / size)
         );
     }
+
 }
