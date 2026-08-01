@@ -100,4 +100,76 @@ public class Inventory {
             return amount;
         }
     }
+
+    public boolean moveSlot(int sourceIndex, int destinationIndex){
+        if (sourceIndex < 0 || sourceIndex >= slots.length) return false;
+        if (destinationIndex < 0 || destinationIndex >= slots.length) return false;
+        if (sourceIndex == destinationIndex) return false;
+
+        ItemStack itemStack1 = getSlot(sourceIndex);
+        if (itemStack1 == null) return false;
+        ItemStack itemStack2 = getSlot(destinationIndex);
+
+        if (itemStack2 == null){
+            slots[destinationIndex] = itemStack1;
+            removeFromSlot(sourceIndex, itemStack1.getQuantity());
+            return true;
+        }
+
+        if (itemStack1.getType() != itemStack2.getType()
+            || (itemStack1.getType() == itemStack2.getType() && !itemStack1.getType().isStackable())){
+            slots[destinationIndex] = itemStack1;
+            slots[sourceIndex] = itemStack2;
+            return true;
+        }
+
+        int leftOver = itemStack2.addQuantity(itemStack1.getQuantity());
+        int moved = itemStack1.getQuantity() - leftOver;
+
+        if (moved == 0) return false;
+
+        itemStack1.reduceQuantity(moved);
+
+        if (itemStack1.isEmpty()){
+            slots[sourceIndex] = null;
+        }
+
+        return true;
+    }
+
+    public boolean splitStack(int sourceIndex, int destinationIndex, int amount){
+        if (sourceIndex < 0 || sourceIndex >= slots.length) return false;
+        if (destinationIndex < 0 || destinationIndex >= slots.length) return false;
+        if (sourceIndex == destinationIndex) return false;
+
+        ItemStack itemStack1 = getSlot(sourceIndex);
+        ItemStack itemStack2 = getSlot(destinationIndex);
+        if (itemStack1 == null || itemStack1.getQuantity() <= amount || 0 >= amount
+            || itemStack2 != null || !itemStack1.getType().isStackable()) return false;
+
+        slots[destinationIndex] = new ItemStack(itemStack1.getType(), amount);
+        itemStack1.reduceQuantity(amount);
+
+        return true;
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

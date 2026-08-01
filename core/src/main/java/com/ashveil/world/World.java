@@ -8,6 +8,8 @@ import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.Recipe;
+import com.ashveil.items.inventory.Inventory;
+import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
