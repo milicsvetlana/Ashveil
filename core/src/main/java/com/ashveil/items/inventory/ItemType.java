@@ -12,6 +12,7 @@ public enum ItemType {
         "A basic crafting material gathered from trees.",
         20,
         0,
+        true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     ),
 
@@ -20,6 +21,7 @@ public enum ItemType {
         "A durable crafting material gathered from rocks.",
         20,
         0,
+        true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     ),
 
@@ -28,6 +30,7 @@ public enum ItemType {
         "A wooden barrier used to protect and divide areas.",
         20,
         0,
+        true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     ),
 
@@ -36,6 +39,7 @@ public enum ItemType {
         "A harvested crop used for preparing food.",
         20,
         0,
+        true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     ),
 
@@ -44,6 +48,7 @@ public enum ItemType {
         "A seed that can be planted to grow wheat.",
         20,
         0,
+        true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     ),
 
@@ -52,6 +57,7 @@ public enum ItemType {
         "A simple food made from wheat.",
         20,
         0,
+        true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     ),
 
@@ -60,6 +66,7 @@ public enum ItemType {
         "A tool designed for chopping trees and wooden objects.",
         1,
         20,
+        true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
             Map.of(
@@ -75,6 +82,7 @@ public enum ItemType {
         "A tool designed for breaking stone and mining hard materials.",
         1,
         20,
+        true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
             Map.of(
@@ -90,7 +98,13 @@ public enum ItemType {
         "A farming tool used to prepare soil for planting.",
         1,
         20,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of(HitCategory.ENTITY, 2))
+        true,
+        new DamageProfile(
+            Config.PLAYER_BASE_DAMAGE,
+            Map.of(
+                HitCategory.ENTITY, 2
+            )
+        )
     ),
 
     SWORD(
@@ -98,6 +112,7 @@ public enum ItemType {
         "A weapon designed for fighting hostile entities.",
         1,
         20,
+        true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
             Map.of(
@@ -111,6 +126,7 @@ public enum ItemType {
         "A set of parts used to assemble a boat at the old jetty.",
         1,
         0,
+        false,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     ),
 
@@ -119,6 +135,7 @@ public enum ItemType {
         "An ancient scroll containing fragments of forgotten knowledge.",
         1,
         0,
+        false,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     );
 
@@ -126,13 +143,15 @@ public enum ItemType {
     private final String description;
     private final int maxStack;
     private final int maxDurability;
+    private boolean despawnsOnGround;
     private final DamageProfile damageProfile;
 
-    ItemType(String displayName, String description, int maxStack, int maxDurability, DamageProfile damageProfile){
+    ItemType(String displayName, String description, int maxStack, int maxDurability, boolean despawnsOnGround, DamageProfile damageProfile){
         this.displayName = displayName;
         this.description = description;
         this.maxStack = maxStack;
         this.maxDurability = maxDurability;
+        this.despawnsOnGround = despawnsOnGround;
         this.damageProfile = damageProfile;
     }
 
@@ -146,4 +165,5 @@ public enum ItemType {
 
     public boolean isStackable(){return maxStack > 1;}
     public boolean usesDurability(){return maxDurability > 0;}
+    public boolean despawnsOnGround() {return despawnsOnGround;}
 }

@@ -8,8 +8,6 @@ import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.Recipe;
-import com.ashveil.items.inventory.Inventory;
-import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
@@ -43,8 +41,11 @@ public class World {
         craftingManager = new CraftingManager();
         combatSystem = new CombatSystem();
         spawnObjects();
-
         dayNightCycle = new DayNightCycle();
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.LORE_SCROLL, 1));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WOOD, 1));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE, 1));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.BREAD, 1));
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -66,6 +67,12 @@ public class World {
         handlePickup(playerInput);
         handleDropItem(playerInput);
         dayNightCycle.update(delta);
+
+        for (WorldItem item : groundItems){
+            item.update(delta);
+        }
+
+        groundItems.removeIf(WorldItem::shouldDespawn);
     }
 
     private void handleCollisions() {
@@ -88,11 +95,9 @@ public class World {
 
             for (ResourceObject o : resourceObjects){
                 if (o.isDestroyed()){
-
-                    groundItems.add(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                        o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                        o.getType().getDrop(),
-                        random.nextInt(o.getType().getMaxDrop() - o.getType().getMinDrop() + 1) + o.getType().getMinDrop()));
+                    addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                        o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE, o.getType().getDrop(),
+                                random.nextInt(o.getType().getMaxDrop() - o.getType().getMinDrop() + 1) + o.getType().getMinDrop()));
                 }
             }
 
@@ -104,16 +109,24 @@ public class World {
     private void handlePickup(PlayerInput playerInput) {
         if (!playerInput.isInteractPressed()) return;
 
+        WorldItem nearestItem = null;
+        Double nearestDistanceSquared = null;
+
         for (WorldItem item : groundItems){
             float dimX = item.getX() - player.getX();
             float dimY = item.getY() - player.getY();
-            double dist = Math.sqrt(dimX * dimX + dimY * dimY);
-            if (dist > Config.PLAYER_PICKUP_RANGE) continue;
-            int remaining = player.pickUp(item.getType(), item.getAmount());
-            if (remaining == 0) groundItems.remove(item);
-            else item.setAmount(remaining);
-            return;
+            double dist = dimX * dimX + dimY * dimY;
+            if (dist > Config.PLAYER_PICKUP_RANGE * Config.PLAYER_PICKUP_RANGE) continue;
+
+            if (nearestDistanceSquared == null || dist < nearestDistanceSquared){
+                nearestDistanceSquared = dist;
+                nearestItem = item;
+            }
         }
+        if(nearestItem == null) return;
+        int remaining = player.pickUp(nearestItem.getType(), nearestItem.getAmount());
+        if (remaining == 0) groundItems.remove(nearestItem);
+        else nearestItem.setAmount(remaining);
     }
 
     private void handleHotbarSelection(PlayerInput playerInput){
@@ -134,9 +147,9 @@ public class World {
 
         int removed = player.getInventory().removeFromSlot(player.getSelectedHotbarSlot(), quantity);
         if (removed == 0) return;
-        groundItems.add(new WorldItem(
-            player.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-            player.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+        addGroundItem(new WorldItem(
+            player.getX() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
+            player.getY() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
             itemType, removed));
     }
 
@@ -176,12 +189,47 @@ public class World {
         }
     }
 
-    public void tryCraft(Recipe recipe) {
-        craftingManager.craft(recipe, player.getInventory());
+    private void addGroundItem(WorldItem newItem){
+        int remaining = newItem.getAmount();
+
+        if (newItem.getType().isStackable()){
+            for (WorldItem item : groundItems){
+                if (newItem.getType() != item.getType()) continue;
+
+                float dimX = item.getX() - newItem.getX();
+                float dimY = item.getY() - newItem.getY();
+                double dist = Math.sqrt(dimX * dimX + dimY * dimY);
+
+                if (dist > Config.WORLD_ITEM_MERGE_RANGE) continue;
+
+                int previousRemaining = remaining;
+                remaining = item.addAmount(remaining);
+
+                if (remaining < previousRemaining) item.resetLifetime();
+
+                if (remaining == 0) return;
+            }
+
+        }
+        groundItems.add(new WorldItem(newItem.getX(), newItem.getY(), newItem.getType(), remaining));
+        checkSafetyLimit();
     }
 
-    public void dispose(){
-        tileMap.dispose();
+    private void checkSafetyLimit(){
+        if (groundItems.size() <= Config.WORLD_MAX_NUMBER_OF_ITEMS) return;
+
+        for (int i=0; i < groundItems.size(); i++){
+            WorldItem item = groundItems.get(i);
+
+            if (item.getType().despawnsOnGround()){
+                groundItems.remove(i);
+                return;
+            }
+        }
+    }
+
+    public void tryCraft(Recipe recipe) {
+        craftingManager.craft(recipe, player.getInventory());
     }
 
     public List<Recipe> getRecipes(){
@@ -193,4 +241,8 @@ public class World {
     public List<WorldItem> getGroundItems() {return groundItems;}
     public List<ResourceObject> getResourceObjects() {return resourceObjects;}
     public DayNightCycle getDayNightCycle() {return dayNightCycle;}
+
+    public void dispose(){
+        tileMap.dispose();
+    }
 }

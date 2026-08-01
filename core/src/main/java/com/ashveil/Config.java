@@ -25,8 +25,13 @@ public class Config {
     public static final float PLAYER_PICKUP_RANGE = TILE_SIZE * 2;
 
     /** Day/night cycle */
-    public static final float DAY_DURATION = 10f;
+    public static final float DAY_DURATION = 100f;
     public static final float NIGHT_DURATION = 5f;
+
+    /** World stats */
+    public static final float WORLD_ITEM_MERGE_RANGE = TILE_SIZE * 2;
+    public static final float WORLD_ITEM_DESPAWN_TIME = 300f;
+    public static final int WORLD_MAX_NUMBER_OF_ITEMS = 250;
 
     /** Enemy stats */
     public static final float SHADE_SPEED = 30f;
