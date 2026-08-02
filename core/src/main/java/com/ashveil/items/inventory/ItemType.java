@@ -61,9 +61,9 @@ public enum ItemType {
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
     ),
 
-    AXE(
-        "Axe",
-        "A tool designed for chopping trees and wooden objects.",
+    WOODEN_AXE(
+        "Wooden Axe",
+        "A basic wooden tool used for chopping trees.",
         1,
         20,
         true,
@@ -77,9 +77,25 @@ public enum ItemType {
         )
     ),
 
-    PICKAXE(
-        "Pickaxe",
-        "A tool designed for breaking stone and mining hard materials.",
+    STONE_AXE(
+        "Stone Axe",
+        "A durable stone tool used for chopping trees more efficiently.",
+        1,
+        60,
+        true,
+        new DamageProfile(
+            Config.PLAYER_BASE_DAMAGE,
+            Map.of(
+                HitCategory.WOOD, 5,
+                HitCategory.ENTITY, 3,
+                HitCategory.STONE, 0
+            )
+        )
+    ),
+
+    WOODEN_PICKAXE(
+        "Wooden Pickaxe",
+        "A basic wooden tool capable of breaking rocks.",
         1,
         20,
         true,
@@ -93,30 +109,78 @@ public enum ItemType {
         )
     ),
 
-    HOE(
-        "Hoe",
-        "A farming tool used to prepare soil for planting.",
+    STONE_PICKAXE(
+        "Stone Pickaxe",
+        "A durable stone tool used for breaking rocks more efficiently.",
         1,
-        20,
+        60,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
             Map.of(
-                HitCategory.ENTITY, 2
+                HitCategory.STONE, 5,
+                HitCategory.ENTITY, 3,
+                HitCategory.WOOD, 0
             )
         )
     ),
 
-    SWORD(
-        "Sword",
-        "A weapon designed for fighting hostile entities.",
+    WOODEN_HOE(
+        "Wooden Hoe",
+        "A basic wooden farming tool used to prepare soil.",
         1,
         20,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
             Map.of(
-                HitCategory.ENTITY, 3
+                HitCategory.ENTITY, 2,
+                HitCategory.STONE, 0
+            )
+        )
+    ),
+
+    STONE_HOE(
+        "Stone Hoe",
+        "A durable stone farming tool used to prepare soil.",
+        1,
+        60,
+        true,
+        new DamageProfile(
+            Config.PLAYER_BASE_DAMAGE,
+            Map.of(
+                HitCategory.ENTITY, 3,
+                HitCategory.STONE, 0
+            )
+        )
+    ),
+
+    WOODEN_SWORD(
+        "Wooden Sword",
+        "A basic wooden weapon used against hostile entities.",
+        1,
+        20,
+        true,
+        new DamageProfile(
+            Config.PLAYER_BASE_DAMAGE,
+            Map.of(
+                HitCategory.ENTITY, 3,
+                HitCategory.STONE, 0
+            )
+        )
+    ),
+
+    STONE_SWORD(
+        "Stone Sword",
+        "A durable stone weapon that deals increased damage to hostile entities.",
+        1,
+        60,
+        true,
+        new DamageProfile(
+            Config.PLAYER_BASE_DAMAGE,
+            Map.of(
+                HitCategory.ENTITY, 5,
+                HitCategory.STONE, 0
             )
         )
     ),

@@ -39,7 +39,7 @@ public class CombatSystem {
                 damage = activeItem.getType().getDamageProfile().getDamage(target.getHitCategory());
             }
             else{
-                damage = Config.PLAYER_BASE_DAMAGE;
+                damage = getHandDamage(target.getHitCategory());
             }
 
             target.receiveHit(damage);
@@ -80,6 +80,11 @@ public class CombatSystem {
 
         float dot = dx * player.getFacingX() + dy * player.getFacingY();
         return dot >= minDot;
+    }
+
+    private int getHandDamage(HitCategory hitCategory){
+        if (hitCategory == HitCategory.STONE) return 0;
+        return Config.PLAYER_BASE_DAMAGE;
     }
 
 }

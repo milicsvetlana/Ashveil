@@ -12,6 +12,7 @@ import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
 import com.ashveil.input.PlayerInput;
+import com.ashveil.progression.ProgressionState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,8 @@ public class World {
     private final Player player;
     private final List<Shade> shades;
 
+    private final ProgressionState progressionState;
+
     public World(){
         tileMap = new TileMap();
         player = new Player(tileMap.getPlayerSpawnX(), tileMap.getPlayerSpawnY(), tileMap);
@@ -40,6 +43,7 @@ public class World {
         groundItems = new ArrayList<>();
         craftingManager = new CraftingManager();
         combatSystem = new CombatSystem();
+        progressionState = new ProgressionState();
         spawnObjects();
         dayNightCycle = new DayNightCycle();
         addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.LORE_SCROLL, 1));
@@ -95,15 +99,30 @@ public class World {
 
             for (ResourceObject o : resourceObjects){
                 if (o.isDestroyed()){
-                    addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                        o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE, o.getType().getDrop(),
-                                random.nextInt(o.getType().getMaxDrop() - o.getType().getMinDrop() + 1) + o.getType().getMinDrop()));
+                    int dropAmount = getResourceDropAmount(o);
+
+                    addGroundItem(new WorldItem(
+                        o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                        o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                        o.getType().getDrop(),
+                        dropAmount
+                    ));
                 }
             }
 
             resourceObjects.removeIf(ResourceObject::isDestroyed);
             shades.removeIf(Shade::isDead);
         }
+    }
+
+    private int getResourceDropAmount(ResourceObject resource){
+        if (resource.getType() == ResourceType.TREE && !progressionState.isFirstTreeDropClaimed()) {
+            progressionState.claimFirstTreeDrop();
+            return Config.FIRST_TREE_DROP_AMOUNT;
+        }
+
+        return random.nextInt(resource.getType().getMaxDrop() - resource.getType().getMinDrop() + 1)
+                                + resource.getType().getMinDrop();
     }
 
     private void handlePickup(PlayerInput playerInput) {

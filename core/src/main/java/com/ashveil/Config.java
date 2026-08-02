@@ -44,4 +44,6 @@ public class Config {
     public static final int SHADE_HP = 6;
     public static final int TREE_HP = 1;
     public static final int ROCK_HP = 3;
+
+    public static final int FIRST_TREE_DROP_AMOUNT = 2;
 }

@@ -186,7 +186,7 @@ public class HudRenderer {
             case STONE -> shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
             case WHEAT, BREAD -> shapeRenderer.setColor(0.9f, 0.75f, 0.2f, 1f);
             case WHEAT_SEED -> shapeRenderer.setColor(0.2f, 0.65f, 0.2f, 1f);
-            case AXE, PICKAXE, HOE, SWORD -> shapeRenderer.setColor(0.65f, 0.25f, 0.15f, 1f);
+            case WOODEN_AXE, WOODEN_PICKAXE, WOODEN_HOE, WOODEN_SWORD -> shapeRenderer.setColor(0.65f, 0.25f, 0.15f, 1f);
             default -> shapeRenderer.setColor(0.6f, 0.4f, 0.7f, 1f);
         }
     }
