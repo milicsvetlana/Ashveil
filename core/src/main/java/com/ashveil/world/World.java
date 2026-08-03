@@ -7,6 +7,7 @@ import com.ashveil.entities.Entity;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
 import com.ashveil.items.crafting.CraftingManager;
+import com.ashveil.items.crafting.CraftingResult;
 import com.ashveil.items.crafting.Recipe;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.ResourceObject;
@@ -46,10 +47,6 @@ public class World {
         progressionState = new ProgressionState();
         spawnObjects();
         dayNightCycle = new DayNightCycle();
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.LORE_SCROLL, 1));
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WOOD, 1));
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE, 1));
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.BREAD, 1));
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -247,8 +244,16 @@ public class World {
         }
     }
 
-    public void tryCraft(Recipe recipe) {
-        craftingManager.craft(recipe, player.getInventory());
+    public CraftingResult tryCraft(String recipeId) {
+        Recipe recipe = craftingManager.getRecipeById(recipeId);
+        if (recipe == null) throw new IllegalArgumentException("Recipe " + recipeId + " does not exist.");
+        CraftingResult result = craftingManager.craft(recipe, player.getInventory());
+
+        if (result.isSuccess() && result.getOverflowAmount() > 0){
+            addGroundItem(new WorldItem(player.getX(), player.getY(), recipe.getResultType(), result.getOverflowAmount()));
+        }
+
+        return result;
     }
 
     public List<Recipe> getRecipes(){
