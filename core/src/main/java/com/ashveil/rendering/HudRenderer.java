@@ -2,20 +2,15 @@ package com.ashveil.rendering;
 
 import com.ashveil.Config;
 import com.ashveil.entities.Player;
-import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.items.inventory.ItemStack;
-import com.ashveil.items.crafting.Recipe;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.world.DayNightCycle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
-import java.util.List;
 
 import static com.ashveil.Config.SCREEN_HEIGHT;
 import static com.ashveil.Config.SCREEN_WIDTH;
@@ -26,22 +21,16 @@ public class HudRenderer {
     private BitmapFont font;
     private OrthographicCamera hudCamera;
     private Viewport hudViewport;
-    private final Vector2 mousePosition;
-
-
-    private CraftingCategory selectedCategory;
 
     public HudRenderer(){
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         font = new BitmapFont();
-        selectedCategory = CraftingCategory.WEAPONS;
         hudCamera = new OrthographicCamera();
         hudViewport = new ExtendViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
-        mousePosition = new Vector2();
     }
 
-    public void render(Player player, DayNightCycle dayNightCycle, boolean menuOpen, List<Recipe> recipes){
+    public void render(Player player, DayNightCycle dayNightCycle){
         hudViewport.apply();
         shapeRenderer.setProjectionMatrix(hudCamera.combined);
         batch.setProjectionMatrix(hudCamera.combined);
@@ -50,12 +39,10 @@ public class HudRenderer {
         drawHearts(player);
         drawHotbar(player);
         drawDayNightIcon(dayNightCycle);
-        drawMenuBackground(menuOpen);
         shapeRenderer.end();
 
         batch.begin();
         drawDayText(dayNightCycle);
-        drawMenuContent(menuOpen, recipes);
         drawHotbarText(player);
         batch.end();
     }
@@ -126,58 +113,8 @@ public class HudRenderer {
             hudViewport.getWorldHeight() - 10f);
     }
 
-    private void drawMenuBackground(boolean menuOpen) {
-        if (menuOpen) {
-            shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 1f);
-            shapeRenderer.rect(100, 100, hudViewport.getWorldWidth() - 200, hudViewport.getWorldHeight() - 200);
-        }
-    }
-
-    private void drawMenuContent(boolean menuOpen, List<Recipe> recipes){
-        if(!menuOpen) return;
-        int tabX = 130;
-        for (CraftingCategory cat : CraftingCategory.values()) {
-            if (cat == selectedCategory) {
-                font.setColor(1f, 1f, 0f, 1f); // žuta = selektovana
-            } else {
-                font.setColor(1f, 1f, 1f, 1f); // bela = ostale
-            }
-            font.draw(batch, cat.name(), tabX, hudViewport.getWorldHeight() - 110);
-            tabX += 150;
-        }
-        float y = hudViewport.getWorldHeight() - 140;
-        for (Recipe r : recipes) {
-            if (r.getCategory() != selectedCategory) continue;
-            font.draw(batch, r.getResultType().name(), 130, y);
-            y -= 25;
-        }
-    }
-
     public void resize(int width, int height){
         hudViewport.update(width, height, true);
-    }
-
-    public CraftingCategory getCategoryAtScreenClick(int screenX, int screenY) {
-        mousePosition.set(screenX, screenY);
-        hudViewport.unproject(mousePosition);
-
-        return getCategoryAtHudClick(mousePosition.x, mousePosition.y);
-    }
-
-    private CraftingCategory getCategoryAtHudClick(float hudX, float hudY) {
-        int tabX = 130;
-
-        for (CraftingCategory category : CraftingCategory.values()) {
-            if (hudX >= tabX && hudX <= tabX + 140
-                && hudY >= hudViewport.getWorldHeight() - 125
-                && hudY <= hudViewport.getWorldHeight() - 105) {
-                return category;
-            }
-
-            tabX += 150;
-        }
-
-        return null;
     }
 
     private void setTemporaryItemColor(ItemType type) {
@@ -216,10 +153,6 @@ public class HudRenderer {
                 slotY + 14
             );
         }
-    }
-
-    public void setSelectedCategory(CraftingCategory cat) {
-        selectedCategory = cat;
     }
 
 }

@@ -2,14 +2,13 @@ package com.ashveil.screens;
 
 import com.ashveil.Config;
 import com.ashveil.GameApp;
-import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.rendering.HudRenderer;
 import com.ashveil.rendering.WorldRenderer;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.input.KeyBindings;
+import com.ashveil.ui.GameMenuUi;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -18,6 +17,7 @@ public class GameScreen implements Screen {
     private GameApp game;
     private WorldRenderer worldRenderer;
     private HudRenderer hudRenderer;
+    private GameMenuUi gameMenuUi;
     private World world;
     private CameraController cameraController;
     private boolean menuOpen;
@@ -29,6 +29,7 @@ public class GameScreen implements Screen {
         worldRenderer = new WorldRenderer(world.getTileMap());
         cameraController = new CameraController();
         hudRenderer = new HudRenderer();
+        gameMenuUi = new GameMenuUi();
         menuOpen = false;
         keyBindings = new KeyBindings();
     }
@@ -37,10 +38,10 @@ public class GameScreen implements Screen {
     public void render(float delta) { // delta je vreme proteklo od prethodnog frejma, u sekundama (za 60FPS je 0.016s)
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
         PlayerInput playerInput = readPlayerInput();
-        if (Gdx.input.isKeyJustPressed(keyBindings.getToggleOverlayKey())) menuOpen = !menuOpen;
+        if (Gdx.input.isKeyJustPressed(keyBindings.getToggleOverlayKey())) toggleMenu();
 
         if (menuOpen) {
-            handleMenuInput();
+            gameMenuUi.act(delta);
         }
         else {
             world.update(delta, playerInput);
@@ -53,14 +54,15 @@ public class GameScreen implements Screen {
                                     worldRenderer.getMapRenderWidth(), worldRenderer.getMapRenderHeight(), delta);
         }
         worldRenderer.render(world, cameraController);
-        hudRenderer.render(world.getPlayer(), world.getDayNightCycle(), menuOpen, world.getRecipes());
+        hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
+        if(menuOpen) gameMenuUi.draw();
     }
 
-    @Override
-    public void dispose() {
-        worldRenderer.dispose();
-        hudRenderer.dispose();
-        world.dispose();
+    private void toggleMenu(){
+        menuOpen = !menuOpen;
+
+        if(menuOpen) Gdx.input.setInputProcessor(gameMenuUi.getStage());
+        else Gdx.input.setInputProcessor(null);
     }
 
     private PlayerInput readPlayerInput(){
@@ -94,15 +96,22 @@ public class GameScreen implements Screen {
             dashPressed, selectedHotbarSlot);
     }
 
-    private void handleMenuInput(){
-        if (!Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) return;
-        CraftingCategory clicked = hudRenderer.getCategoryAtScreenClick(Gdx.input.getX(), Gdx.input.getY());
-        if (clicked != null) hudRenderer.setSelectedCategory(clicked);
-    }
-
     @Override public void resize(int i, int i1) {
         hudRenderer.resize(i, i1);
+        gameMenuUi.resize(i, i1);
     }
+
+    @Override
+    public void dispose() {
+        worldRenderer.dispose();
+        hudRenderer.dispose();
+        world.dispose();
+        if (Gdx.input.getInputProcessor() == gameMenuUi.getStage()) {
+            Gdx.input.setInputProcessor(null);
+        }
+        gameMenuUi.dispose();
+    }
+
     @Override public void show(){}
     @Override public void pause() {}
     @Override public void resume() {}
