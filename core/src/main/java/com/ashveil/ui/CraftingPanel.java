@@ -18,6 +18,7 @@ public class CraftingPanel extends Table {
     private final List<Recipe> recipes;
     private final CraftingAccess craftingAccess;
     private Recipe selectedRecipe;
+    private String craftingMessage;
 
     public CraftingPanel(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess) {
         super(skin);
@@ -33,11 +34,14 @@ public class CraftingPanel extends Table {
         refreshDetails();
     }
 
-    public void refresh(){
+    public void refresh() {
+        craftingMessage = null;
         refreshDetails();
     }
 
     private void createLayout(){
+        recipeListTable.top().left();
+        detailsTable.top().left();
         add(recipeScrollPane).width(300).growY();
         add(detailsTable).grow().padLeft(20);
     }
@@ -69,6 +73,7 @@ public class CraftingPanel extends Table {
 
     private void selectRecipe(Recipe recipe){
         selectedRecipe = recipe;
+        craftingMessage = null;
         refreshDetails();
     }
 
@@ -93,7 +98,8 @@ public class CraftingPanel extends Table {
             detailsTable.row();
         }
 
-        detailsTable.add(new Label("Produces: " + selectedRecipe.getResultType().getDisplayName(), getSkin()));
+        detailsTable.add(new Label("Produces: " + selectedRecipe.getResultType().getDisplayName() +
+                                    " x " + selectedRecipe.getResultAmount(), getSkin()));
         detailsTable.row();
 
         TextButton craftButton = new TextButton("CRAFT", getSkin());
@@ -101,7 +107,7 @@ public class CraftingPanel extends Table {
         CraftStatus status = craftingAccess.getCraftStatus(selectedRecipe.getId());
         craftButton.setDisabled(status != CraftStatus.SUCCESS);
 
-        detailsTable.add(craftButton);
+        detailsTable.add(craftButton).left().padTop(10);
         detailsTable.row();
         craftButton.addListener(new ChangeListener() {
             @Override
@@ -109,10 +115,24 @@ public class CraftingPanel extends Table {
                 craftSelectedRecipe();
             }
         });
+        if (craftingMessage != null) {
+            detailsTable.add(new Label(craftingMessage, getSkin())).left().padTop(8);
+            detailsTable.row();
+        }
+
     }
 
-    private void craftSelectedRecipe(){
+    private void craftSelectedRecipe() {
         CraftingResult result = craftingAccess.tryCraft(selectedRecipe.getId());
+
+        if (result.isSuccess()) {
+            craftingMessage = "Crafted: " + selectedRecipe.getResultType().getDisplayName();
+            if (result.getOverflowAmount() > 0) {
+                craftingMessage += " (" + result.getOverflowAmount() + " dropped nearby)";
+            }
+        }
+        else craftingMessage = "Crafting failed.";
+
         refreshDetails();
     }
 }
