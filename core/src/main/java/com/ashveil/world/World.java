@@ -6,6 +6,7 @@ import com.ashveil.combat.Hittable;
 import com.ashveil.entities.Entity;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
+import com.ashveil.items.crafting.CraftStatus;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.CraftingResult;
 import com.ashveil.items.crafting.Recipe;
@@ -14,12 +15,13 @@ import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.progression.ProgressionState;
+import com.ashveil.items.crafting.CraftingAccess;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class World {
+public class World implements CraftingAccess {
 
     private final Random random = new Random();
 
@@ -244,6 +246,7 @@ public class World {
         }
     }
 
+    @Override
     public CraftingResult tryCraft(String recipeId) {
         Recipe recipe = craftingManager.getRecipeById(recipeId);
         if (recipe == null) throw new IllegalArgumentException("Recipe " + recipeId + " does not exist.");
@@ -254,6 +257,26 @@ public class World {
         }
 
         return result;
+    }
+
+    public List<Recipe> getAvailableRecipes(){
+        List<Recipe> newList = new ArrayList<>();
+        for (Recipe recipe : getRecipes()){
+            if (craftingManager.isCategoryUnlocked(recipe.getCategory())) newList.add(recipe);
+        }
+        return newList;
+    }
+
+    @Override
+    public CraftStatus getCraftStatus(String recipeId) {
+        Recipe recipe = craftingManager.getRecipeById(recipeId);
+
+        if (recipe == null) throw new IllegalArgumentException("Recipe " + recipeId + " does not exist.");
+        return craftingManager.getCraftStatus(recipe, player.getInventory());
+    }
+
+    public int getOwnedQuantity(ItemType itemType){
+        return player.getInventory().getQuantity(itemType);
     }
 
     public List<Recipe> getRecipes(){

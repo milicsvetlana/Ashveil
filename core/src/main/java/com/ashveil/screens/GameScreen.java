@@ -29,7 +29,7 @@ public class GameScreen implements Screen {
         worldRenderer = new WorldRenderer(world.getTileMap());
         cameraController = new CameraController();
         hudRenderer = new HudRenderer();
-        gameMenuUi = new GameMenuUi();
+        gameMenuUi = new GameMenuUi(world.getAvailableRecipes(), world);
         menuOpen = false;
         keyBindings = new KeyBindings();
     }
@@ -61,7 +61,10 @@ public class GameScreen implements Screen {
     private void toggleMenu(){
         menuOpen = !menuOpen;
 
-        if(menuOpen) Gdx.input.setInputProcessor(gameMenuUi.getStage());
+        if(menuOpen){
+            gameMenuUi.onOpen();
+            Gdx.input.setInputProcessor(gameMenuUi.getStage());
+        }
         else Gdx.input.setInputProcessor(null);
     }
 

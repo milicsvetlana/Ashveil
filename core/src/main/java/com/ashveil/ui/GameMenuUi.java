@@ -1,5 +1,7 @@
 package com.ashveil.ui;
 
+import com.ashveil.items.crafting.CraftingAccess;
+import com.ashveil.items.crafting.Recipe;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -8,12 +10,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import java.util.List;
+
 //glavni kontejner
 
 public class GameMenuUi {
     private final Stage stage;
     private final Table rootTable;
     private final Table contentTable;
+    private final Table menuTable;
     private final Skin skin;
 
     private final InventoryPanel inventoryPanel;
@@ -26,15 +31,17 @@ public class GameMenuUi {
 
     private MenuTab selectedTab;
 
-    public GameMenuUi() {
+    public GameMenuUi(List<Recipe> recipes, CraftingAccess craftingAccess) {
         skin = UiSkinFactory.create();
         stage = new Stage(new ScreenViewport());
         rootTable = new Table();
         rootTable.setFillParent(true); //znaci da tabela zauzima ceo stage
         contentTable = new Table();
+        menuTable = new Table();
+        menuTable.setBackground(skin.getDrawable("menu-background"));
 
         inventoryPanel = new InventoryPanel(skin);
-        craftingPanel = new CraftingPanel(skin);
+        craftingPanel = new CraftingPanel(skin, recipes, craftingAccess);
         shopPanel = new ShopPanel(skin);
 
         inventoryButton = new TextButton("Inventory", skin);
@@ -46,13 +53,19 @@ public class GameMenuUi {
         showPanel(MenuTab.INVENTORY);
     }
 
-    private void createLayout(){
-        rootTable.add(inventoryButton).pad(8);
-        rootTable.add(craftingButton).pad(8);
-        rootTable.add(shopButton).pad(8);
+    public void onOpen(){
+        if (selectedTab == MenuTab.CRAFTING) craftingPanel.refresh();
+    }
 
-        rootTable.row();
-        rootTable.add(contentTable).colspan(3).grow().pad(12);
+    private void createLayout(){
+        menuTable.add(inventoryButton).pad(8);
+        menuTable.add(craftingButton).pad(8);
+        menuTable.add(shopButton).pad(8);
+
+        menuTable.row();
+        menuTable.add(contentTable).colspan(3).grow().pad(12);
+
+        rootTable.add(menuTable).width(1000).height(650);
         stage.addActor(rootTable);
     }
 
@@ -85,7 +98,10 @@ public class GameMenuUi {
 
         switch (menuTab){
             case INVENTORY -> contentTable.add(inventoryPanel).grow();
-            case CRAFTING -> contentTable.add(craftingPanel).grow();
+            case CRAFTING -> {
+                craftingPanel.refresh();
+                contentTable.add(craftingPanel).grow();
+            }
             case SHOP -> contentTable.add(shopPanel).grow();
         }
     }
