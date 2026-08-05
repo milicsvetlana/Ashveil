@@ -27,9 +27,7 @@ public class InventorySlotUi extends Stack {
     public InventorySlotUi(int slotIndex, boolean hotbarSlot, Skin skin) {
         this.slotIndex = slotIndex;
 
-        String backgroundName = hotbarSlot
-            ? "hotbar-slot"
-            : "inventory-slot";
+        String backgroundName = hotbarSlot ? "hotbar-slot" : "inventory-slot";
 
         defaultBackground = skin.getDrawable(backgroundName);
         selectedBackground = skin.getDrawable("inventory-slot-selected");
@@ -48,7 +46,6 @@ public class InventorySlotUi extends Stack {
         add(quantityOverlay);
 
         disableChildTouch(itemLayer, quantityOverlay);
-
         setTouchable(Touchable.enabled);
     }
 
@@ -125,7 +122,7 @@ public class InventorySlotUi extends Stack {
         durabilityBar.setDurability(itemStack.getDurability(), type.getMaxDurability());
     }
 
-    private Color getTemporaryColor(ItemType type) {
+    public static Color getTemporaryColor(ItemType type) {
         return switch (type) {
             case WOOD -> new Color(0.45f, 0.25f, 0.1f, 1f);
             case STONE -> Color.GRAY;

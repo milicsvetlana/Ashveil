@@ -1,15 +1,18 @@
 package com.ashveil.ui.panels;
 
 import com.ashveil.Config;
+import com.ashveil.combat.HitCategory;
+import com.ashveil.entities.Enemy;
 import com.ashveil.items.inventory.Inventory;
 import com.ashveil.items.inventory.ItemStack;
+import com.ashveil.ui.inventory.InventoryDragData;
 import com.ashveil.ui.inventory.InventorySlotUi;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,7 @@ public class InventoryPanel extends MenuPanel {
     private final Table hotbarTable;
     private final Table detailsTable;
     private final List<InventorySlotUi> slotViews;
+    private final DragAndDrop dragAndDrop;
 
     public InventoryPanel(Skin skin, Inventory inventory) {
         super(skin);
@@ -33,6 +37,9 @@ public class InventoryPanel extends MenuPanel {
         mainSlotsTable = new Table();
         hotbarTable = new Table();
         detailsTable = new Table();
+        dragAndDrop = new DragAndDrop();
+        dragAndDrop.setDragTime(0);
+        dragAndDrop.setDragActorPosition(28f, -28f);
 
         createSlots(skin);
         createLayout(skin);
@@ -60,9 +67,93 @@ public class InventoryPanel extends MenuPanel {
                     selectSlot(slotIndex);
                 }
             });
+
+            registerDragAndDrop(slotUi, skin);
+
             slotViews.add(slotUi);
         }
     }
+
+    private void registerDragAndDrop(InventorySlotUi slotUi, Skin skin){
+        dragAndDrop.addSource(new DragAndDrop.Source(slotUi) {
+            @Override
+            public DragAndDrop.Payload dragStart(InputEvent inputEvent, float x, float y, int pointer) {
+                int sourceIndex = slotUi.getSlotIndex();
+                ItemStack sourceStack = inventory.getSlot(sourceIndex);
+                if (sourceStack == null) return null;
+
+                DragAndDrop.Payload payload = new DragAndDrop.Payload();
+                payload.setObject(new InventoryDragData(sourceIndex));
+
+                Image dragImage = new Image(skin.getDrawable("item-placeholder"));
+                dragImage.setColor(InventorySlotUi.getTemporaryColor(sourceStack.getType()));
+                Label dragQuantity = new Label("", skin);
+
+                if (sourceStack.getQuantity() > 1) dragQuantity.setText(String.valueOf(sourceStack.getQuantity()));
+
+                Stack dragActor = new Stack();
+
+                Table imageLayer = new Table();
+                imageLayer.add(dragImage).size(48);
+
+                Table quantityLayer = new Table();
+                quantityLayer.bottom().right();
+                quantityLayer.add(dragQuantity).pad(3);
+
+                dragActor.add(imageLayer);
+                dragActor.add(quantityLayer);
+                dragActor.setSize(56, 56);
+
+                dragActor.setTouchable(Touchable.disabled);
+                payload.setDragActor(dragActor);
+
+                return payload;
+            }
+        });
+
+        dragAndDrop.addTarget(new DragAndDrop.Target(slotUi) {
+            @Override
+            public boolean drag(
+                DragAndDrop.Source source,
+                DragAndDrop.Payload payload,
+                float x,
+                float y,
+                int pointer
+            ) {
+                InventoryDragData dragData =
+                    (InventoryDragData) payload.getObject();
+
+                return dragData.getSourceSlotIndex() != slotUi.getSlotIndex();
+            }
+
+            @Override
+            public void drop(
+                DragAndDrop.Source source,
+                DragAndDrop.Payload payload,
+                float x,
+                float y,
+                int pointer
+            ) {
+                InventoryDragData dragData =
+                    (InventoryDragData) payload.getObject();
+
+                int sourceIndex = dragData.getSourceSlotIndex();
+                int destinationIndex = slotUi.getSlotIndex();
+
+                boolean moved = inventory.moveSlot(
+                    sourceIndex,
+                    destinationIndex
+                );
+
+                if (!moved) return;
+
+                refresh();
+                selectSlot(destinationIndex);
+            }
+        });
+
+    }
+
 
     private void createLayout(Skin skin){
         setBackground(getSkin().getDrawable("inventory-panel-background"));
@@ -111,7 +202,7 @@ public class InventoryPanel extends MenuPanel {
         detailsTable.clearChildren();
         ItemStack item = inventory.getSlot(selectedSlotIndex);
         if (item == null) {
-            detailsTable.add(new Label("No item selected.", getSkin()));
+            detailsTable.add(new Label("Empty slot.", getSkin()));
             return;
         }
         detailsTable.add(new Label("Name: " + item.getType().getDisplayName(), getSkin())).left();
@@ -121,6 +212,8 @@ public class InventoryPanel extends MenuPanel {
         if (item.getType().usesDurability()) detailsTable.add(new Label("Durability: " + item.getDurability() + " / " + item.getType().getMaxDurability(), getSkin())).left();
         detailsTable.row();
         if (item.getType().isStackable()) detailsTable.add(new Label("Quantity: " + item.getQuantity(), getSkin())).left();
+        detailsTable.row();
+        detailsTable.add(new Label("Damage: " + item.getType().getDamageProfile().getDamage(HitCategory.ENTITY), getSkin())).left();
     }
 
     @Override
