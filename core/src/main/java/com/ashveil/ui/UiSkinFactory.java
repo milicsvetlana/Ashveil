@@ -4,11 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 //na jednom mestu pravi privremeni ui izgled
 //kasnije, kad budemo imali teksture i fontove, menjacemo ovu klasu ili iz nje ucitavati pravi skin
@@ -18,17 +16,13 @@ public final class UiSkinFactory {
 
     public static Skin create(){
         Skin skin = new Skin();
-        //PRIVREMENO
-        Pixmap backgroundPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        backgroundPixmap.setColor(0.08f, 0.08f, 0.1f, 0.95f);
-        backgroundPixmap.fill();
 
-        Texture backgroundTexture = new Texture(backgroundPixmap);
-        backgroundPixmap.dispose();
-
-        skin.add("menu-background", backgroundTexture);
-        skin.add("menu-background-texture", backgroundTexture);
-        //PRIVREMENO
+        addSolidTexture(skin, "menu-background", new Color(0.08f, 0.08f, 0.1f, 0.95f));
+        addSolidTexture(skin, "inventory-panel-background", new Color(0.11f, 0.11f, 0.14f, 1f));
+        addSolidTexture(skin, "inventory-slot", new Color(0.18f, 0.18f, 0.22f, 1f));
+        addSolidTexture(skin, "hotbar-slot", new Color(0.30f, 0.24f, 0.13f, 1f));
+        addSolidTexture(skin, "item-placeholder", Color.WHITE);
+        addSolidTexture(skin, "inventory-slot-selected", new Color(0.55f, 0.45f, 0.15f, 1f));
 
         BitmapFont font = new BitmapFont();
         skin.add("default-font", font);
@@ -48,4 +42,16 @@ public final class UiSkinFactory {
 
         return skin;
     }
+
+    private static void addSolidTexture(Skin skin, String name, Color color){
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+
+        skin.add(name, texture);
+    }
+
 }

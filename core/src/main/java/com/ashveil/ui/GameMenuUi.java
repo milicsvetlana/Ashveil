@@ -2,6 +2,11 @@ package com.ashveil.ui;
 
 import com.ashveil.items.crafting.CraftingAccess;
 import com.ashveil.items.crafting.Recipe;
+import com.ashveil.items.inventory.Inventory;
+import com.ashveil.ui.panels.CraftingPanel;
+import com.ashveil.ui.panels.InventoryPanel;
+import com.ashveil.ui.panels.MenuPanel;
+import com.ashveil.ui.panels.ShopPanel;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -31,7 +36,7 @@ public class GameMenuUi {
 
     private MenuTab selectedTab;
 
-    public GameMenuUi(List<Recipe> recipes, CraftingAccess craftingAccess) {
+    public GameMenuUi(List<Recipe> recipes, CraftingAccess craftingAccess, Inventory inventory) {
         skin = UiSkinFactory.create();
         stage = new Stage(new ScreenViewport());
         rootTable = new Table();
@@ -40,7 +45,7 @@ public class GameMenuUi {
         menuTable = new Table();
         menuTable.setBackground(skin.getDrawable("menu-background"));
 
-        inventoryPanel = new InventoryPanel(skin);
+        inventoryPanel = new InventoryPanel(skin, inventory);
         craftingPanel = new CraftingPanel(skin, recipes, craftingAccess);
         shopPanel = new ShopPanel(skin);
 
@@ -54,7 +59,11 @@ public class GameMenuUi {
     }
 
     public void onOpen(){
-        if (selectedTab == MenuTab.CRAFTING) craftingPanel.refresh();
+        switch (selectedTab) {
+            case INVENTORY -> inventoryPanel.onShow();
+            case CRAFTING -> craftingPanel.onShow();
+            case SHOP -> shopPanel.onShow();
+        }
     }
 
     private void createLayout(){
@@ -92,17 +101,31 @@ public class GameMenuUi {
         });
     }
 
-    private void showPanel(MenuTab menuTab){
-        this.selectedTab = menuTab;
+    private void showPanel(MenuTab menuTab) {
+        if (selectedTab != null && selectedTab != menuTab) {
+            getPanel(selectedTab).onHide();
+        }
+
+        selectedTab = menuTab;
         contentTable.clearChildren();
 
-        switch (menuTab){
-            case INVENTORY -> contentTable.add(inventoryPanel).grow();
-            case CRAFTING -> {
-                craftingPanel.refresh();
-                contentTable.add(craftingPanel).grow();
-            }
-            case SHOP -> contentTable.add(shopPanel).grow();
+        MenuPanel panel = getPanel(menuTab);
+        panel.onShow();
+
+        contentTable.add(panel).grow();
+    }
+
+    private MenuPanel getPanel(MenuTab menuTab) {
+        return switch (menuTab) {
+            case INVENTORY -> inventoryPanel;
+            case CRAFTING -> craftingPanel;
+            case SHOP -> shopPanel;
+        };
+    }
+
+    public void onClose() {
+        if (selectedTab != null) {
+            getPanel(selectedTab).onHide();
         }
     }
 

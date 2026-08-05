@@ -1,10 +1,9 @@
-package com.ashveil.ui;
+package com.ashveil.ui.panels;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
-public class ShopPanel extends Table {
+public class ShopPanel extends MenuPanel {
     public ShopPanel(Skin skin) {
         super(skin);
         add(new Label("Shop", skin));

@@ -1,4 +1,4 @@
-package com.ashveil.ui;
+package com.ashveil.ui.panels;
 
 import com.ashveil.items.crafting.*;
 import com.ashveil.items.inventory.ItemType;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 //sadrzace kasnije listu recepata, kategorije kao obicne naslove, details panel, crafting dugme
-public class CraftingPanel extends Table {
+public class CraftingPanel extends MenuPanel {
 
     private final Table recipeListTable;
     private final ScrollPane recipeScrollPane;
@@ -34,6 +34,7 @@ public class CraftingPanel extends Table {
         refreshDetails();
     }
 
+    @Override
     public void refresh() {
         craftingMessage = null;
         refreshDetails();
