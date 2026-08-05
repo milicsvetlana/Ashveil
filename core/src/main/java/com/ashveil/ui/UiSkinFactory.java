@@ -23,6 +23,7 @@ public final class UiSkinFactory {
         addSolidTexture(skin, "hotbar-slot", new Color(0.30f, 0.24f, 0.13f, 1f));
         addSolidTexture(skin, "item-placeholder", Color.WHITE);
         addSolidTexture(skin, "inventory-slot-selected", new Color(0.55f, 0.45f, 0.15f, 1f));
+        addSolidTexture(skin, "inventory-slot-picked", new Color(0.85f, 0.45f, 0.10f, 1f));
         addSolidTexture(skin, "durability-bar-background", new Color(Color.WHITE));
         addSolidTexture(skin, "durability-bar-fill", new Color(0.55f, 0.20f, 0.10f, 1f));
 
@@ -36,9 +37,9 @@ public final class UiSkinFactory {
 
         buttonStyle.font = font;
         buttonStyle.fontColor = Color.WHITE;
-        buttonStyle.overFontColor = Color.YELLOW;
-        buttonStyle.downFontColor = Color.GRAY;
+        buttonStyle.overFontColor = Color.LIGHT_GRAY;
         buttonStyle.disabledFontColor = Color.RED;
+        buttonStyle.checkedFontColor = Color.YELLOW;
 
         skin.add("default", buttonStyle);
 

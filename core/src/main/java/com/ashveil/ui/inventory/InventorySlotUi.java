@@ -23,6 +23,10 @@ public class InventorySlotUi extends Stack {
 
     private final Drawable defaultBackground;
     private final Drawable selectedBackground;
+    private final Drawable keyboardPickedUpBackground;
+
+    private boolean selected;
+    private boolean keyboardPickedUp;
 
     public InventorySlotUi(int slotIndex, boolean hotbarSlot, Skin skin) {
         this.slotIndex = slotIndex;
@@ -31,6 +35,7 @@ public class InventorySlotUi extends Stack {
 
         defaultBackground = skin.getDrawable(backgroundName);
         selectedBackground = skin.getDrawable("inventory-slot-selected");
+        keyboardPickedUpBackground = skin.getDrawable("inventory-slot-picked");
 
         backgroundImage = new Image(defaultBackground);
         itemImage = createItemImage(skin);
@@ -137,7 +142,27 @@ public class InventorySlotUi extends Stack {
     }
 
     public void setSelected(boolean selected) {
-        backgroundImage.setDrawable(selected ? selectedBackground : defaultBackground);
+        this.selected = selected;
+        updateBackground();
+    }
+
+    public void setKeyboardPickedUp(boolean keyboardPickedUp) {
+        this.keyboardPickedUp = keyboardPickedUp;
+        updateBackground();
+    }
+
+    private void updateBackground() {
+        if (keyboardPickedUp) {
+            backgroundImage.setDrawable(keyboardPickedUpBackground);
+            return;
+        }
+
+        if (selected) {
+            backgroundImage.setDrawable(selectedBackground);
+            return;
+        }
+
+        backgroundImage.setDrawable(defaultBackground);
     }
 
     public int getSlotIndex() {

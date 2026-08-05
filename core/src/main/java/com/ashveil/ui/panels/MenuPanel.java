@@ -9,4 +9,11 @@ public abstract class MenuPanel extends Table {
     public void refresh() {}
     public void onShow() {refresh();}
     public void onHide() {}
+
+    public void moveSelectionLeft() {}
+    public void moveSelectionRight() {}
+    public void moveSelectionUp() {}
+    public void moveSelectionDown() {}
+
+    public void confirmSelection() {}
 }

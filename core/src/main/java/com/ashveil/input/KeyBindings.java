@@ -1,6 +1,7 @@
 package com.ashveil.input;
 
 import com.badlogic.gdx.Input;
+
 //class exists so in future we will be able to let user change commands
 public class KeyBindings {
     private int moveUpKey;
@@ -19,6 +20,14 @@ public class KeyBindings {
 
     private int toggleOverlayKey;
     private int pauseMenuKey;
+
+    private int previousMenuTabKey;
+    private int nextMenuTabKey;
+    private int menuUpKey;
+    private int menuDownKey;
+    private int menuLeftKey;
+    private int menuRightKey;
+    private int menuConfirmKey;
 
     public KeyBindings() {
         moveUpKey = Input.Keys.W;
@@ -43,48 +52,46 @@ public class KeyBindings {
 
         toggleOverlayKey = Input.Keys.TAB;
         pauseMenuKey = Input.Keys.ESCAPE;
+
+        previousMenuTabKey = Input.Keys.Q;
+        nextMenuTabKey = Input.Keys.E;
+        menuUpKey = Input.Keys.UP;
+        menuDownKey = Input.Keys.DOWN;
+        menuLeftKey = Input.Keys.LEFT;
+        menuRightKey = Input.Keys.RIGHT;
+        menuConfirmKey = Input.Keys.ENTER;
     }
 
     public int getMoveUpKey() {
         return moveUpKey;
     }
-
     public int getMoveDownKey() {
         return moveDownKey;
     }
-
     public int getMoveLeftKey() {
         return moveLeftKey;
     }
-
     public int getMoveRightKey() {
         return moveRightKey;
     }
-
     public int getPrimaryActionKey() {
         return primaryActionKey;
     }
-
     public int getInteractKey() {
         return interactKey;
     }
-
     public int getUseItemKey() {
         return useItemKey;
     }
-
     public int getDropItemKey() {
         return dropItemKey;
     }
-
     public int getDropWholeStackModifierKey() {
         return dropWholeStackModifierKey;
     }
-
     public int getDashKey() {
         return dashKey;
     }
-
     public int getHotbarKey(int slotIndex) {
         if (slotIndex < 0 || slotIndex >= hotbarKeys.length) {
             return Input.Keys.UNKNOWN;
@@ -92,16 +99,20 @@ public class KeyBindings {
 
         return hotbarKeys[slotIndex];
     }
-
     public int getHotbarSize() {
         return hotbarKeys.length;
     }
-
     public int getToggleOverlayKey() {
         return toggleOverlayKey;
     }
-
     public int getPauseMenuKey() {
         return pauseMenuKey;
     }
+    public int getPreviousMenuTabKey() {return previousMenuTabKey;}
+    public int getNextMenuTabKey() {return nextMenuTabKey;}
+    public int getMenuUpKey() {return menuUpKey;}
+    public int getMenuDownKey() {return menuDownKey;}
+    public int getMenuLeftKey() {return menuLeftKey;}
+    public int getMenuRightKey() {return menuRightKey;}
+    public int getMenuConfirmKey() {return menuConfirmKey;}
 }

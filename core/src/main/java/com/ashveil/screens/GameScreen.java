@@ -41,6 +41,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(keyBindings.getToggleOverlayKey())) toggleMenu();
 
         if (menuOpen) {
+            handleMenuInput();
             gameMenuUi.act(delta);
         }
         else {
@@ -99,6 +100,26 @@ public class GameScreen implements Screen {
 
         return new PlayerInput(moveX, moveY, primaryActionPressed, interactPressed, useItemPressed, dropItemPressed, dropWholeStack,
             dashPressed, selectedHotbarSlot);
+    }
+
+    private void handleMenuInput(){
+        if (Gdx.input.isKeyJustPressed(keyBindings.getPreviousMenuTabKey())) gameMenuUi.showPreviousTab();
+        if (Gdx.input.isKeyJustPressed(keyBindings.getNextMenuTabKey())) gameMenuUi.showNextTab();
+
+        if (Gdx.input.isKeyJustPressed(keyBindings.getMenuUpKey()) || Gdx.input.isKeyJustPressed(keyBindings.getMoveUpKey())) {
+            gameMenuUi.moveSelectionUp();
+        }
+        if (Gdx.input.isKeyJustPressed(keyBindings.getMenuDownKey()) || Gdx.input.isKeyJustPressed(keyBindings.getMoveDownKey())) {
+            gameMenuUi.moveSelectionDown();
+        }
+        if (Gdx.input.isKeyJustPressed(keyBindings.getMenuLeftKey()) || Gdx.input.isKeyJustPressed(keyBindings.getMoveLeftKey())) {
+            gameMenuUi.moveSelectionLeft();
+        }
+        if (Gdx.input.isKeyJustPressed(keyBindings.getMenuRightKey()) || Gdx.input.isKeyJustPressed(keyBindings.getMoveRightKey())) {
+            gameMenuUi.moveSelectionRight();
+        }
+
+        if (Gdx.input.isKeyJustPressed(keyBindings.getMenuConfirmKey())) gameMenuUi.confirmSelection();
     }
 
     @Override public void resize(int i, int i1) {

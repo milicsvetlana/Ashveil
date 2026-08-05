@@ -2,11 +2,12 @@ package com.ashveil.ui.panels;
 
 import com.ashveil.Config;
 import com.ashveil.combat.HitCategory;
-import com.ashveil.entities.Enemy;
 import com.ashveil.items.inventory.Inventory;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.ui.inventory.InventoryDragData;
 import com.ashveil.ui.inventory.InventorySlotUi;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -28,6 +29,7 @@ public class InventoryPanel extends MenuPanel {
     private final Table detailsTable;
     private final List<InventorySlotUi> slotViews;
     private final DragAndDrop dragAndDrop;
+    private int keyboardMoveSourceIndex = Config.SLOT_NOT_SELECTED;
 
     public InventoryPanel(Skin skin, Inventory inventory) {
         super(skin);
@@ -74,22 +76,27 @@ public class InventoryPanel extends MenuPanel {
         }
     }
 
-    private void registerDragAndDrop(InventorySlotUi slotUi, Skin skin){
+    private void registerDragAndDrop(InventorySlotUi slotUi, Skin skin) {
         dragAndDrop.addSource(new DragAndDrop.Source(slotUi) {
             @Override
             public DragAndDrop.Payload dragStart(InputEvent inputEvent, float x, float y, int pointer) {
                 int sourceIndex = slotUi.getSlotIndex();
                 ItemStack sourceStack = inventory.getSlot(sourceIndex);
+
                 if (sourceStack == null) return null;
 
+                boolean shiftPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+                boolean splitDrag = shiftPressed && sourceStack.getType().isStackable() && sourceStack.getQuantity() > 1;
+                int draggedQuantity = splitDrag ? (sourceStack.getQuantity() + 1) / 2 : sourceStack.getQuantity();
+
                 DragAndDrop.Payload payload = new DragAndDrop.Payload();
-                payload.setObject(new InventoryDragData(sourceIndex));
+                payload.setObject(new InventoryDragData(sourceIndex, draggedQuantity, splitDrag));
 
                 Image dragImage = new Image(skin.getDrawable("item-placeholder"));
                 dragImage.setColor(InventorySlotUi.getTemporaryColor(sourceStack.getType()));
                 Label dragQuantity = new Label("", skin);
 
-                if (sourceStack.getQuantity() > 1) dragQuantity.setText(String.valueOf(sourceStack.getQuantity()));
+                if (draggedQuantity > 1) {dragQuantity.setText(String.valueOf(draggedQuantity));}
 
                 Stack dragActor = new Stack();
 
@@ -103,8 +110,8 @@ public class InventoryPanel extends MenuPanel {
                 dragActor.add(imageLayer);
                 dragActor.add(quantityLayer);
                 dragActor.setSize(56, 56);
-
                 dragActor.setTouchable(Touchable.disabled);
+
                 payload.setDragActor(dragActor);
 
                 return payload;
@@ -113,37 +120,28 @@ public class InventoryPanel extends MenuPanel {
 
         dragAndDrop.addTarget(new DragAndDrop.Target(slotUi) {
             @Override
-            public boolean drag(
-                DragAndDrop.Source source,
-                DragAndDrop.Payload payload,
-                float x,
-                float y,
-                int pointer
-            ) {
-                InventoryDragData dragData =
-                    (InventoryDragData) payload.getObject();
-
-                return dragData.getSourceSlotIndex() != slotUi.getSlotIndex();
-            }
-
-            @Override
-            public void drop(
-                DragAndDrop.Source source,
-                DragAndDrop.Payload payload,
-                float x,
-                float y,
-                int pointer
-            ) {
-                InventoryDragData dragData =
-                    (InventoryDragData) payload.getObject();
+            public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                InventoryDragData dragData = (InventoryDragData) payload.getObject();
 
                 int sourceIndex = dragData.getSourceSlotIndex();
                 int destinationIndex = slotUi.getSlotIndex();
 
-                boolean moved = inventory.moveSlot(
-                    sourceIndex,
-                    destinationIndex
-                );
+                if (sourceIndex == destinationIndex) return false;
+                if (dragData.isSplitDrag()) return inventory.getSlot(destinationIndex) == null;
+
+                return true;
+            }
+
+            @Override
+            public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                InventoryDragData dragData = (InventoryDragData) payload.getObject();
+
+                int sourceIndex = dragData.getSourceSlotIndex();
+                int destinationIndex = slotUi.getSlotIndex();
+                boolean moved;
+
+                if (dragData.isSplitDrag()) moved = inventory.splitStack(sourceIndex, destinationIndex, dragData.getDraggedQuantity());
+                else moved = inventory.moveSlot(sourceIndex, destinationIndex);
 
                 if (!moved) return;
 
@@ -151,9 +149,7 @@ public class InventoryPanel extends MenuPanel {
                 selectSlot(destinationIndex);
             }
         });
-
     }
-
 
     private void createLayout(Skin skin){
         setBackground(getSkin().getDrawable("inventory-panel-background"));
@@ -218,6 +214,7 @@ public class InventoryPanel extends MenuPanel {
 
     @Override
     public void onHide(){
+        clearKeyboardMove();
         clearSelection();
     }
 
@@ -232,4 +229,102 @@ public class InventoryPanel extends MenuPanel {
         detailsTable.add(new Label("Empty slot.", getSkin()));
     }
 
+    @Override
+    public void moveSelectionLeft() {
+        if (selectFirstSlotIfNeeded()) return;
+
+        boolean leftEdge = (selectedSlotIndex % Config.HOTBAR_SIZE == 0);
+        if (leftEdge){
+            selectSlot(selectedSlotIndex + Config.HOTBAR_SIZE - 1);
+            return;
+        }
+
+        selectSlot(selectedSlotIndex - 1);
+    }
+
+    @Override
+    public void moveSelectionRight() {
+        if (selectFirstSlotIfNeeded()) return;
+
+        boolean rightEdge = (selectedSlotIndex % Config.HOTBAR_SIZE == Config.HOTBAR_SIZE - 1);
+
+        if (rightEdge){
+            selectSlot(selectedSlotIndex - Config.HOTBAR_SIZE + 1);
+            return;
+        }
+
+        selectSlot(selectedSlotIndex + 1);
+    }
+
+    @Override
+    public void moveSelectionUp() {
+        if (selectFirstSlotIfNeeded()) return;
+
+        boolean downEdge = selectedSlotIndex < Config.HOTBAR_SIZE;
+        if (downEdge){
+            selectSlot(selectedSlotIndex + Config.INVENTORY_SIZE - Config.HOTBAR_SIZE);
+            return;
+        }
+
+        selectSlot(selectedSlotIndex - Config.HOTBAR_SIZE);
+    }
+
+    @Override
+    public void moveSelectionDown() {
+        if (selectFirstSlotIfNeeded()) return;
+
+        selectSlot((selectedSlotIndex + Config.HOTBAR_SIZE) % Config.INVENTORY_SIZE);
+    }
+
+    private boolean selectFirstSlotIfNeeded() {
+        if (selectedSlotIndex != Config.SLOT_NOT_SELECTED) {
+            return false;
+        }
+
+        selectSlot(Config.HOTBAR_SIZE);
+        return true;
+    }
+
+    @Override
+    public void confirmSelection() {
+        if (selectedSlotIndex == Config.SLOT_NOT_SELECTED) {
+            selectSlot(Config.HOTBAR_SIZE);
+            return;
+        }
+
+        if (keyboardMoveSourceIndex == Config.SLOT_NOT_SELECTED) {
+            if (inventory.getSlot(selectedSlotIndex) == null) return;
+
+            beginKeyboardMove(selectedSlotIndex);
+            return;
+        }
+
+        if (keyboardMoveSourceIndex == selectedSlotIndex) {
+            clearKeyboardMove();
+            return;
+        }
+
+        boolean moved = inventory.moveSlot(
+            keyboardMoveSourceIndex,
+            selectedSlotIndex
+        );
+
+        if (!moved) return;
+
+        clearKeyboardMove();
+        refresh();
+    }
+
+    private void beginKeyboardMove(int sourceIndex) {
+        keyboardMoveSourceIndex = sourceIndex;
+        slotViews.get(sourceIndex).setKeyboardPickedUp(true);
+    }
+
+    private void clearKeyboardMove() {
+        if (keyboardMoveSourceIndex != Config.SLOT_NOT_SELECTED) {
+            slotViews.get(keyboardMoveSourceIndex).setKeyboardPickedUp(false);
+        }
+
+        keyboardMoveSourceIndex = Config.SLOT_NOT_SELECTED;
+    }
 }

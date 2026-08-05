@@ -52,6 +52,9 @@ public class GameMenuUi {
         inventoryButton = new TextButton("Inventory", skin);
         craftingButton = new TextButton("Crafting", skin);
         shopButton = new TextButton("Shop", skin);
+        inventoryButton.setProgrammaticChangeEvents(false);
+        craftingButton.setProgrammaticChangeEvents(false);
+        shopButton.setProgrammaticChangeEvents(false);
 
         createLayout();
         createListeners();
@@ -112,7 +115,14 @@ public class GameMenuUi {
         MenuPanel panel = getPanel(menuTab);
         panel.onShow();
 
+        updateTabButtons();
         contentTable.add(panel).grow();
+    }
+
+    private void updateTabButtons(){
+        inventoryButton.setChecked(selectedTab == MenuTab.INVENTORY);
+        craftingButton.setChecked(selectedTab == MenuTab.CRAFTING);
+        shopButton.setChecked(selectedTab == MenuTab.SHOP);
     }
 
     private MenuPanel getPanel(MenuTab menuTab) {
@@ -128,6 +138,28 @@ public class GameMenuUi {
             getPanel(selectedTab).onHide();
         }
     }
+
+    public void showPreviousTab(){
+        switch (selectedTab){
+            case SHOP -> showPanel(MenuTab.CRAFTING);
+            case INVENTORY -> showPanel(MenuTab.SHOP);
+            case CRAFTING -> showPanel(MenuTab.INVENTORY);
+        }
+    }
+
+    public void showNextTab() {
+        switch (selectedTab) {
+            case INVENTORY -> showPanel(MenuTab.CRAFTING);
+            case CRAFTING -> showPanel(MenuTab.SHOP);
+            case SHOP -> showPanel(MenuTab.INVENTORY);
+        }
+    }
+
+    public void moveSelectionUp(){getPanel(selectedTab).moveSelectionUp();}
+    public void moveSelectionDown(){getPanel(selectedTab).moveSelectionDown();}
+    public void moveSelectionLeft(){getPanel(selectedTab).moveSelectionLeft();}
+    public void moveSelectionRight(){getPanel(selectedTab).moveSelectionRight();}
+    public void confirmSelection() {getPanel(selectedTab).confirmSelection();}
 
     public void act(float delta){stage.act(delta);}
     public void draw(){stage.draw();}
