@@ -23,6 +23,8 @@ public final class UiSkinFactory {
         addSolidTexture(skin, "hotbar-slot", new Color(0.30f, 0.24f, 0.13f, 1f));
         addSolidTexture(skin, "item-placeholder", Color.WHITE);
         addSolidTexture(skin, "inventory-slot-selected", new Color(0.55f, 0.45f, 0.15f, 1f));
+        addSolidTexture(skin, "durability-bar-background", new Color(Color.WHITE));
+        addSolidTexture(skin, "durability-bar-fill", new Color(0.55f, 0.20f, 0.10f, 1f));
 
         BitmapFont font = new BitmapFont();
         skin.add("default-font", font);

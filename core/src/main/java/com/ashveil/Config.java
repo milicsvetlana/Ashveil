@@ -16,6 +16,7 @@ public class Config {
     public static final int INVENTORY_SIZE = 20;
     public static final int HOTBAR_SIZE = 5;
     public static final int SLOT_NOT_SELECTED = -1;
+    private static final float DURABILITY_BAR_WIDTH = 52f;
 
     /** Player stats and combat */
     public static final float PLAYER_SPEED = 100f;
