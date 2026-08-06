@@ -1,6 +1,7 @@
 package com.ashveil.world;
 
 import com.ashveil.Config;
+import com.ashveil.collision.CollisionSystem;
 import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
 import com.ashveil.entities.Entity;
@@ -33,6 +34,8 @@ public class World implements CraftingAccess {
     private final List<WorldItem> groundItems;
     private final List<ResourceObject> resourceObjects;
 
+    private final CollisionSystem collisionSystem;
+
     private final Player player;
     private final List<Shade> shades;
 
@@ -40,14 +43,15 @@ public class World implements CraftingAccess {
 
     public World(){
         tileMap = new TileMap();
-        player = new Player(tileMap.getPlayerSpawnX(), tileMap.getPlayerSpawnY(), tileMap);
+        collisionSystem = new CollisionSystem(tileMap);
+        player = new Player(tileMap.getPlayerSpawnX(), tileMap.getPlayerSpawnY(), tileMap, collisionSystem);
         shades = new ArrayList<>();
         resourceObjects = new ArrayList<>();
         groundItems = new ArrayList<>();
         craftingManager = new CraftingManager();
         combatSystem = new CombatSystem();
         progressionState = new ProgressionState();
-        spawnObjects();
+        spawnInitialResources();
         dayNightCycle = new DayNightCycle();
     }
 
@@ -100,12 +104,12 @@ public class World implements CraftingAccess {
                 if (o.isDestroyed()){
                     int dropAmount = getResourceDropAmount(o);
 
-                    addGroundItem(new WorldItem(
-                        o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                        o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                        o.getType().getDrop(),
-                        dropAmount
+                    addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                                                o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                                                   o.getType().getDrop(), dropAmount
                     ));
+
+                    collisionSystem.unregister(o);
                 }
             }
 
@@ -191,20 +195,55 @@ public class World implements CraftingAccess {
         }
     }
 
-    private void spawnObjects(){
-        int rx;
-        int ry;
+    private void spawnInitialResources(){
         int type;
-        int numberOfItems = random.nextInt(50);
-        for (int i=0; i < numberOfItems; i++) {
-            do {
-                rx = random.nextInt(tileMap.getWidth());
-                ry = random.nextInt(tileMap.getHeight());
-                type = random.nextInt(ResourceType.values().length);
-            } while (tileMap.isBlocked(rx, ry));
+        int numberOfItems = random.nextInt(Config.MAX_EXTRA_INITIAL_RESOURCES + 1);
 
-            resourceObjects.add(new ResourceObject(rx * Config.TILE_SIZE, ry * Config.TILE_SIZE, ResourceType.values()[type]));
+        for (ResourceType resourceType : ResourceType.values()){
+            for (int i=0; i < Config.MIN_INITIAL_RESOURCES; i++){
+                spawnResource(resourceType);
+            }
         }
+
+        for (int i=0; i < numberOfItems; i++) {
+            type = random.nextInt(ResourceType.values().length);
+            spawnResource(ResourceType.values()[type]);
+        }
+    }
+
+    private void spawnResource(ResourceType resourceType){
+        int tileX, tileY;
+        do {
+            tileX = random.nextInt(tileMap.getWidth());
+            tileY = random.nextInt(tileMap.getHeight());
+        } while (!isResourcePositionValid(tileX, tileY));
+
+        ResourceObject object = new ResourceObject(tileX * Config.TILE_SIZE, tileY * Config.TILE_SIZE, resourceType);
+
+        resourceObjects.add(object);
+        collisionSystem.register(object);
+    }
+
+    private boolean isResourcePositionValid(int tileX, int tileY){
+        if (tileMap.isBlocked(tileX, tileY)) return false;
+
+        float worldX = tileX * Config.TILE_SIZE;
+        float worldY = tileY * Config.TILE_SIZE;
+
+        for (ResourceObject resource : resourceObjects) {
+            if (resource.getX() == worldX && resource.getY() == worldY) return false;
+        }
+
+        float playerTileX = (int) (player.getX() / Config.TILE_SIZE);
+        float playerTileY = (int) (player.getY() / Config.TILE_SIZE);
+
+        int distanceFromPlayerX = (int) Math.abs(tileX - playerTileX);
+        int distanceFromPlayerY = (int) Math.abs(tileY - playerTileY);
+
+        if (distanceFromPlayerX <= Config.INITIAL_SPAWN_CLEAR_RADIUS
+            && distanceFromPlayerY <= Config.INITIAL_SPAWN_CLEAR_RADIUS) return false;
+
+        return true;
     }
 
     private void addGroundItem(WorldItem newItem){

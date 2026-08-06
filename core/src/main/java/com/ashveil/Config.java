@@ -35,6 +35,11 @@ public class Config {
     public static final float WORLD_ITEM_DESPAWN_TIME = 300f;
     public static final int WORLD_MAX_NUMBER_OF_ITEMS = 250;
 
+    /** World resources */
+    public static final int MAX_EXTRA_INITIAL_RESOURCES = 49;
+    public static final int MIN_INITIAL_RESOURCES = 10;
+    public static final int INITIAL_SPAWN_CLEAR_RADIUS = 2;
+
     /** Enemy stats */
     public static final float SHADE_SPEED = 30f;
 

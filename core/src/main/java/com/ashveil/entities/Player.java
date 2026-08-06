@@ -1,6 +1,7 @@
 package com.ashveil.entities;
 
 import com.ashveil.Config;
+import com.ashveil.collision.CollisionSystem;
 import com.ashveil.items.inventory.Inventory;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.world.TileMap;
@@ -11,15 +12,17 @@ public class Player extends Entity{
 
     private final TileMap tileMap;
     private final Inventory inventory;
+    private final CollisionSystem collisionSystem;
 
     private float damageCooldown = 0f;
     private float primaryActionCooldown  = 0f;
 
     private int selectedHotbarSlot;
 
-    public Player(float x, float y, TileMap tileMap) {
+    public Player(float x, float y, TileMap tileMap, CollisionSystem collisionSystem) {
         super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED);
         this.tileMap = tileMap;
+        this.collisionSystem = collisionSystem;
         inventory = new Inventory();
         selectedHotbarSlot = 0;
     }
@@ -63,15 +66,7 @@ public class Player extends Entity{
     }
 
     private boolean isCollidingAt(float px, float py) {
-        int size = Config.TILE_SIZE;
-
-        float rightX = px + size - 1;
-        float topY = py + size - 1;
-
-        return tileMap.isBlockedAtWorld(px, py)
-            || tileMap.isBlockedAtWorld(rightX, py)
-            || tileMap.isBlockedAtWorld(px, topY)
-            || tileMap.isBlockedAtWorld(rightX, topY);
+        return collisionSystem.isBlocked(px, py, Config.TILE_SIZE, Config.TILE_SIZE);
     }
 
     @Override
