@@ -33,6 +33,11 @@ public abstract class Entity {
         return currentHp <= 0;
     }
 
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public float getX() {
         return x;
     }

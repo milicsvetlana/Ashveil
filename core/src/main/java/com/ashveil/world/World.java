@@ -41,12 +41,17 @@ public class World implements CraftingAccess {
     private final Player player;
     private final List<Enemy> enemies;
 
+    private float checkpointX;
+    private float checkpointY;
+
     private final ProgressionState progressionState;
 
     public World(){
         tileMap = new TileMap();
         collisionSystem = new CollisionSystem(tileMap);
         player = new Player(tileMap.getPlayerSpawnX(), tileMap.getPlayerSpawnY(), tileMap, collisionSystem);
+        checkpointX = tileMap.getPlayerSpawnX();
+        checkpointY = tileMap.getPlayerSpawnY();
         enemies = new ArrayList<>();
         resourceObjects = new ArrayList<>();
         groundItems = new ArrayList<>();
@@ -329,6 +334,17 @@ public class World implements CraftingAccess {
 
     public int getOwnedQuantity(ItemType itemType){
         return player.getInventory().getQuantity(itemType);
+    }
+
+    public void setCheckpoint(float x, float y){
+        checkpointX = x;
+        checkpointY = y;
+    }
+
+    public void respawnPlayer(){
+        player.addBrokenHeart();
+        player.setPosition(checkpointX, checkpointY);
+        player.restoreHealth();
     }
 
     public List<Recipe> getRecipes(){

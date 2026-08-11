@@ -10,6 +10,9 @@ import com.ashveil.ui.GameMenuUi;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class GameScreen implements Screen {
@@ -22,6 +25,9 @@ public class GameScreen implements Screen {
     private CameraController cameraController;
     private boolean menuOpen;
     private KeyBindings keyBindings;
+    private DeathTransitionState deathTransitionState;
+    private float deathFadeAlpha;
+    private ShapeRenderer fadeRenderer;
 
     public GameScreen(GameApp game){
         this.game = game;
@@ -32,31 +38,40 @@ public class GameScreen implements Screen {
         gameMenuUi = new GameMenuUi(world.getAvailableRecipes(), world, world.getPlayer().getInventory());
         menuOpen = false;
         keyBindings = new KeyBindings();
+        deathTransitionState = DeathTransitionState.NONE;
+        deathFadeAlpha = 0;
+        fadeRenderer = new ShapeRenderer();
     }
 
     @Override
     public void render(float delta) { // delta je vreme proteklo od prethodnog frejma, u sekundama (za 60FPS je 0.016s)
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
+
         PlayerInput playerInput = readPlayerInput();
+
         if (Gdx.input.isKeyJustPressed(keyBindings.getToggleOverlayKey())) toggleMenu();
 
-        if (menuOpen) {
+        if (deathTransitionState != DeathTransitionState.NONE) updateDeathTransition(delta);
+        else if (menuOpen) {
             handleMenuInput();
             gameMenuUi.act(delta);
         }
         else {
             world.update(delta, playerInput);
-            if (world.getPlayer().isDead()){
-                game.setScreen(new GameOverScreen(game));
-                dispose();
-                return;
-            }
-            cameraController.update(world.getPlayer().getCenterX() * Config.SCALE, world.getPlayer().getCenterY() * Config.SCALE,
+
+            if (world.getPlayer().isDead()) startDeathTransition();
+
+            cameraController.update(world.getPlayer().getCenterX() * Config.SCALE,
+                             world.getPlayer().getCenterY() * Config.SCALE,
                                     worldRenderer.getMapRenderWidth(), worldRenderer.getMapRenderHeight(), delta);
         }
+
         worldRenderer.render(world, cameraController);
         hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
-        if(menuOpen) gameMenuUi.draw();
+
+        if (menuOpen) gameMenuUi.draw();
+
+        if (deathTransitionState != DeathTransitionState.NONE) renderDeathFade();
     }
 
     private void toggleMenu(){
@@ -127,6 +142,48 @@ public class GameScreen implements Screen {
         gameMenuUi.resize(i, i1);
     }
 
+    private void startDeathTransition(){
+        deathTransitionState = DeathTransitionState.FADING_OUT;
+        deathFadeAlpha = 0f;
+        if (menuOpen){
+            menuOpen = false;
+            Gdx.input.setInputProcessor(null);
+        }
+    }
+
+    private void updateDeathTransition(float delta){
+        if (deathTransitionState == DeathTransitionState.FADING_OUT){
+            deathFadeAlpha += delta / Config.DEATH_FADE_DURATION;
+
+            if (deathFadeAlpha >= 1f){
+                deathFadeAlpha = 1f;
+                world.respawnPlayer();
+                deathTransitionState = DeathTransitionState.FADING_IN;
+            }
+        }
+        else if (deathTransitionState == DeathTransitionState.FADING_IN){
+            deathFadeAlpha -= delta / Config.DEATH_FADE_DURATION;
+
+            if (deathFadeAlpha <= 0){
+                deathFadeAlpha = 0;
+                deathTransitionState = DeathTransitionState.NONE;
+            }
+        }
+    }
+
+    private void renderDeathFade(){
+        fadeRenderer.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT));
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        fadeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        fadeRenderer.setColor(0f, 0f, 0f, deathFadeAlpha);
+        fadeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
+        fadeRenderer.end();
+
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
     @Override
     public void dispose() {
         worldRenderer.dispose();
@@ -136,6 +193,7 @@ public class GameScreen implements Screen {
             Gdx.input.setInputProcessor(null);
         }
         gameMenuUi.dispose();
+        fadeRenderer.dispose();
     }
 
     @Override public void show(){}

@@ -11,6 +11,7 @@ public class Config {
     public static final int SCREEN_WIDTH = 1280;
     public static final int SCREEN_HEIGHT = 720;
     public static final float CAMERA_SMOOTHING = 12f;
+    public static final float DEATH_FADE_DURATION = 2f;
 
     /** Inventory */
     public static final int INVENTORY_SIZE = 20;
@@ -43,8 +44,13 @@ public class Config {
     /** Damage values */
     public static final int PLAYER_BASE_DAMAGE = 1;
 
-    /** HP values */
-    public static final int PLAYER_HP = 6;
+    /** Player HP values */
+    public static final int PLAYER_HP = 10;
+    public static final int PLAYER_HEART_SLOTS = 5;
+    public static final int HP_PER_HEART = 2;
+    public static final int MAX_BROKEN_HEARTS = 3;
+
+    //** Objects HP values */
     public static final int TREE_HP = 1;
     public static final int ROCK_HP = 3;
 

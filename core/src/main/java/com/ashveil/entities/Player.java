@@ -19,6 +19,7 @@ public class Player extends Entity{
     private float primaryActionCooldown  = 0f;
 
     private int selectedHotbarSlot;
+    private int brokenHearts;
 
     public Player(float x, float y, TileMap tileMap, CollisionSystem collisionSystem) {
         super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED, MovementType.GROUND);
@@ -26,6 +27,7 @@ public class Player extends Entity{
         this.collisionSystem = collisionSystem;
         inventory = new Inventory();
         selectedHotbarSlot = 0;
+        brokenHearts = 0;
     }
 
     @Override
@@ -97,14 +99,37 @@ public class Player extends Entity{
         return inventory.addItem(itemType, amount);
     }
 
+    public void addBrokenHeart(){
+        if (brokenHearts >= Config.MAX_BROKEN_HEARTS) return;
+        brokenHearts++;
+        maxHp = Config.PLAYER_HP - brokenHearts * Config.HP_PER_HEART;
+    }
+
+    public boolean repairBrokenHeart(){
+        if (brokenHearts == 0) return false;
+        brokenHearts--;
+        maxHp = Config.PLAYER_HP - brokenHearts * Config.HP_PER_HEART;
+        return true;
+    }
+
+    public void restoreHealth(){
+        currentHp = maxHp;
+    }
+
     public boolean canUsePrimaryAction(){return primaryActionCooldown <= 0;}
     public void resetPrimaryActionCooldown() {primaryActionCooldown = Config.PLAYER_PRIMARY_ACTION_COOLDOWN;}
+    public void resetAfterRespawn(){
+        restoreHealth();
+        damageCooldown = Config.DAMAGE_COOLDOWN_MAX;
+        primaryActionCooldown = 0;
+    }
 
     public Facing getFacing() {return facing;}
     public Inventory getInventory() {return inventory;}
     public int getSelectedHotbarSlot() {
         return selectedHotbarSlot;
     }
+    public int getBrokenHearts(){return brokenHearts;}
 
     public void setSelectedHotbarSlot(int selectedHotbarSlot) {
         if (selectedHotbarSlot < 0 ||  selectedHotbarSlot >= Config.HOTBAR_SIZE) return;

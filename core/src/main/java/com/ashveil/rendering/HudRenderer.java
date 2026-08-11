@@ -55,15 +55,37 @@ public class HudRenderer {
 
     private void drawHearts(Player player){
         int hp = player.getCurrentHp();
-        int maxHp = player.getMaxHp();
+        int brokenHearts = player.getBrokenHearts();
 
-        for (int i=0; i<maxHp; i++){
-            if (i < hp){
-                shapeRenderer.setColor(1f, 0f, 0f, 1f);
-            } else {
-                shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1f);
+        int heartSize = 20;
+        int heartGap = 5;
+        int startX = 10;
+        float y = hudViewport.getWorldHeight() - 30;
+
+        int firstBrokenHeart = Config.PLAYER_HEART_SLOTS - brokenHearts;
+
+        for (int i = 0; i < Config.PLAYER_HEART_SLOTS; i++) {
+            float x = startX + i * (heartSize + heartGap);
+
+            if (i >= firstBrokenHeart) {
+                shapeRenderer.setColor(1f, 1f, 1f, 1f);
+                shapeRenderer.rect(x, y, heartSize, heartSize);
+                continue;
             }
-            shapeRenderer.rect(10 + i * 25, hudViewport.getWorldHeight() - 30, 20, 20);
+
+            int hpInHeart = hp - i * Config.HP_PER_HEART;
+
+            shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1f);
+            shapeRenderer.rect(x, y, heartSize, heartSize);
+
+            if (hpInHeart >= Config.HP_PER_HEART) {
+                shapeRenderer.setColor(1f, 0f, 0f, 1f);
+                shapeRenderer.rect(x, y, heartSize, heartSize);
+            }
+            else if (hpInHeart == 1) {
+                shapeRenderer.setColor(1f, 0f, 0f, 1f);
+                shapeRenderer.rect(x, y, heartSize / 2f, heartSize);
+            }
         }
     }
 
