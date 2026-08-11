@@ -2,6 +2,7 @@ package com.ashveil.entities;
 
 import com.ashveil.Config;
 import com.ashveil.combat.Hittable;
+import com.badlogic.gdx.math.Rectangle;
 
 public abstract class Entity {
     protected float x, y;
@@ -9,6 +10,7 @@ public abstract class Entity {
     int currentHp;
     protected float speed;
     protected Facing facing = Facing.DOWN;
+    private final Rectangle collisionBounds;
 
     public Entity (float x, float y, int maxHp, float speed){
         this.x = x;
@@ -16,6 +18,7 @@ public abstract class Entity {
         this.maxHp = maxHp;
         this.currentHp = maxHp;
         this.speed = speed;
+        collisionBounds = new Rectangle(x, y, Config.TILE_SIZE, Config.TILE_SIZE);
     }
 
     public void takeDamage(int amount){
@@ -42,6 +45,11 @@ public abstract class Entity {
     }
     public int getCurrentHp() {return currentHp;}
     public int getMaxHp() {return maxHp;}
+
+    public Rectangle getCollisionBounds() {
+        collisionBounds.setPosition(x, y);
+        return collisionBounds;
+    }
 
     public abstract void update(float delta);
 }

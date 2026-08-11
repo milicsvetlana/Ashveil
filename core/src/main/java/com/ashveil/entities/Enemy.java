@@ -60,7 +60,7 @@ public abstract class Enemy extends Entity implements Hittable {
 
     @Override
     public boolean canReceiveHit(){
-        return state == EnemyState.DYING;
+        return state == EnemyState.ALIVE;
     }
 
     protected void moveTowardTarget(float delta) {
@@ -77,19 +77,11 @@ public abstract class Enemy extends Entity implements Hittable {
         float newX = x + dirX * speed * delta;
         float newY = y + dirY * speed * delta;
 
-        if (!isCollidingAt(newX, y)){
-            x = newX;
-        }
+        if (!isCollidingAt(newX, y)) x = newX;
+        if (!isCollidingAt(x, newY)) y = newY;
 
-        if (!isCollidingAt(x, newY)) {
-            y = newY;
-        }
-
-        if (Math.abs(dirX) > Math.abs(dirY)) {
-            facing = dirX > 0 ? Facing.RIGHT : Facing.LEFT;
-        } else {
-            facing = dirY > 0 ? Facing.UP : Facing.DOWN;
-        }
+        if (Math.abs(dirX) > Math.abs(dirY)) facing = dirX > 0 ? Facing.RIGHT : Facing.LEFT;
+        else facing = dirY > 0 ? Facing.UP : Facing.DOWN;
     }
 
     @Override

@@ -12,5 +12,18 @@ public class Shade extends Enemy{
     @Override
     protected void updateAlive(float delta) {
         moveTowardTarget(delta);
+        if (isTouchingTarget()){
+            attackTarget();
+        }
+
+
+    }
+
+    private boolean isTouchingTarget(){
+        return getCollisionBounds().overlaps(target.getCollisionBounds());
+    }
+
+    private void attackTarget(){
+        target.takeDamage(enemyType.getDamage());
     }
 }

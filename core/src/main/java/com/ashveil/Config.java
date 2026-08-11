@@ -27,7 +27,7 @@ public class Config {
     public static final float PLAYER_PICKUP_RANGE = TILE_SIZE * 2;
 
     /** Day/night cycle */
-    public static final float DAY_DURATION = 100f;
+    public static final float DAY_DURATION = 10f;
     public static final float NIGHT_DURATION = 5f;
 
     /** World stats */

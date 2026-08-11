@@ -5,7 +5,6 @@ import com.ashveil.collision.CollisionSystem;
 import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
 import com.ashveil.entities.Enemy;
-import com.ashveil.entities.Entity;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
 import com.ashveil.items.crafting.CraftStatus;
@@ -69,7 +68,6 @@ public class World implements CraftingAccess {
             spawnEnemies();
         }
 
-        handleCollisions();
         handleHotbarSelection(playerInput);
         handlePrimaryAction(playerInput);
         handlePickup(playerInput);
@@ -82,14 +80,6 @@ public class World implements CraftingAccess {
 
         groundItems.removeIf(WorldItem::shouldDespawn);
         enemies.removeIf(Enemy::shouldBeRemoved);
-    }
-
-    private void handleCollisions() {
-        for (Enemy e : enemies){
-            if (isColliding(player, e)){
-                player.takeDamage(1);
-            }
-        }
     }
 
     private void handlePrimaryAction(PlayerInput playerInput){
@@ -174,13 +164,6 @@ public class World implements CraftingAccess {
             player.getX() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
             player.getY() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
             itemType, removed));
-    }
-
-    private boolean isColliding(Entity a, Entity b){
-        return a.getX() < b.getX() + Config.TILE_SIZE &&
-            a.getX() + Config.TILE_SIZE > b.getX() &&
-            a.getY() < b.getY() + Config.TILE_SIZE &&
-            a.getY() + Config.TILE_SIZE > b.getY();
     }
 
     private void spawnEnemies(){
