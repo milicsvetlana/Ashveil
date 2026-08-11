@@ -4,7 +4,9 @@
 
 Ashveil uses Tiled maps for world layout, static collision, terrain properties, and predefined object positions.
 
-The map-specific logic is kept inside the `TileMap` class. Other gameplay classes do not directly work with Tiled layers, cells, objects, or custom properties unless rendering requires access to the loaded map.
+Static map collision and dynamic world-object collision are exposed through one movement-checking flow. `TileMap` interprets static Tiled data, while `CollisionSystem` combines that information with collision bounds registered by dynamic objects.
+
+Other gameplay classes do not directly work with Tiled layers, cells, objects, or custom properties unless rendering requires access to the loaded map.
 
 ## Tools
 
@@ -77,7 +79,7 @@ It is intended for permanent obstacles such as:
 - walls;
 - other fixed terrain.
 
-Dynamic objects such as trees, rocks, buildings, and chests will later use a separate dynamic collision system.
+Dynamic objects are not added to the Tiled `Collision` layer. Trees, rocks, and future objects such as fences, buildings, and chests use the separate `CollisionSystem` and implement `CollidableObject`.
 
 ### Objects
 
@@ -199,24 +201,131 @@ tileToWorldY(int tileY)
 getMovementMultiplierAtWorld(float worldX, float worldY)
 ```
 
-## Static Collision
+## Unified Collision System
 
-The player collision check uses four points representing the corners of the player:
+Movement collision is handled through the `com.ashveil.collision` package.
+
+The current classes are:
 
 ```text
-top-left       top-right
-
-bottom-left    bottom-right
+CollidableObject
+CollisionSystem
 ```
 
-For each point:
+### `CollidableObject`
 
-1. `Player` provides a world position.
-2. `TileMap` converts it into tile coordinates.
-3. `TileMap` checks the corresponding cell on the `Collision` layer.
-4. Movement is blocked if any checked corner is inside a blocked tile.
+`CollidableObject` is implemented by dynamic world objects that block movement.
 
-Horizontal and vertical movement are checked separately, allowing the player to slide along walls when moving diagonally.
+Its contract is:
+
+```java
+Rectangle getCollisionBounds();
+```
+
+The returned `Rectangle` represents the logical area that blocks movement. It is independent from the rendered sprite size.
+
+`ResourceObject` currently implements this interface. Future objects such as fences, buildings, and chests can implement the same contract without requiring changes to `Player`.
+
+### `CollisionSystem`
+
+`CollisionSystem` combines two collision sources:
+
+1. blocked tiles from `TileMap`;
+2. registered `CollidableObject` instances.
+
+Its main movement check receives a proposed rectangular area and returns whether that area is blocked.
+
+Conceptual flow:
+
+```text
+Player attempts movement
+        ↓
+CollisionSystem checks blocked Tiled cells
+        ↓
+CollisionSystem checks dynamic object bounds
+        ↓
+movement is allowed or rejected
+```
+
+The player does not need to know whether the obstacle is a wall tile, tree, rock, fence, or building.
+
+### Registration lifecycle
+
+`World` owns one `CollisionSystem`.
+
+When a resource is spawned:
+
+```text
+create ResourceObject
+→ add it to resourceObjects
+→ register it in CollisionSystem
+```
+
+When a resource is destroyed:
+
+```text
+create its world drop
+→ unregister it from CollisionSystem
+→ remove it from resourceObjects
+```
+
+Unregistering is required. Removing an object only from the world list would otherwise leave an invisible collision obstacle behind.
+
+### Player collision bounds
+
+The current player collision bounds use the full logical tile size:
+
+```text
+width  = Config.TILE_SIZE
+height = Config.TILE_SIZE
+```
+
+This is temporary while placeholder graphics are used.
+
+The collision architecture does not depend on the full-tile size. When final sprites are introduced, the player and world objects can use smaller or offset rectangles without changing `CollisionSystem`.
+
+For example, a future tree sprite may be visually large while only the trunk blocks movement.
+
+### Separate axis checks
+
+Horizontal and vertical movement remain checked separately:
+
+```text
+test X movement
+→ apply X if free
+
+test Y movement
+→ apply Y if free
+```
+
+This allows the player to slide along walls and objects during diagonal movement instead of stopping completely.
+
+### Blockers, terrain, and hazards
+
+Not every special tile should be represented as a `CollidableObject`.
+
+- Walls, rocks, tree trunks, and fences block movement.
+- Grass, paths, mud, and wind terrain modify movement.
+- Holes, portals, docks, and transitions allow entry and then trigger an effect.
+
+Future holes should therefore be implemented as tile effects or hazards, not as blocking collision objects. The player must be able to enter a hole tile before the game can detect the fall and return the player to the dock.
+
+## Initial Resource Placement
+
+Initial trees and rocks are spawned procedurally by `World`.
+
+The current placement rules ensure that:
+
+- every existing `ResourceType` receives a guaranteed minimum count;
+- additional resources may be spawned randomly;
+- resources are not placed on blocked Tiled cells;
+- two resources are not placed on the same tile;
+- a clear area is reserved around the player spawn;
+- every created resource is registered in `CollisionSystem`.
+
+The clear spawn area prevents the player from starting inside a resource or being immediately surrounded by collidable objects.
+
+The current rule is intentionally simple. More advanced island-specific resource tables, rarity rules, reserved paths, and guaranteed exits can be added later without changing the collision interface.
 
 ## Player Spawn
 
@@ -321,13 +430,19 @@ Tiled
     creates maps, layers, properties, and object positions
 
 TileMap
-    loads and interprets Tiled data
+    loads and interprets static Tiled data
+
+CollisionSystem
+    combines static tile collision with dynamic object collision
+
+CollidableObject
+    exposes collision bounds for dynamic blocking objects
 
 World
-    creates and manages gameplay objects
+    creates objects and registers or unregisters their collision bounds
 
 Player
-    handles movement, combat, inventory, and interactions
+    requests movement checks without knowing obstacle types
 
 WorldRenderer
     renders the map and world entities
@@ -346,7 +461,9 @@ The map system is intended to support:
 - additional terrain effects;
 - arrival and respawn points;
 - fixed map objects;
-- dynamic collision for resource objects and buildings;
+- smaller sprite-specific collision rectangles;
+- collidable fences, buildings, and chests;
+- tile hazards and trigger effects such as holes;
 - different environment rules for each island.
 
 The main island is planned as a hybrid map:

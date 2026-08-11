@@ -6,13 +6,11 @@ import com.ashveil.world.TileMap;
 public class Shade extends Enemy{
 
     public Shade(float x, float y, Player target, TileMap tilemap) {
-        super(x, y, Config.SHADE_HP, Config.SHADE_SPEED, target, tilemap);
-
+        super(x, y, EnemyType.SHADE, target, tilemap);
     }
 
     @Override
-    public void update(float delta) {
+    protected void updateAlive(float delta) {
         moveTowardTarget(delta);
     }
-
 }

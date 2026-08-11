@@ -4,6 +4,7 @@ import com.ashveil.Config;
 import com.ashveil.collision.CollisionSystem;
 import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
+import com.ashveil.entities.Enemy;
 import com.ashveil.entities.Entity;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
@@ -37,7 +38,7 @@ public class World implements CraftingAccess {
     private final CollisionSystem collisionSystem;
 
     private final Player player;
-    private final List<Shade> shades;
+    private final List<Enemy> enemies;
 
     private final ProgressionState progressionState;
 
@@ -45,7 +46,7 @@ public class World implements CraftingAccess {
         tileMap = new TileMap();
         collisionSystem = new CollisionSystem(tileMap);
         player = new Player(tileMap.getPlayerSpawnX(), tileMap.getPlayerSpawnY(), tileMap, collisionSystem);
-        shades = new ArrayList<>();
+        enemies = new ArrayList<>();
         resourceObjects = new ArrayList<>();
         groundItems = new ArrayList<>();
         craftingManager = new CraftingManager();
@@ -58,14 +59,14 @@ public class World implements CraftingAccess {
     public void update(float delta, PlayerInput playerInput){
         player.update(delta);
 
-        for (Shade z : shades){
-            z.update(delta);
+        for (Enemy e : enemies){
+            e.update(delta);
         }
 
         player.move(playerInput.getMoveX(), playerInput.getMoveY(), delta);
 
         if (dayNightCycle.justBecameNight()){
-            spawnShades();
+            spawnEnemies();
         }
 
         handleCollisions();
@@ -80,11 +81,12 @@ public class World implements CraftingAccess {
         }
 
         groundItems.removeIf(WorldItem::shouldDespawn);
+        enemies.removeIf(Enemy::shouldBeRemoved);
     }
 
     private void handleCollisions() {
-        for (Shade z : shades){
-            if (isColliding(player, z)){
+        for (Enemy e : enemies){
+            if (isColliding(player, e)){
                 player.takeDamage(1);
             }
         }
@@ -94,7 +96,7 @@ public class World implements CraftingAccess {
         if (playerInput.isPrimaryActionPressed() && player.canUsePrimaryAction()){
 
             List<Hittable> targets = new ArrayList<>();
-            targets.addAll(shades);
+            targets.addAll(enemies);
             targets.addAll(resourceObjects);
 
             int numberOfHits = combatSystem.performPrimaryAction(player, targets);
@@ -114,7 +116,6 @@ public class World implements CraftingAccess {
             }
 
             resourceObjects.removeIf(ResourceObject::isDestroyed);
-            shades.removeIf(Shade::isDead);
         }
     }
 
@@ -182,7 +183,7 @@ public class World implements CraftingAccess {
             a.getY() + Config.TILE_SIZE > b.getY();
     }
 
-    private void spawnShades(){
+    private void spawnEnemies(){
         int zx;
         int zy;
         for (int i=0; i < dayNightCycle.getDayCount()*2; i++) {
@@ -191,7 +192,7 @@ public class World implements CraftingAccess {
                 zy = random.nextInt(tileMap.getHeight());
             } while (tileMap.isBlocked(zx, zy));
 
-            shades.add(new Shade(zx * Config.TILE_SIZE, zy * Config.TILE_SIZE, player, tileMap));
+            enemies.add(new Shade(zx * Config.TILE_SIZE, zy * Config.TILE_SIZE, player, tileMap));
         }
     }
 
@@ -323,7 +324,7 @@ public class World implements CraftingAccess {
     }
     public TileMap getTileMap(){return tileMap;}
     public Player getPlayer(){return player;}
-    public List<Shade> getShades() { return shades; }
+    public List<Enemy> getEnemies() { return enemies; }
     public List<WorldItem> getGroundItems() {return groundItems;}
     public List<ResourceObject> getResourceObjects() {return resourceObjects;}
     public DayNightCycle getDayNightCycle() {return dayNightCycle;}

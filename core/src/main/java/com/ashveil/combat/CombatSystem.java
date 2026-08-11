@@ -19,6 +19,7 @@ public class CombatSystem {
         List<Hittable> inRange = new ArrayList<>();
 
         for (Hittable target : targets) {
+            if (!target.canReceiveHit()) continue;
             if (!isTargetInFrontCone(player, target.getCenterX(), target.getCenterY(), Config.PLAYER_PRIMARY_ACTION_RANGE,
                 Config.PLAYER_PRIMARY_ACTION_MIN_DOT)) continue;
 
@@ -64,7 +65,6 @@ public class CombatSystem {
 
         return dx * dx + dy * dy;
     }
-
 
     private boolean isTargetInFrontCone(Player player, float targetCenterX, float targetCenterY, float range, float minDot) {
         float dx = targetCenterX - player.getCenterX();

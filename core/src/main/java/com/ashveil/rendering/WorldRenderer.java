@@ -1,7 +1,7 @@
 package com.ashveil.rendering;
 
 import com.ashveil.Config;
-import com.ashveil.entities.Shade;
+import com.ashveil.entities.Enemy;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
 import com.ashveil.world.CameraController;
@@ -44,15 +44,15 @@ public class WorldRenderer {
         );
 
         shapeRenderer.setColor(1f, 0f, 0f, 1f);
-        for (Shade z : world.getShades()) {
-            if (z.getHitFlashTimer() > 0) {
+        for (Enemy e : world.getEnemies()) {
+            if (e.getHitFlashTimer() > 0) {
                 shapeRenderer.setColor(1f, 1f, 1f, 1f);
             } else {
                 shapeRenderer.setColor(1f, 0f, 0f, 1f);
             }
             shapeRenderer.rect(
-                z.getX() * Config.SCALE,
-                z.getY() * Config.SCALE,
+                e.getX() * Config.SCALE,
+                e.getY() * Config.SCALE,
                 Config.TILE_DRAW_SIZE,
                 Config.TILE_DRAW_SIZE
             );

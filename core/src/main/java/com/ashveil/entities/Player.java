@@ -71,10 +71,9 @@ public class Player extends Entity{
 
     @Override
     public void takeDamage(int amount){
-        if (damageCooldown > 0) {return;}
-        currentHp -= amount;
-        if (currentHp < 0) currentHp = 0;
+        if (damageCooldown > 0) return;
         damageCooldown = Config.DAMAGE_COOLDOWN_MAX;
+        super.takeDamage(amount);
     }
 
     public float getFacingX() {
@@ -101,8 +100,6 @@ public class Player extends Entity{
     public void resetPrimaryActionCooldown() {primaryActionCooldown = Config.PLAYER_PRIMARY_ACTION_COOLDOWN;}
 
     public Facing getFacing() {return facing;}
-    public int getCurrentHp() {return currentHp;}
-    public int getMaxHp() {return maxHp;}
     public Inventory getInventory() {return inventory;}
     public int getSelectedHotbarSlot() {
         return selectedHotbarSlot;

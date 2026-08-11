@@ -40,6 +40,8 @@ public abstract class Entity {
     public float getCenterY() {
         return y + Config.TILE_SIZE / 2f;
     }
+    public int getCurrentHp() {return currentHp;}
+    public int getMaxHp() {return maxHp;}
 
     public abstract void update(float delta);
 }

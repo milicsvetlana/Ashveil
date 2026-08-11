@@ -21,6 +21,9 @@ public class ResourceObject extends WorldObject implements Hittable, CollidableO
     public ResourceType getType() {return type;}
 
     @Override
+    public boolean canReceiveHit() {return true;}
+
+    @Override
     public void receiveHit(int amount) {hit(amount);}
     @Override
     public HitCategory getHitCategory() {return type.getHitCategory();}

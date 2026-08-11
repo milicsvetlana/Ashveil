@@ -40,17 +40,18 @@ public class Config {
     public static final int MIN_INITIAL_RESOURCES = 10;
     public static final int INITIAL_SPAWN_CLEAR_RADIUS = 2;
 
-    /** Enemy stats */
-    public static final float SHADE_SPEED = 30f;
-
     /** Damage values */
     public static final int PLAYER_BASE_DAMAGE = 1;
 
     /** HP values */
     public static final int PLAYER_HP = 6;
-    public static final int SHADE_HP = 6;
     public static final int TREE_HP = 1;
     public static final int ROCK_HP = 3;
+
+    /** Timers */
+    public static final float ENEMY_DYING_DURATION = 0.5f;
+    public static final float ENEMY_HP_BAR_DURATION = 1.5f;
+    public static final float ENEMY_HIT_FLASH_DURATION = 0.15f;
 
     public static final int FIRST_TREE_DROP_AMOUNT = 2;
 }
