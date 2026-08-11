@@ -18,6 +18,7 @@ public class CraftingPanel extends MenuPanel {
     private final List<Recipe> recipes;
     private final CraftingAccess craftingAccess;
     private Recipe selectedRecipe;
+    private TextButton selectedRecipeButton;
     private String craftingMessage;
 
     public CraftingPanel(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess) {
@@ -40,6 +41,17 @@ public class CraftingPanel extends MenuPanel {
         refreshDetails();
     }
 
+    @Override
+    public void onHide() {
+        if (selectedRecipeButton != null) selectedRecipeButton.setChecked(false);
+
+        selectedRecipeButton = null;
+        selectedRecipe = null;
+        craftingMessage = null;
+
+        refreshDetails();
+    }
+
     private void createLayout(){
         recipeListTable.top().left();
         detailsTable.top().left();
@@ -59,12 +71,15 @@ public class CraftingPanel extends MenuPanel {
             for (Recipe recipe : recipes){
                 if (recipe.getCategory() == category){
                     TextButton recipeButton = new TextButton(recipe.getResultType().getDisplayName(), getSkin());
+                    recipeButton.setProgrammaticChangeEvents(false);
+
                     recipeListTable.add(recipeButton).growX().left().padBottom(4);
                     recipeListTable.row();
+
                     recipeButton.addListener(new ChangeListener() {
                         @Override
                         public void changed(ChangeEvent changeEvent, Actor actor) {
-                            selectRecipe(recipe);
+                            selectRecipe(recipe, recipeButton);
                         }
                     });
                 }
@@ -72,8 +87,15 @@ public class CraftingPanel extends MenuPanel {
         }
     }
 
-    private void selectRecipe(Recipe recipe){
+    private void selectRecipe(Recipe recipe, TextButton recipeButton){
+        if (selectedRecipeButton != null && selectedRecipeButton != recipeButton) {
+            selectedRecipeButton.setChecked(false);
+        }
+
         selectedRecipe = recipe;
+        selectedRecipeButton = recipeButton;
+        selectedRecipeButton.setChecked(true);
+
         craftingMessage = null;
         refreshDetails();
     }

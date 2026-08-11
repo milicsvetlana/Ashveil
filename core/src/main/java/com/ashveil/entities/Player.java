@@ -2,6 +2,7 @@ package com.ashveil.entities;
 
 import com.ashveil.Config;
 import com.ashveil.collision.CollisionSystem;
+import com.ashveil.collision.MovementType;
 import com.ashveil.items.inventory.Inventory;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.world.TileMap;
@@ -20,7 +21,7 @@ public class Player extends Entity{
     private int selectedHotbarSlot;
 
     public Player(float x, float y, TileMap tileMap, CollisionSystem collisionSystem) {
-        super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED);
+        super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED, MovementType.GROUND);
         this.tileMap = tileMap;
         this.collisionSystem = collisionSystem;
         inventory = new Inventory();
@@ -66,7 +67,7 @@ public class Player extends Entity{
     }
 
     private boolean isCollidingAt(float px, float py) {
-        return collisionSystem.isBlocked(px, py, Config.TILE_SIZE, Config.TILE_SIZE);
+        return collisionSystem.isBlocked(px, py, Config.TILE_SIZE, Config.TILE_SIZE, getMovementType());
     }
 
     @Override

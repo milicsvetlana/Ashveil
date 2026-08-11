@@ -5,6 +5,7 @@ import com.ashveil.collision.CollisionSystem;
 import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
 import com.ashveil.entities.Enemy;
+import com.ashveil.entities.EnemyType;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.Shade;
 import com.ashveil.items.crafting.CraftStatus;
@@ -17,6 +18,7 @@ import com.ashveil.objects.ResourceType;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.items.crafting.CraftingAccess;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,16 +169,43 @@ public class World implements CraftingAccess {
     }
 
     private void spawnEnemies(){
-        int zx;
-        int zy;
-        for (int i=0; i < dayNightCycle.getDayCount()*2; i++) {
-            do {
-                zx = random.nextInt(tileMap.getWidth());
-                zy = random.nextInt(tileMap.getHeight());
-            } while (tileMap.isBlocked(zx, zy));
-
-            enemies.add(new Shade(zx * Config.TILE_SIZE, zy * Config.TILE_SIZE, player, tileMap));
+        for (int i = 0; i < dayNightCycle.getDayCount() * 2; i++) {
+            spawnEnemy(EnemyType.SHADE);
         }
+    }
+
+    private void spawnEnemy(EnemyType enemyType){
+        int tileX;
+        int tileY;
+
+        do {
+            tileX = random.nextInt(tileMap.getWidth());
+            tileY = random.nextInt(tileMap.getHeight());
+        } while (!isEnemySpawnPositionValid(tileX, tileY, enemyType));
+
+        float worldX = tileX * Config.TILE_SIZE;
+        float worldY = tileY * Config.TILE_SIZE;
+
+        if (enemyType == EnemyType.SHADE) {
+            enemies.add(new Shade(worldX, worldY, player, collisionSystem));
+        }
+    }
+
+    private boolean isEnemySpawnPositionValid(int tileX, int tileY, EnemyType enemyType){
+        float worldX = tileX * Config.TILE_SIZE;
+        float worldY = tileY * Config.TILE_SIZE;
+
+        if (collisionSystem.isBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, enemyType.getMovementType())) return false;
+
+        Rectangle spawnBounds = new Rectangle(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE);
+
+        if (spawnBounds.overlaps(player.getCollisionBounds())) return false;
+
+        for (Enemy enemy : enemies) {
+            if (spawnBounds.overlaps(enemy.getCollisionBounds())) return false;
+        }
+
+        return true;
     }
 
     private void spawnInitialResources(){

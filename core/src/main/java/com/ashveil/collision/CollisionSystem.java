@@ -26,11 +26,11 @@ public class CollisionSystem {
         collidableObjects.remove(object);
     }
 
-    public boolean isBlocked(float x, float y, float width, float height){
+    public boolean isBlocked(float x, float y, float width, float height, MovementType movementType){
         testedBounds.set(x, y, width, height);
 
         for (CollidableObject object : collidableObjects){
-            if (testedBounds.overlaps(object.getCollisionBounds())) return true; //ugradjena metoda overlaps
+            if (testedBounds.overlaps(object.getCollisionBounds()) && object.blocksMovement(movementType)) return true; //ugradjena metoda overlaps
         }
 
         int firstTileX = tileMap.worldToTileX(x);

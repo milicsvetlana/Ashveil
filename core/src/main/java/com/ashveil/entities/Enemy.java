@@ -1,29 +1,29 @@
 package com.ashveil.entities;
 
+import com.ashveil.collision.CollisionSystem;
 import com.ashveil.combat.HitCategory;
 import com.ashveil.combat.Hittable;
-import com.ashveil.world.TileMap;
 import com.ashveil.Config;
 
 public abstract class Enemy extends Entity implements Hittable {
 
     protected final Player target;
-    protected final TileMap tileMap;
+    private final CollisionSystem collisionSystem;
     protected final EnemyType enemyType;
     private EnemyState state;
     private float hitFlashTimer = 0f;
     private float hpBarTimer;
     private float dyingTimer;
 
-    public Enemy(float x, float y, EnemyType enemyType, Player target, TileMap tileMap) {
-        super(x, y, enemyType.getMaxHp(), enemyType.getMaxSpeed());
+    public Enemy(float x, float y, EnemyType enemyType, Player target, CollisionSystem collisionSystem) {
+        super(x, y, enemyType.getMaxHp(), enemyType.getMaxSpeed(), enemyType.getMovementType());
         this.enemyType = enemyType;
         this.target = target;
-        this.tileMap = tileMap;
         this.state = EnemyState.ALIVE;
         this.hitFlashTimer = 0;
         this.hpBarTimer = 0;
         this.dyingTimer = 0;
+        this.collisionSystem = collisionSystem;
     }
 
     public final void update(float delta){ //ova i naredna klasa su bitne jer ovde stavljamo final kako ne bi moglo da se nasledi,
@@ -88,13 +88,7 @@ public abstract class Enemy extends Entity implements Hittable {
     public void receiveHit(int amount) {takeDamage(amount);}
 
     private boolean isCollidingAt(float px, float py){
-        int size = Config.TILE_SIZE;
-
-        return tileMap.isBlocked((int) (px / size), (int) (py / size)) ||
-            tileMap.isBlocked((int) ((px + size - 1) / size), (int) (py / size)) ||
-            tileMap.isBlocked((int) (px / size), (int) ((py + size - 1) / size)) ||
-            tileMap.isBlocked((int) ((px + size - 1) / size), (int) ((py + size - 1) / size)
-        );
+        return collisionSystem.isBlocked(px, py, Config.TILE_SIZE, Config.TILE_SIZE, getMovementType());
     }
 
     @Override

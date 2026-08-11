@@ -2,6 +2,7 @@ package com.ashveil.objects;
 
 import com.ashveil.Config;
 import com.ashveil.collision.CollidableObject;
+import com.ashveil.collision.MovementType;
 import com.ashveil.combat.HitCategory;
 import com.ashveil.combat.Hittable;
 import com.badlogic.gdx.math.Rectangle;
@@ -31,5 +32,10 @@ public class ResourceObject extends WorldObject implements Hittable, CollidableO
     @Override
     public Rectangle getCollisionBounds() {
         return collisionBounds;
+    }
+
+    @Override
+    public boolean blocksMovement(MovementType movementType) {
+        return movementType == MovementType.GROUND;
     }
 }
