@@ -3,6 +3,7 @@ package com.ashveil.entities;
 import com.ashveil.Config;
 import com.ashveil.collision.CollisionSystem;
 import com.ashveil.collision.MovementType;
+import com.ashveil.economy.Wallet;
 import com.ashveil.items.inventory.Inventory;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.world.TileMap;
@@ -14,6 +15,7 @@ public class Player extends Entity{
     private final TileMap tileMap;
     private final Inventory inventory;
     private final CollisionSystem collisionSystem;
+    private final Wallet wallet;
 
     private float damageCooldown = 0f;
     private float primaryActionCooldown  = 0f;
@@ -26,6 +28,7 @@ public class Player extends Entity{
         this.tileMap = tileMap;
         this.collisionSystem = collisionSystem;
         inventory = new Inventory();
+        wallet = new Wallet();
         selectedHotbarSlot = 0;
         brokenHearts = 0;
     }
@@ -130,6 +133,7 @@ public class Player extends Entity{
         return selectedHotbarSlot;
     }
     public int getBrokenHearts(){return brokenHearts;}
+    public Wallet getWallet(){return wallet;}
 
     public void setSelectedHotbarSlot(int selectedHotbarSlot) {
         if (selectedHotbarSlot < 0 ||  selectedHotbarSlot >= Config.HOTBAR_SIZE) return;

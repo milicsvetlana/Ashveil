@@ -1,8 +1,7 @@
-package com.ashveil.entities;
+package com.ashveil.entities.enemies;
 
-import com.ashveil.Config;
 import com.ashveil.collision.CollisionSystem;
-import com.ashveil.world.TileMap;
+import com.ashveil.entities.Player;
 
 public class Shade extends Enemy{
 

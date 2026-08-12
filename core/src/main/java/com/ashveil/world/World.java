@@ -4,10 +4,10 @@ import com.ashveil.Config;
 import com.ashveil.collision.CollisionSystem;
 import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
-import com.ashveil.entities.Enemy;
-import com.ashveil.entities.EnemyType;
+import com.ashveil.entities.enemies.Enemy;
+import com.ashveil.entities.enemies.EnemyType;
 import com.ashveil.entities.Player;
-import com.ashveil.entities.Shade;
+import com.ashveil.entities.enemies.Shade;
 import com.ashveil.items.crafting.CraftStatus;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.CraftingResult;
@@ -86,6 +86,10 @@ public class World implements CraftingAccess {
         }
 
         groundItems.removeIf(WorldItem::shouldDespawn);
+        for (Enemy enemy : enemies){
+            if (!enemy.shouldBeRemoved()) continue;
+            addGroundItem(new WorldItem(enemy.getX(), enemy.getY(), ItemType.GOLD, getRandomGoldDrop()));
+        }
         enemies.removeIf(Enemy::shouldBeRemoved);
     }
 
@@ -126,6 +130,13 @@ public class World implements CraftingAccess {
                                 + resource.getType().getMinDrop();
     }
 
+    private int getRandomGoldDrop(){
+        int roll = random.nextInt(100);
+        if (roll < Config.DOUBLE_GOLD_DROP_CHANCE) return 2;
+        if (roll < Config.DOUBLE_GOLD_DROP_CHANCE + Config.SINGLE_GOLD_DROP_CHANCE) return 1;
+        return 0;
+    }
+
     private void handlePickup(PlayerInput playerInput) {
         if (!playerInput.isInteractPressed()) return;
 
@@ -144,6 +155,11 @@ public class World implements CraftingAccess {
             }
         }
         if(nearestItem == null) return;
+        if (nearestItem.getType() == ItemType.GOLD){
+            player.getWallet().addGold(nearestItem.getAmount());
+            groundItems.remove(nearestItem);
+            return;
+        }
         int remaining = player.pickUp(nearestItem.getType(), nearestItem.getAmount());
         if (remaining == 0) groundItems.remove(nearestItem);
         else nearestItem.setAmount(remaining);
@@ -265,6 +281,7 @@ public class World implements CraftingAccess {
     }
 
     private void addGroundItem(WorldItem newItem){
+        if (newItem.getAmount() <= 0) return;
         int remaining = newItem.getAmount();
 
         if (newItem.getType().isStackable()){

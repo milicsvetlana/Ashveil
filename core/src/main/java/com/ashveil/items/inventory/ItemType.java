@@ -201,6 +201,15 @@ public enum ItemType {
         0,
         false,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+    ),
+
+    GOLD(
+        "Gold",
+        "Money",
+        20,
+        0,
+        true,
+        null
     );
 
     private final String displayName;

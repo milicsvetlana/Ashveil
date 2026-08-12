@@ -37,12 +37,14 @@ public class HudRenderer {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         drawHearts(player);
+        drawGoldIcon();
         drawHotbar(player);
         drawDayNightIcon(dayNightCycle);
         shapeRenderer.end();
 
         batch.begin();
         drawDayText(dayNightCycle);
+        drawGoldText(player);
         drawHotbarText(player);
         batch.end();
     }
@@ -89,6 +91,14 @@ public class HudRenderer {
         }
     }
 
+    private void drawGoldIcon(){
+        float x = 20f;
+        float y = hudViewport.getWorldHeight() - 55f;
+
+        shapeRenderer.setColor(1f, 0.78f, 0.12f, 1f);
+        shapeRenderer.circle(x, y, 7f);
+    }
+
     private void drawHotbar(Player player) {
         int slotSize = 40;
         int slotGap = 5;
@@ -133,6 +143,11 @@ public class HudRenderer {
         font.draw(batch, "DAY: " + dayNightCycle.getDayCount(),
             hudViewport.getWorldWidth() - 100f,
             hudViewport.getWorldHeight() - 10f);
+    }
+
+    private void drawGoldText(Player player){
+        font.setColor(1f, 1f, 1f, 1f);
+        font.draw(batch, String.valueOf(player.getWallet().getGold()), 33f, hudViewport.getWorldHeight() - 49f);
     }
 
     public void resize(int width, int height){

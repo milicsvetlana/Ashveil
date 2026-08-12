@@ -1,9 +1,12 @@
-package com.ashveil.entities;
+package com.ashveil.entities.enemies;
 
 import com.ashveil.collision.CollisionSystem;
 import com.ashveil.combat.HitCategory;
 import com.ashveil.combat.Hittable;
 import com.ashveil.Config;
+import com.ashveil.entities.Entity;
+import com.ashveil.entities.Facing;
+import com.ashveil.entities.Player;
 
 public abstract class Enemy extends Entity implements Hittable {
 

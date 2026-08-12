@@ -1,7 +1,7 @@
 package com.ashveil.rendering;
 
 import com.ashveil.Config;
-import com.ashveil.entities.Enemy;
+import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.objects.ResourceObject;
 import com.ashveil.objects.ResourceType;
 import com.ashveil.world.CameraController;

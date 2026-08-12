@@ -1,4 +1,4 @@
-package com.ashveil.entities;
+package com.ashveil.entities.enemies;
 
 import com.ashveil.collision.MovementType;
 

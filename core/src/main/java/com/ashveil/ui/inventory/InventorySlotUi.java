@@ -138,6 +138,7 @@ public class InventorySlotUi extends Stack {
             case FENCE -> new Color(0.5f, 0.3f, 0.12f, 1f);
             case BOAT_KIT -> new Color(0.35f, 0.55f, 0.7f, 1f);
             case LORE_SCROLL -> new Color(0.65f, 0.4f, 0.75f, 1f);
+            case GOLD -> Color.GOLD;
         };
     }
 
