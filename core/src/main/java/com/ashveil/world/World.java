@@ -60,6 +60,14 @@ public class World implements CraftingAccess {
         progressionState = new ProgressionState();
         spawnInitialResources();
         dayNightCycle = new DayNightCycle();
+
+
+        addGroundItem(new WorldItem(
+            player.getX(),
+            player.getY(),
+            ItemType.HEART_REPAIR,
+            3
+        ));
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -79,6 +87,7 @@ public class World implements CraftingAccess {
         handlePrimaryAction(playerInput);
         handlePickup(playerInput);
         handleDropItem(playerInput);
+        handleUseItem(playerInput);
         dayNightCycle.update(delta);
 
         for (WorldItem item : groundItems){
@@ -187,6 +196,20 @@ public class World implements CraftingAccess {
             player.getX() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
             player.getY() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
             itemType, removed));
+    }
+
+    private void handleUseItem(PlayerInput playerInput){
+        if (!playerInput.isUseItemPressed()) return;
+
+        int selectedSlot = player.getSelectedHotbarSlot();
+        ItemType itemType = player.getInventory().getItemTypeBySlot(selectedSlot);
+
+        if (itemType == null) return;
+
+        if (itemType == ItemType.HEART_REPAIR){
+            player.useHeartRepair();
+            player.getInventory().removeFromSlot(selectedSlot, 1);
+        }
     }
 
     private void spawnEnemies(){

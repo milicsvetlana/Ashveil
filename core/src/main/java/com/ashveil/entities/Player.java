@@ -119,6 +119,11 @@ public class Player extends Entity{
         currentHp = maxHp;
     }
 
+    public void useHeartRepair(){
+        repairBrokenHeart();
+        restoreHealth();
+    }
+
     public boolean canUsePrimaryAction(){return primaryActionCooldown <= 0;}
     public void resetPrimaryActionCooldown() {primaryActionCooldown = Config.PLAYER_PRIMARY_ACTION_COOLDOWN;}
     public void resetAfterRespawn(){

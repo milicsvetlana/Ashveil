@@ -210,7 +210,18 @@ public enum ItemType {
         0,
         true,
         null
-    );
+    ),
+    //TEMP NAZIV, PROMENICU
+    HEART_REPAIR(
+        "Health Repair",
+        "Mends a broken heart and restores your health to its current maximum.",
+        3,
+        0,
+        true,
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+    )
+
+    ;
 
     private final String displayName;
     private final String description;
