@@ -98,6 +98,17 @@ public class WorldRenderer {
         }
     }
 
+    public void renderTargetPreview(CameraController cameraController, float worldX, float worldY, boolean valid){
+        shapeRenderer.setProjectionMatrix(cameraController.getCamera().combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+        if (valid) shapeRenderer.setColor(0f, 1f, 0f, 1f);
+        else shapeRenderer.setColor(1f, 0f, 0f, 1f);
+
+        shapeRenderer.rect(worldX * Config.SCALE, worldY * Config.SCALE, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+        shapeRenderer.end();
+    }
+
     public int getMapWidthInTiles() {
         return tiledMap.getProperties().get("width", Integer.class);
     }

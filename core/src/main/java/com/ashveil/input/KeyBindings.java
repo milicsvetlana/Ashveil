@@ -19,7 +19,6 @@ public class KeyBindings {
     private final int[] hotbarKeys;
 
     private int toggleOverlayKey;
-    private int pauseMenuKey;
 
     private int previousMenuTabKey;
     private int nextMenuTabKey;
@@ -28,6 +27,7 @@ public class KeyBindings {
     private int menuLeftKey;
     private int menuRightKey;
     private int menuConfirmKey;
+    private int cancelBackKey;
 
     public KeyBindings() {
         moveUpKey = Input.Keys.W;
@@ -51,7 +51,6 @@ public class KeyBindings {
         };
 
         toggleOverlayKey = Input.Keys.TAB;
-        pauseMenuKey = Input.Keys.ESCAPE;
 
         previousMenuTabKey = Input.Keys.Q;
         nextMenuTabKey = Input.Keys.E;
@@ -60,6 +59,8 @@ public class KeyBindings {
         menuLeftKey = Input.Keys.LEFT;
         menuRightKey = Input.Keys.RIGHT;
         menuConfirmKey = Input.Keys.ENTER;
+
+        cancelBackKey = Input.Keys.ESCAPE;
     }
 
     public int getMoveUpKey() {
@@ -105,9 +106,6 @@ public class KeyBindings {
     public int getToggleOverlayKey() {
         return toggleOverlayKey;
     }
-    public int getPauseMenuKey() {
-        return pauseMenuKey;
-    }
     public int getPreviousMenuTabKey() {return previousMenuTabKey;}
     public int getNextMenuTabKey() {return nextMenuTabKey;}
     public int getMenuUpKey() {return menuUpKey;}
@@ -115,4 +113,5 @@ public class KeyBindings {
     public int getMenuLeftKey() {return menuLeftKey;}
     public int getMenuRightKey() {return menuRightKey;}
     public int getMenuConfirmKey() {return menuConfirmKey;}
+    public int getCancelBackKey() {return cancelBackKey;}
 }

@@ -3,17 +3,20 @@ package com.ashveil.items.inventory;
 import com.ashveil.Config;
 import com.ashveil.combat.DamageProfile;
 import com.ashveil.combat.HitCategory;
+import com.ashveil.targeting.TargetMode;
 
 import java.util.Map;
 
 public enum ItemType {
+
     WOOD(
         "Wood",
         "A basic crafting material gathered from trees.",
         20,
         0,
         true,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE
     ),
 
     STONE(
@@ -22,7 +25,8 @@ public enum ItemType {
         20,
         0,
         true,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE
     ),
 
     FENCE(
@@ -31,7 +35,8 @@ public enum ItemType {
         20,
         0,
         true,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.PLACE
     ),
 
     WHEAT(
@@ -40,7 +45,8 @@ public enum ItemType {
         20,
         0,
         true,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE
     ),
 
     WHEAT_SEED(
@@ -49,7 +55,8 @@ public enum ItemType {
         20,
         0,
         true,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.PLANT
     ),
 
     BREAD(
@@ -58,7 +65,8 @@ public enum ItemType {
         20,
         0,
         true,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE
     ),
 
     WOODEN_AXE(
@@ -74,7 +82,8 @@ public enum ItemType {
                 HitCategory.ENTITY, 2,
                 HitCategory.STONE, 0
             )
-        )
+        ),
+        TargetMode.NONE
     ),
 
     STONE_AXE(
@@ -90,7 +99,8 @@ public enum ItemType {
                 HitCategory.ENTITY, 3,
                 HitCategory.STONE, 0
             )
-        )
+        ),
+        TargetMode.NONE
     ),
 
     WOODEN_PICKAXE(
@@ -106,7 +116,8 @@ public enum ItemType {
                 HitCategory.ENTITY, 2,
                 HitCategory.WOOD, 0
             )
-        )
+        ),
+        TargetMode.NONE
     ),
 
     STONE_PICKAXE(
@@ -122,7 +133,8 @@ public enum ItemType {
                 HitCategory.ENTITY, 3,
                 HitCategory.WOOD, 0
             )
-        )
+        ),
+        TargetMode.NONE
     ),
 
     WOODEN_HOE(
@@ -137,7 +149,8 @@ public enum ItemType {
                 HitCategory.ENTITY, 2,
                 HitCategory.STONE, 0
             )
-        )
+        ),
+        TargetMode.TILL
     ),
 
     STONE_HOE(
@@ -152,7 +165,8 @@ public enum ItemType {
                 HitCategory.ENTITY, 3,
                 HitCategory.STONE, 0
             )
-        )
+        ),
+        TargetMode.TILL
     ),
 
     WOODEN_SWORD(
@@ -167,7 +181,8 @@ public enum ItemType {
                 HitCategory.ENTITY, 3,
                 HitCategory.STONE, 0
             )
-        )
+        ),
+        TargetMode.NONE
     ),
 
     STONE_SWORD(
@@ -182,7 +197,8 @@ public enum ItemType {
                 HitCategory.ENTITY, 5,
                 HitCategory.STONE, 0
             )
-        )
+        ),
+        TargetMode.NONE
     ),
 
     BOAT_KIT(
@@ -191,7 +207,8 @@ public enum ItemType {
         1,
         0,
         false,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE
     ),
 
     LORE_SCROLL(
@@ -200,7 +217,8 @@ public enum ItemType {
         1,
         0,
         false,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE
     ),
 
     GOLD(
@@ -209,17 +227,20 @@ public enum ItemType {
         20,
         0,
         true,
-        null
+        null,
+        TargetMode.NONE
     ),
-    //TEMP NAZIV, PROMENICU
+
+    // TEMP NAZIV, PROMENICU
     HEART_REPAIR(
         "Health Repair",
         "Mends a broken heart and restores your health to its current maximum.",
         3,
         0,
         true,
-        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of())
-    )
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE
+    );
 
     ;
 
@@ -229,14 +250,17 @@ public enum ItemType {
     private final int maxDurability;
     private boolean despawnsOnGround;
     private final DamageProfile damageProfile;
+    private final TargetMode targetMode;
 
-    ItemType(String displayName, String description, int maxStack, int maxDurability, boolean despawnsOnGround, DamageProfile damageProfile){
+    ItemType(String displayName, String description, int maxStack, int maxDurability, boolean despawnsOnGround,
+             DamageProfile damageProfile, TargetMode targetMode){
         this.displayName = displayName;
         this.description = description;
         this.maxStack = maxStack;
         this.maxDurability = maxDurability;
         this.despawnsOnGround = despawnsOnGround;
         this.damageProfile = damageProfile;
+        this.targetMode = targetMode;
     }
 
     public String getDisplayName() {return displayName;}
@@ -246,6 +270,7 @@ public enum ItemType {
     public DamageProfile getDamageProfile() {
         return damageProfile;
     }
+    public TargetMode getTargetMode() {return targetMode;}
 
     public boolean isStackable(){return maxStack > 1;}
     public boolean usesDurability(){return maxDurability > 0;}

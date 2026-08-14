@@ -2,13 +2,16 @@ package com.ashveil.world;
 
 import com.ashveil.Config;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector3;
 
 public class CameraController {
     public OrthographicCamera camera;
+    private final Vector3 worldCoordinates;
 
     public CameraController(){
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
+        worldCoordinates = new Vector3();
     }
 
     public void update(float playerX, float playerY, float mapWidth, float mapHeight, float delta) {
@@ -28,4 +31,12 @@ public class CameraController {
 
         camera.update();
     }
+
+    public Vector3 screenToWorld(float screenX, float screenY){
+        worldCoordinates.set(screenX, screenY, 0);
+        camera.unproject(worldCoordinates);
+        return worldCoordinates;
+    }
+
+    public OrthographicCamera getCamera() {return camera;}
 }

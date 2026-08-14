@@ -6,6 +6,8 @@ import com.ashveil.rendering.HudRenderer;
 import com.ashveil.rendering.WorldRenderer;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.input.KeyBindings;
+import com.ashveil.targeting.TargetMode;
+import com.ashveil.targeting.TileTargetingSystem;
 import com.ashveil.ui.GameMenuUi;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
@@ -13,6 +15,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class GameScreen implements Screen {
@@ -28,6 +31,7 @@ public class GameScreen implements Screen {
     private DeathTransitionState deathTransitionState;
     private float deathFadeAlpha;
     private ShapeRenderer fadeRenderer;
+    private TileTargetingSystem tileTargetingSystem;
 
     public GameScreen(GameApp game){
         this.game = game;
@@ -41,11 +45,14 @@ public class GameScreen implements Screen {
         deathTransitionState = DeathTransitionState.NONE;
         deathFadeAlpha = 0;
         fadeRenderer = new ShapeRenderer();
+        tileTargetingSystem = new TileTargetingSystem(cameraController, world.getTileMap());
     }
 
     @Override
     public void render(float delta) { // delta je vreme proteklo od prethodnog frejma, u sekundama (za 60FPS je 0.016s)
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
+        handleCancelBackInput();
+        tileTargetingSystem.update();
 
         PlayerInput playerInput = readPlayerInput();
 
@@ -67,6 +74,10 @@ public class GameScreen implements Screen {
         }
 
         worldRenderer.render(world, cameraController);
+        if (world.getTargetMode() != TargetMode.NONE){
+            boolean targetValid = world.isCurrentTargetValid(tileTargetingSystem.getTileX(), tileTargetingSystem.getTileY(), tileTargetingSystem.getWorldX(), tileTargetingSystem.getWorldY());
+            worldRenderer.renderTargetPreview(cameraController, tileTargetingSystem.getWorldX(), tileTargetingSystem.getWorldY(), targetValid);
+        }
         hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
 
         if (menuOpen) gameMenuUi.draw();
@@ -137,6 +148,19 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(keyBindings.getMenuConfirmKey())) gameMenuUi.confirmSelection();
     }
 
+    private void handleCancelBackInput(){
+        if (!Gdx.input.isKeyJustPressed(keyBindings.getCancelBackKey())) return;
+
+        if (menuOpen){
+            toggleMenu();
+            return;
+        }
+
+        if (world.getTargetMode() != TargetMode.NONE){
+            world.cancelTargeting();
+        }
+     }
+
     @Override public void resize(int i, int i1) {
         hudRenderer.resize(i, i1);
         gameMenuUi.resize(i, i1);
@@ -149,6 +173,7 @@ public class GameScreen implements Screen {
             menuOpen = false;
             Gdx.input.setInputProcessor(null);
         }
+        world.cancelTargeting();
     }
 
     private void updateDeathTransition(float delta){

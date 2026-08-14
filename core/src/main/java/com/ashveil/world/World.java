@@ -18,6 +18,7 @@ import com.ashveil.objects.ResourceType;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.items.crafting.CraftingAccess;
+import com.ashveil.targeting.TargetMode;
 import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayList;
@@ -45,6 +46,8 @@ public class World implements CraftingAccess {
     private float checkpointY;
 
     private final ProgressionState progressionState;
+    private TargetMode targetMode;
+    private Rectangle targetBounds;
 
     public World(){
         tileMap = new TileMap();
@@ -60,14 +63,12 @@ public class World implements CraftingAccess {
         progressionState = new ProgressionState();
         spawnInitialResources();
         dayNightCycle = new DayNightCycle();
+        targetMode = TargetMode.NONE;
+        targetBounds = new Rectangle();
 
-
-        addGroundItem(new WorldItem(
-            player.getX(),
-            player.getY(),
-            ItemType.HEART_REPAIR,
-            3
-        ));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.FENCE, 2));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 2));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_HOE, 2));
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -177,7 +178,9 @@ public class World implements CraftingAccess {
     private void handleHotbarSelection(PlayerInput playerInput){
         int selectedSlot = playerInput.getSelectedHotbarSlot();
         if (selectedSlot == -1) return;
+        if (selectedSlot == player.getSelectedHotbarSlot()) return;
         player.setSelectedHotbarSlot(selectedSlot);
+        cancelTargeting();
     }
 
     private void handleDropItem(PlayerInput playerInput){
@@ -205,6 +208,20 @@ public class World implements CraftingAccess {
         ItemType itemType = player.getInventory().getItemTypeBySlot(selectedSlot);
 
         if (itemType == null) return;
+
+        if (itemType.getTargetMode() != TargetMode.NONE){
+            if (targetMode == itemType.getTargetMode()) {
+                targetMode = TargetMode.NONE;
+            }
+            else {
+                targetMode = itemType.getTargetMode();
+            }
+            return;
+        }
+
+        if (targetMode != TargetMode.NONE){
+            targetMode = TargetMode.NONE;
+        }
 
         if (itemType == ItemType.HEART_REPAIR){
             player.useHeartRepair();
@@ -248,6 +265,37 @@ public class World implements CraftingAccess {
         for (Enemy enemy : enemies) {
             if (spawnBounds.overlaps(enemy.getCollisionBounds())) return false;
         }
+
+        return true;
+    }
+
+    public boolean isCurrentTargetValid(int tileX, int tileY, float worldX, float worldY){
+        if (tileX < 0 || tileY < 0 || tileX >= tileMap.getWidth() || tileY >= tileMap.getHeight()) return false;
+
+        int playerTileX = tileMap.worldToTileX(player.getCenterX());
+        int playerTileY = tileMap.worldToTileY(player.getCenterY());
+
+        int distanceX = tileX - playerTileX;
+        int distanceY = tileY - playerTileY;
+
+        int distanceSquared = distanceX * distanceX + distanceY * distanceY;
+        if (distanceSquared > Config.PLAYER_TARGET_RANGE * Config.PLAYER_TARGET_RANGE) return false;
+
+        targetBounds.set(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE);
+
+        if (targetMode == TargetMode.PLACE){
+            if (targetBounds.overlaps(player.getCollisionBounds())) return false;
+        }
+
+        if (tileMap.isBlocked(tileX, tileY)) return false;
+
+        for (Enemy enemy : enemies) {
+            if (targetBounds.overlaps(enemy.getCollisionBounds())) return false;
+        }
+
+        for (ResourceObject resourceObject : resourceObjects){
+            if (targetBounds.overlaps(resourceObject.getCollisionBounds())) return false;
+         }
 
         return true;
     }
@@ -387,6 +435,9 @@ public class World implements CraftingAccess {
         player.restoreHealth();
     }
 
+    public void setTargetMode(TargetMode targetMode){this.targetMode = targetMode;}
+    public void cancelTargeting(){targetMode = TargetMode.NONE;}
+
     public List<Recipe> getRecipes(){
         return craftingManager.getRecipes();
     }
@@ -396,6 +447,7 @@ public class World implements CraftingAccess {
     public List<WorldItem> getGroundItems() {return groundItems;}
     public List<ResourceObject> getResourceObjects() {return resourceObjects;}
     public DayNightCycle getDayNightCycle() {return dayNightCycle;}
+    public TargetMode getTargetMode() {return targetMode;}
 
     public void dispose(){
         tileMap.dispose();

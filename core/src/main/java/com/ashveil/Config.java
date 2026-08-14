@@ -15,6 +15,7 @@ public class Config {
     /** Player movement and interaction */
     public static final float PLAYER_SPEED = 100f;
     public static final float PLAYER_PICKUP_RANGE = TILE_SIZE * 2;
+    public static final float PLAYER_TARGET_RANGE = 5;
 
     /** Player combat */
     public static final int PLAYER_BASE_DAMAGE = 1;
