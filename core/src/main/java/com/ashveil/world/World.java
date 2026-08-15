@@ -13,8 +13,8 @@ import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.CraftingResult;
 import com.ashveil.items.crafting.Recipe;
 import com.ashveil.items.inventory.ItemType;
-import com.ashveil.objects.ResourceObject;
-import com.ashveil.objects.ResourceType;
+import com.ashveil.objects.DestructibleObject;
+import com.ashveil.objects.DestructibleObjectType;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.items.crafting.CraftingAccess;
@@ -23,6 +23,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class World implements CraftingAccess {
@@ -35,7 +36,7 @@ public class World implements CraftingAccess {
     private final CraftingManager craftingManager;
     private final CombatSystem combatSystem;
     private final List<WorldItem> groundItems;
-    private final List<ResourceObject> resourceObjects;
+    private final List<DestructibleObject> destructibleObjects;
 
     private final CollisionSystem collisionSystem;
 
@@ -48,6 +49,7 @@ public class World implements CraftingAccess {
     private final ProgressionState progressionState;
     private TargetMode targetMode;
     private Rectangle targetBounds;
+    private final Map<DestructibleObjectType, ItemType> destructibleObjectDrops;
 
     public World(){
         tileMap = new TileMap();
@@ -56,7 +58,7 @@ public class World implements CraftingAccess {
         checkpointX = tileMap.getPlayerSpawnX();
         checkpointY = tileMap.getPlayerSpawnY();
         enemies = new ArrayList<>();
-        resourceObjects = new ArrayList<>();
+        destructibleObjects = new ArrayList<>();
         groundItems = new ArrayList<>();
         craftingManager = new CraftingManager();
         combatSystem = new CombatSystem();
@@ -66,9 +68,13 @@ public class World implements CraftingAccess {
         targetMode = TargetMode.NONE;
         targetBounds = new Rectangle();
 
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.FENCE, 2));
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 2));
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_HOE, 2));
+        destructibleObjectDrops = Map.of(
+            DestructibleObjectType.TREE, ItemType.WOOD,
+            DestructibleObjectType.ROCK, ItemType.STONE,
+            DestructibleObjectType.FENCE, ItemType.FENCE
+        );
+
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.FENCE, 4));
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -108,30 +114,30 @@ public class World implements CraftingAccess {
 
             List<Hittable> targets = new ArrayList<>();
             targets.addAll(enemies);
-            targets.addAll(resourceObjects);
+            targets.addAll(destructibleObjects);
 
             int numberOfHits = combatSystem.performPrimaryAction(player, targets);
             player.resetPrimaryActionCooldown();
 
-            for (ResourceObject o : resourceObjects){
+            for (DestructibleObject o : destructibleObjects){
                 if (o.isDestroyed()){
                     int dropAmount = getResourceDropAmount(o);
 
                     addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
                                                 o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                                   o.getType().getDrop(), dropAmount
+                                                   destructibleObjectDrops.get(o.getType()), dropAmount
                     ));
 
                     collisionSystem.unregister(o);
                 }
             }
 
-            resourceObjects.removeIf(ResourceObject::isDestroyed);
+            destructibleObjects.removeIf(DestructibleObject::isDestroyed);
         }
     }
 
-    private int getResourceDropAmount(ResourceObject resource){
-        if (resource.getType() == ResourceType.TREE && !progressionState.isFirstTreeDropClaimed()) {
+    private int getResourceDropAmount(DestructibleObject resource){
+        if (resource.getType() == DestructibleObjectType.TREE && !progressionState.isFirstTreeDropClaimed()) {
             progressionState.claimFirstTreeDrop();
             return Config.FIRST_TREE_DROP_AMOUNT;
         }
@@ -287,45 +293,53 @@ public class World implements CraftingAccess {
             if (targetBounds.overlaps(player.getCollisionBounds())) return false;
         }
 
+        if (targetMode == TargetMode.PLANT){
+            //proverimo nekako da li je poorana zemlja ne znam kako cemo to da ubacimo da li kao poseban tile u mapi
+            //ili cemo na drugi nacin raditi
+        }
+
         if (tileMap.isBlocked(tileX, tileY)) return false;
 
         for (Enemy enemy : enemies) {
             if (targetBounds.overlaps(enemy.getCollisionBounds())) return false;
         }
 
-        for (ResourceObject resourceObject : resourceObjects){
-            if (targetBounds.overlaps(resourceObject.getCollisionBounds())) return false;
+        for (DestructibleObject destructibleObject : destructibleObjects){
+            if (targetBounds.overlaps(destructibleObject.getCollisionBounds())) return false;
          }
 
         return true;
     }
 
     private void spawnInitialResources(){
-        int type;
-        int numberOfItems = random.nextInt(Config.MAX_EXTRA_INITIAL_RESOURCES + 1);
+        List<DestructibleObjectType> naturalTypes = new ArrayList<>();
 
-        for (ResourceType resourceType : ResourceType.values()){
-            for (int i=0; i < Config.MIN_INITIAL_RESOURCES; i++){
-                spawnResource(resourceType);
-            }
+        for (DestructibleObjectType type : DestructibleObjectType.values()) {
+            if (type.spawnsNaturally()) naturalTypes.add(type);
         }
 
-        for (int i=0; i < numberOfItems; i++) {
-            type = random.nextInt(ResourceType.values().length);
-            spawnResource(ResourceType.values()[type]);
+        for (DestructibleObjectType type : naturalTypes) {
+            for (int i = 0; i < Config.MIN_INITIAL_RESOURCES; i++) spawnNaturalObject(type);
+        }
+
+        int numberOfExtraResources = random.nextInt(Config.MAX_EXTRA_INITIAL_RESOURCES + 1);
+
+        for (int i = 0; i < numberOfExtraResources; i++) {
+            DestructibleObjectType randomType = naturalTypes.get(random.nextInt(naturalTypes.size()));
+            spawnNaturalObject(randomType);
         }
     }
 
-    private void spawnResource(ResourceType resourceType){
+    private void spawnNaturalObject(DestructibleObjectType destructibleObjectType){
         int tileX, tileY;
         do {
             tileX = random.nextInt(tileMap.getWidth());
             tileY = random.nextInt(tileMap.getHeight());
         } while (!isResourcePositionValid(tileX, tileY));
 
-        ResourceObject object = new ResourceObject(tileX * Config.TILE_SIZE, tileY * Config.TILE_SIZE, resourceType);
+        DestructibleObject object = new DestructibleObject(tileX * Config.TILE_SIZE, tileY * Config.TILE_SIZE, destructibleObjectType);
 
-        resourceObjects.add(object);
+        destructibleObjects.add(object);
         collisionSystem.register(object);
     }
 
@@ -335,7 +349,7 @@ public class World implements CraftingAccess {
         float worldX = tileX * Config.TILE_SIZE;
         float worldY = tileY * Config.TILE_SIZE;
 
-        for (ResourceObject resource : resourceObjects) {
+        for (DestructibleObject resource : destructibleObjects) {
             if (resource.getX() == worldX && resource.getY() == worldY) return false;
         }
 
@@ -435,6 +449,41 @@ public class World implements CraftingAccess {
         player.restoreHealth();
     }
 
+    public void handleTargetAction(int tileX, int tileY, float worldX, float worldY){
+        if (targetMode == TargetMode.NONE) return;
+        if (!isCurrentTargetValid(tileX, tileY, worldX, worldY)) return;
+        if (targetMode == TargetMode.PLACE) placeTarget(tileX, tileY, worldX, worldY);
+        else if (targetMode == TargetMode.PLANT) plantTarget(tileX, tileY, worldX, worldY);
+        else if (targetMode == TargetMode.TILL) tillTarget(tileX, tileY, worldX, worldY);
+    }
+
+    private void placeTarget(int tileX, int tileY, float worldX, float worldY){
+        int selectedSlot = player.getSelectedHotbarSlot();
+        ItemType itemType = player.getInventory().getItemTypeBySlot(selectedSlot);
+        if (itemType == null) return;
+
+        int removed = player.getInventory().removeFromSlot(selectedSlot, 1);
+        if (removed == 0) return;
+
+        DestructibleObject object = new DestructibleObject(worldX, worldY, itemType.getPlacedObjectType());
+        destructibleObjects.add(object);
+        collisionSystem.register(object);
+
+        if (player.getInventory().getItemTypeBySlot(selectedSlot) == null) cancelTargeting();
+    }
+
+    private void plantTarget(int tileX, int tileY, float worldX, float worldY){
+        player.getInventory().removeFromSlot(player.getSelectedHotbarSlot(), 1);
+        //postavimo tu biljku tu nez kako je osmisljeno
+    }
+
+    private void tillTarget(int tileX, int tileY, float worldX, float worldY){
+        if (player.getInventory().getItemTypeBySlot(player.getSelectedHotbarSlot()).usesDurability()){
+            //smanji durabiliti
+        }
+        //stavljamo da je taj deo zemlje pooran al to napisah da cemo da vidimo kako ce da izgleda
+    }
+
     public void setTargetMode(TargetMode targetMode){this.targetMode = targetMode;}
     public void cancelTargeting(){targetMode = TargetMode.NONE;}
 
@@ -445,7 +494,7 @@ public class World implements CraftingAccess {
     public Player getPlayer(){return player;}
     public List<Enemy> getEnemies() { return enemies; }
     public List<WorldItem> getGroundItems() {return groundItems;}
-    public List<ResourceObject> getResourceObjects() {return resourceObjects;}
+    public List<DestructibleObject> getDestructibleObject() {return destructibleObjects;}
     public DayNightCycle getDayNightCycle() {return dayNightCycle;}
     public TargetMode getTargetMode() {return targetMode;}
 

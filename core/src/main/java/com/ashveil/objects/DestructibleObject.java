@@ -7,19 +7,19 @@ import com.ashveil.combat.HitCategory;
 import com.ashveil.combat.Hittable;
 import com.badlogic.gdx.math.Rectangle;
 
-public class ResourceObject extends WorldObject implements Hittable, CollidableObject {
+public class DestructibleObject extends WorldObject implements Hittable, CollidableObject {
 
-    private final ResourceType type;
+    private final DestructibleObjectType type;
     private final Rectangle collisionBounds;
 
-    public ResourceObject(float x, float y, ResourceType type) {
+    public DestructibleObject(float x, float y, DestructibleObjectType type) {
         super(x, y, type.getHp());
         this.type = type;
 
         collisionBounds = new Rectangle(x, y, Config.TILE_SIZE, Config.TILE_SIZE);
     }
 
-    public ResourceType getType() {return type;}
+    public DestructibleObjectType getType() {return type;}
 
     @Override
     public boolean canReceiveHit() {return true;}

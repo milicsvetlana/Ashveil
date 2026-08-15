@@ -3,6 +3,7 @@ package com.ashveil.items.inventory;
 import com.ashveil.Config;
 import com.ashveil.combat.DamageProfile;
 import com.ashveil.combat.HitCategory;
+import com.ashveil.objects.DestructibleObjectType;
 import com.ashveil.targeting.TargetMode;
 
 import java.util.Map;
@@ -16,7 +17,8 @@ public enum ItemType {
         0,
         true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     STONE(
@@ -26,7 +28,8 @@ public enum ItemType {
         0,
         true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     FENCE(
@@ -36,7 +39,8 @@ public enum ItemType {
         0,
         true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.PLACE
+        TargetMode.PLACE,
+        DestructibleObjectType.FENCE
     ),
 
     WHEAT(
@@ -46,7 +50,8 @@ public enum ItemType {
         0,
         true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     WHEAT_SEED(
@@ -56,7 +61,8 @@ public enum ItemType {
         0,
         true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.PLANT
+        TargetMode.PLANT,
+        null
     ),
 
     BREAD(
@@ -66,7 +72,8 @@ public enum ItemType {
         0,
         true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     WOODEN_AXE(
@@ -83,7 +90,8 @@ public enum ItemType {
                 HitCategory.STONE, 0
             )
         ),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     STONE_AXE(
@@ -100,7 +108,8 @@ public enum ItemType {
                 HitCategory.STONE, 0
             )
         ),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     WOODEN_PICKAXE(
@@ -117,7 +126,8 @@ public enum ItemType {
                 HitCategory.WOOD, 0
             )
         ),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     STONE_PICKAXE(
@@ -134,7 +144,8 @@ public enum ItemType {
                 HitCategory.WOOD, 0
             )
         ),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     WOODEN_HOE(
@@ -150,7 +161,8 @@ public enum ItemType {
                 HitCategory.STONE, 0
             )
         ),
-        TargetMode.TILL
+        TargetMode.TILL,
+        null
     ),
 
     STONE_HOE(
@@ -166,7 +178,8 @@ public enum ItemType {
                 HitCategory.STONE, 0
             )
         ),
-        TargetMode.TILL
+        TargetMode.TILL,
+        null
     ),
 
     WOODEN_SWORD(
@@ -182,7 +195,8 @@ public enum ItemType {
                 HitCategory.STONE, 0
             )
         ),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     STONE_SWORD(
@@ -198,7 +212,8 @@ public enum ItemType {
                 HitCategory.STONE, 0
             )
         ),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     BOAT_KIT(
@@ -208,7 +223,8 @@ public enum ItemType {
         0,
         false,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     LORE_SCROLL(
@@ -218,7 +234,8 @@ public enum ItemType {
         0,
         false,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     GOLD(
@@ -228,7 +245,8 @@ public enum ItemType {
         0,
         true,
         null,
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     ),
 
     // TEMP NAZIV, PROMENICU
@@ -239,21 +257,29 @@ public enum ItemType {
         0,
         true,
         new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
-        TargetMode.NONE
+        TargetMode.NONE,
+        null
     );
-
-    ;
 
     private final String displayName;
     private final String description;
     private final int maxStack;
     private final int maxDurability;
-    private boolean despawnsOnGround;
+    private final boolean despawnsOnGround;
     private final DamageProfile damageProfile;
     private final TargetMode targetMode;
+    private final DestructibleObjectType placedObjectType;
 
-    ItemType(String displayName, String description, int maxStack, int maxDurability, boolean despawnsOnGround,
-             DamageProfile damageProfile, TargetMode targetMode){
+    ItemType(
+        String displayName,
+        String description,
+        int maxStack,
+        int maxDurability,
+        boolean despawnsOnGround,
+        DamageProfile damageProfile,
+        TargetMode targetMode,
+        DestructibleObjectType placedObjectType
+    ){
         this.displayName = displayName;
         this.description = description;
         this.maxStack = maxStack;
@@ -261,18 +287,17 @@ public enum ItemType {
         this.despawnsOnGround = despawnsOnGround;
         this.damageProfile = damageProfile;
         this.targetMode = targetMode;
+        this.placedObjectType = placedObjectType;
     }
 
     public String getDisplayName() {return displayName;}
     public String getDescription() {return description;}
     public int getMaxStack() {return maxStack;}
     public int getMaxDurability() {return maxDurability;}
-    public DamageProfile getDamageProfile() {
-        return damageProfile;
-    }
+    public DamageProfile getDamageProfile() {return damageProfile;}
     public TargetMode getTargetMode() {return targetMode;}
-
-    public boolean isStackable(){return maxStack > 1;}
-    public boolean usesDurability(){return maxDurability > 0;}
+    public DestructibleObjectType getPlacedObjectType() {return placedObjectType;}
+    public boolean isStackable() {return maxStack > 1;}
+    public boolean usesDurability() {return maxDurability > 0;}
     public boolean despawnsOnGround() {return despawnsOnGround;}
 }

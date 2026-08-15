@@ -28,6 +28,7 @@ public class KeyBindings {
     private int menuRightKey;
     private int menuConfirmKey;
     private int cancelBackKey;
+    private int targetActionButton;
 
     public KeyBindings() {
         moveUpKey = Input.Keys.W;
@@ -61,6 +62,7 @@ public class KeyBindings {
         menuConfirmKey = Input.Keys.ENTER;
 
         cancelBackKey = Input.Keys.ESCAPE;
+        targetActionButton = Input.Buttons.LEFT;
     }
 
     public int getMoveUpKey() {
@@ -114,4 +116,5 @@ public class KeyBindings {
     public int getMenuRightKey() {return menuRightKey;}
     public int getMenuConfirmKey() {return menuConfirmKey;}
     public int getCancelBackKey() {return cancelBackKey;}
+    public int getTargetActionButton() {return targetActionButton;}
 }

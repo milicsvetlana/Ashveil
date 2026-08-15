@@ -2,8 +2,8 @@ package com.ashveil.rendering;
 
 import com.ashveil.Config;
 import com.ashveil.entities.enemies.Enemy;
-import com.ashveil.objects.ResourceObject;
-import com.ashveil.objects.ResourceType;
+import com.ashveil.objects.DestructibleObject;
+import com.ashveil.objects.DestructibleObjectType;
 import com.ashveil.world.CameraController;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
@@ -58,9 +58,10 @@ public class WorldRenderer {
             );
         }
 
-        for (ResourceObject o : world.getResourceObjects()) {
-            if (o.getType() == ResourceType.TREE) shapeRenderer.setColor(0.1f, 0.4f, 0.1f, 1f);
-            else shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
+        for (DestructibleObject o : world.getDestructibleObject()) {
+            if (o.getType() == DestructibleObjectType.TREE) shapeRenderer.setColor(0.1f, 0.4f, 0.1f, 1f);
+            else if (o.getType() == DestructibleObjectType.ROCK) shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
+            else shapeRenderer.setColor(0.55f, 0.27f, 0.07f, 1f);
             shapeRenderer.rect(
                 o.getX() * Config.SCALE,
                 o.getY() * Config.SCALE,

@@ -65,7 +65,7 @@ public class GameScreen implements Screen {
         }
         else {
             world.update(delta, playerInput);
-
+            handleTargetActionInput();
             if (world.getPlayer().isDead()) startDeathTransition();
 
             cameraController.update(world.getPlayer().getCenterX() * Config.SCALE,
@@ -91,6 +91,7 @@ public class GameScreen implements Screen {
         if (menuOpen) {
             gameMenuUi.onOpen();
             Gdx.input.setInputProcessor(gameMenuUi.getStage());
+            world.cancelTargeting();
         } else {
             gameMenuUi.onClose();
             Gdx.input.setInputProcessor(null);
@@ -159,7 +160,13 @@ public class GameScreen implements Screen {
         if (world.getTargetMode() != TargetMode.NONE){
             world.cancelTargeting();
         }
-     }
+    }
+
+    private void handleTargetActionInput(){
+        if (!Gdx.input.isButtonJustPressed(keyBindings.getTargetActionButton())) return;
+        if (world.getTargetMode() == TargetMode.NONE) return;
+        world.handleTargetAction(tileTargetingSystem.getTileX(), tileTargetingSystem.getTileY(), tileTargetingSystem.getWorldX(), tileTargetingSystem.getWorldY());
+    }
 
     @Override public void resize(int i, int i1) {
         hudRenderer.resize(i, i1);

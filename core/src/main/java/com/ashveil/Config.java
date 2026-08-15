@@ -52,8 +52,9 @@ public class Config {
     public static final int INITIAL_SPAWN_CLEAR_RADIUS = 2;
 
     /** Resource stats and drops */
-    public static final int TREE_HP = 1;
+    public static final int TREE_HP = 3;
     public static final int ROCK_HP = 3;
+    public static final int FENCE_HP = 4;
     public static final int FIRST_TREE_DROP_AMOUNT = 2;
 
     /** Enemy lifecycle */
