@@ -33,6 +33,7 @@ public class Config {
 
     /** Inventory */
     public static final int INVENTORY_SIZE = 20;
+    public static final int CHEST_INVENTORY_SIZE = 15;
     public static final int HOTBAR_SIZE = 5;
     public static final int SLOT_NOT_SELECTED = -1;
     public static final int SLOT_MOVE = 1;
@@ -55,6 +56,7 @@ public class Config {
     public static final int TREE_HP = 3;
     public static final int ROCK_HP = 3;
     public static final int FENCE_HP = 4;
+    public static final int CHEST_HP = 4;
     public static final int FIRST_TREE_DROP_AMOUNT = 2;
 
     /** Enemy lifecycle */

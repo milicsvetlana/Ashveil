@@ -5,9 +5,8 @@ import com.ashveil.Config;
 public class Inventory {
     private final ItemStack[] slots;
 
-    public Inventory() {
-        this.slots = new ItemStack[Config.INVENTORY_SIZE];
-    }
+    public Inventory() {this(Config.INVENTORY_SIZE);}
+    public Inventory(int size) {this.slots = new ItemStack[size];}
 
     public int addItem(ItemType type, int amount){
         if (type == null) throw new IllegalArgumentException("Item type cannot be null");
@@ -102,35 +101,44 @@ public class Inventory {
     }
 
     public boolean moveSlot(int sourceIndex, int destinationIndex){
+        return moveSlot(sourceIndex, this, destinationIndex);
+    }
+
+    public boolean moveSlot(int sourceIndex, Inventory destinationInventory, int destinationIndex){
+        if (destinationInventory == null) return false;
+
         if (sourceIndex < 0 || sourceIndex >= slots.length) return false;
-        if (destinationIndex < 0 || destinationIndex >= slots.length) return false;
-        if (sourceIndex == destinationIndex) return false;
+        if (destinationIndex < 0 || destinationIndex >= destinationInventory.slots.length) return false;
 
-        ItemStack itemStack1 = getSlot(sourceIndex);
-        if (itemStack1 == null) return false;
-        ItemStack itemStack2 = getSlot(destinationIndex);
+        if (this == destinationInventory && sourceIndex == destinationIndex) return false;
 
-        if (itemStack2 == null){
-            slots[destinationIndex] = itemStack1;
-            removeFromSlot(sourceIndex, itemStack1.getQuantity());
+        ItemStack sourceStack = getSlot(sourceIndex);
+        if (sourceStack == null) return false;
+
+        ItemStack destinationStack = destinationInventory.getSlot(destinationIndex);
+
+        if (destinationStack == null){
+            destinationInventory.slots[destinationIndex] = sourceStack;
+            slots[sourceIndex] = null;
             return true;
         }
 
-        if (itemStack1.getType() != itemStack2.getType()
-            || (itemStack1.getType() == itemStack2.getType() && !itemStack1.getType().isStackable())){
-            slots[destinationIndex] = itemStack1;
-            slots[sourceIndex] = itemStack2;
+        if (sourceStack.getType() != destinationStack.getType()
+            || !sourceStack.getType().isStackable()) {
+
+            destinationInventory.slots[destinationIndex] = sourceStack;
+            slots[sourceIndex] = destinationStack;
             return true;
         }
 
-        int leftOver = itemStack2.addQuantity(itemStack1.getQuantity());
-        int moved = itemStack1.getQuantity() - leftOver;
+        int leftOver = destinationStack.addQuantity(sourceStack.getQuantity());
+        int moved = sourceStack.getQuantity() - leftOver;
 
         if (moved == 0) return false;
 
-        itemStack1.reduceQuantity(moved);
+        sourceStack.reduceQuantity(moved);
 
-        if (itemStack1.isEmpty()){
+        if (sourceStack.isEmpty()){
             slots[sourceIndex] = null;
         }
 
@@ -138,21 +146,88 @@ public class Inventory {
     }
 
     public boolean splitStack(int sourceIndex, int destinationIndex, int amount){
+        return splitStack(sourceIndex, this, destinationIndex, amount);
+    }
+
+    public boolean splitStack(int sourceIndex, Inventory destinationInventory, int destinationIndex, int amount){
+        if (destinationInventory == null) return false;
+
         if (sourceIndex < 0 || sourceIndex >= slots.length) return false;
-        if (destinationIndex < 0 || destinationIndex >= slots.length) return false;
-        if (sourceIndex == destinationIndex) return false;
+        if (destinationIndex < 0 || destinationIndex >= destinationInventory.slots.length) return false;
 
-        ItemStack itemStack1 = getSlot(sourceIndex);
-        ItemStack itemStack2 = getSlot(destinationIndex);
-        if (itemStack1 == null || itemStack1.getQuantity() <= amount || 0 >= amount
-            || itemStack2 != null || !itemStack1.getType().isStackable()) return false;
+        if (this == destinationInventory && sourceIndex == destinationIndex) return false;
 
-        slots[destinationIndex] = new ItemStack(itemStack1.getType(), amount);
-        itemStack1.reduceQuantity(amount);
+        ItemStack sourceStack = getSlot(sourceIndex);
+        ItemStack destinationStack = destinationInventory.getSlot(destinationIndex);
+
+        if (sourceStack == null || sourceStack.getQuantity() <= amount || amount <= 0 || destinationStack != null
+                         || !sourceStack.getType().isStackable()) return false;
+
+        destinationInventory.slots[destinationIndex] =
+            new ItemStack(sourceStack.getType(), amount);
+
+        sourceStack.reduceQuantity(amount);
 
         return true;
     }
 
+    public ItemStack extractFromSlot(int slotIndex, int amount){
+        if (slotIndex < 0 || slotIndex >= slots.length) return null;
+        if (amount <= 0) return null;
+
+        ItemStack sourceStack = slots[slotIndex];
+        if (sourceStack == null) return null;
+
+        if (amount >= sourceStack.getQuantity()){
+            slots[slotIndex] = null;
+            return sourceStack;
+        }
+
+        ItemStack extractedStack = new ItemStack(slots[slotIndex].getType(), amount);
+        slots[slotIndex].reduceQuantity(amount);
+        return extractedStack;
+    }
+
+    public int addStack(ItemStack itemStack){
+        if (itemStack == null) throw new IllegalArgumentException("Item stack cannot be null");
+        if (itemStack.isEmpty()) return 0;
+
+        if (!itemStack.getType().isStackable()){
+            for (int i = 0; i < slots.length; i++){
+                if (slots[i] == null){
+                    slots[i] = itemStack;
+                    return 0;
+                }
+            }
+            return itemStack.getQuantity();
+        }
+
+        for (ItemStack destinationStack : slots){
+            if (destinationStack == null) continue;
+            if (destinationStack.getType() != itemStack.getType()) continue;
+
+            int sourceQuantity = itemStack.getQuantity();
+            int leftOver = destinationStack.addQuantity(sourceQuantity);
+            int moved = sourceQuantity - leftOver;
+
+            if (moved > 0){
+                itemStack.reduceQuantity(moved);
+            }
+
+            if (itemStack.isEmpty()) return 0;
+        }
+
+        for (int i = 0; i < slots.length; i++){
+            if (slots[i] == null){
+                slots[i] = itemStack;
+                return 0;
+            }
+        }
+
+        return itemStack.getQuantity();
+    }
+
+    public int getSize(){return slots.length;}
 }
 
 

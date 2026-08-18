@@ -7,7 +7,8 @@ import com.ashveil.items.inventory.ItemType;
 public enum DestructibleObjectType {
     TREE(Config.TREE_HP,1, 3, HitCategory.WOOD, true),
     ROCK(Config.ROCK_HP, 1, 3, HitCategory.STONE, true),
-    FENCE(Config.FENCE_HP, 1, 1, HitCategory.WOOD, false);
+    FENCE(Config.FENCE_HP, 1, 1, HitCategory.WOOD, false),
+    CHEST(Config.CHEST_HP, 1, 1, HitCategory.WOOD, false);
 
     private final int hp;
     private final int minDrop;

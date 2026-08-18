@@ -5,6 +5,7 @@ import com.ashveil.collision.CollisionSystem;
 import com.ashveil.collision.MovementType;
 import com.ashveil.economy.Wallet;
 import com.ashveil.items.inventory.Inventory;
+import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.world.TileMap;
 

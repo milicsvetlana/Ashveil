@@ -1,20 +1,28 @@
 package com.ashveil.world;
 
 import com.ashveil.Config;
+import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 
 public class WorldItem {
     private final float x, y;
-    private final ItemType type;
-    private int amount;
+    private ItemStack stack;
     private float lifetime;
 
     public WorldItem(float x, float y, ItemType type, int amount) {
         if (amount <= 0) throw new IllegalArgumentException("Amount must be positive.");
         this.x = x;
         this.y = y;
-        this.type = type;
-        this.amount = amount;
+        stack = new ItemStack(type, amount);
+        this.lifetime = 0;
+    }
+
+    public WorldItem(float x, float y, ItemStack itemStack){
+        if (itemStack == null) throw new IllegalArgumentException("ItemStack can't be null.");
+        if (itemStack.getQuantity() <= 0) throw new IllegalArgumentException("Amount must be positive.");
+        this.x = x;
+        this.y = y;
+        stack = itemStack;
         this.lifetime = 0;
     }
 
@@ -22,25 +30,29 @@ public class WorldItem {
         lifetime += delta;
     }
 
-    public int addAmount(int newAmount){ //returns how much we weren't able to stack up
+    public int addAmount(int newAmount){
         if (newAmount <= 0) throw new IllegalArgumentException("Amount must be positive.");
 
-        if (type.getMaxStack() < this.amount + newAmount){
-            int current = this.amount;
-            this.amount = type.getMaxStack();
-            return current - type.getMaxStack() + newAmount;
+        int currentAmount = stack.getQuantity();
+        int maxStack = stack.getType().getMaxStack();
+        int availableSpace = maxStack - currentAmount;
+
+        if (newAmount > availableSpace){
+            stack = new ItemStack(stack.getType(), maxStack);
+            return newAmount - availableSpace;
         }
-        this.amount += newAmount;
+
+        stack = new ItemStack(stack.getType(), currentAmount + newAmount);
         return 0;
     }
 
     public void setAmount(int newAmount){
         if (newAmount <= 0) throw new IllegalArgumentException("Amount must be positive.");
-        this.amount = newAmount;
+        stack = new ItemStack(stack.getType(), newAmount);
     }
 
     public boolean shouldDespawn(){
-        return type.despawnsOnGround() && lifetime >= Config.WORLD_ITEM_DESPAWN_TIME;
+        return stack.getType().despawnsOnGround() && lifetime >= Config.WORLD_ITEM_DESPAWN_TIME;
     }
 
     public void resetLifetime(){lifetime = 0f;}
@@ -52,9 +64,10 @@ public class WorldItem {
         return y;
     }
     public ItemType getType() {
-        return type;
+        return stack.getType();
     }
     public int getAmount() {
-        return amount;
+        return stack.getQuantity();
     }
+    public ItemStack getStack(){return stack;}
 }

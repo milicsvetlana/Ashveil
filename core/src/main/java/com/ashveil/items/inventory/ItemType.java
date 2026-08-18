@@ -43,6 +43,17 @@ public enum ItemType {
         DestructibleObjectType.FENCE
     ),
 
+    CHEST(
+        "Chest",
+        "A sturdy storage container used to keep items safe.",
+        20,
+        0,
+        true,
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.PLACE,
+        DestructibleObjectType.CHEST
+    ),
+
     WHEAT(
         "Wheat",
         "A harvested crop used for preparing food.",

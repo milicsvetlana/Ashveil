@@ -36,8 +36,8 @@ public class GameMenuUi {
 
     private MenuTab selectedTab;
 
-    public GameMenuUi(List<Recipe> recipes, CraftingAccess craftingAccess, Inventory inventory) {
-        skin = UiSkinFactory.create();
+    public GameMenuUi(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess, Inventory inventory) {
+        this.skin = skin;
         stage = new Stage(new ScreenViewport());
         rootTable = new Table();
         rootTable.setFillParent(true); //znaci da tabela zauzima ceo stage

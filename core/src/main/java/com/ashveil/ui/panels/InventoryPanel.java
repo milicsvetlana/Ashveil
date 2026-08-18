@@ -4,19 +4,13 @@ import com.ashveil.Config;
 import com.ashveil.combat.HitCategory;
 import com.ashveil.items.inventory.Inventory;
 import com.ashveil.items.inventory.ItemStack;
-import com.ashveil.ui.inventory.InventoryDragData;
+import com.ashveil.ui.inventory.InventoryGridUi;
 import com.ashveil.ui.inventory.InventorySlotUi;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-
-import java.util.ArrayList;
-import java.util.List;
 
 //prikazuje svih 20 slotova
 public class InventoryPanel extends MenuPanel {
@@ -24,10 +18,9 @@ public class InventoryPanel extends MenuPanel {
     private final Inventory inventory;
     private int selectedSlotIndex = Config.SLOT_NOT_SELECTED;
 
-    private final Table mainSlotsTable;
-    private final Table hotbarTable;
+    private final InventoryGridUi mainGrid;
+    private final InventoryGridUi hotbarGrid;
     private final Table detailsTable;
-    private final List<InventorySlotUi> slotViews;
     private final DragAndDrop dragAndDrop;
     private int keyboardMoveSourceIndex = Config.SLOT_NOT_SELECTED;
 
@@ -35,149 +28,40 @@ public class InventoryPanel extends MenuPanel {
         super(skin);
         this.inventory = inventory;
 
-        slotViews = new ArrayList<>();
-        mainSlotsTable = new Table();
-        hotbarTable = new Table();
         detailsTable = new Table();
         dragAndDrop = new DragAndDrop();
         dragAndDrop.setDragTime(0);
         dragAndDrop.setDragActorPosition(28f, -28f);
+        mainGrid = new InventoryGridUi(skin, inventory, Config.HOTBAR_SIZE, inventory.getSize() - Config.HOTBAR_SIZE, Config.HOTBAR_SIZE, false, dragAndDrop);
+        hotbarGrid = new InventoryGridUi(skin, inventory, 0, Config.HOTBAR_SIZE, Config.HOTBAR_SIZE, true, dragAndDrop);
 
-        createSlots(skin);
+        registerSelectionListeners();
         createLayout(skin);
         refresh();
     }
 
     @Override
     public void refresh(){
-        for (int i=0; i < Config.INVENTORY_SIZE; i++){
-            slotViews.get(i).refresh(inventory.getSlot(i));
-        }
+        mainGrid.refresh();
+        hotbarGrid.refresh();
         if (selectedSlotIndex != Config.SLOT_NOT_SELECTED) {
             updateDetails();
         }
-    }
-
-    private void createSlots(Skin skin){
-        for (int i=0; i < Config.INVENTORY_SIZE; i++){
-            int slotIndex = i;
-
-            InventorySlotUi slotUi = new InventorySlotUi(i, i < Config.HOTBAR_SIZE, skin);
-            slotUi.addListener(new InputListener(){
-                @Override
-                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                    selectSlot(slotIndex);
-                }
-            });
-
-            registerDragAndDrop(slotUi, skin);
-
-            slotViews.add(slotUi);
-        }
-    }
-
-    private void registerDragAndDrop(InventorySlotUi slotUi, Skin skin) {
-        dragAndDrop.addSource(new DragAndDrop.Source(slotUi) {
-            @Override
-            public DragAndDrop.Payload dragStart(InputEvent inputEvent, float x, float y, int pointer) {
-                int sourceIndex = slotUi.getSlotIndex();
-                ItemStack sourceStack = inventory.getSlot(sourceIndex);
-
-                if (sourceStack == null) return null;
-
-                boolean shiftPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
-                boolean splitDrag = shiftPressed && sourceStack.getType().isStackable() && sourceStack.getQuantity() > 1;
-                int draggedQuantity = splitDrag ? (sourceStack.getQuantity() + 1) / 2 : sourceStack.getQuantity();
-
-                DragAndDrop.Payload payload = new DragAndDrop.Payload();
-                payload.setObject(new InventoryDragData(sourceIndex, draggedQuantity, splitDrag));
-
-                Image dragImage = new Image(skin.getDrawable("item-placeholder"));
-                dragImage.setColor(InventorySlotUi.getTemporaryColor(sourceStack.getType()));
-                Label dragQuantity = new Label("", skin);
-
-                if (draggedQuantity > 1) {dragQuantity.setText(String.valueOf(draggedQuantity));}
-
-                Stack dragActor = new Stack();
-
-                Table imageLayer = new Table();
-                imageLayer.add(dragImage).size(48);
-
-                Table quantityLayer = new Table();
-                quantityLayer.bottom().right();
-                quantityLayer.add(dragQuantity).pad(3);
-
-                dragActor.add(imageLayer);
-                dragActor.add(quantityLayer);
-                dragActor.setSize(56, 56);
-                dragActor.setTouchable(Touchable.disabled);
-
-                payload.setDragActor(dragActor);
-
-                return payload;
-            }
-        });
-
-        dragAndDrop.addTarget(new DragAndDrop.Target(slotUi) {
-            @Override
-            public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-                InventoryDragData dragData = (InventoryDragData) payload.getObject();
-
-                int sourceIndex = dragData.getSourceSlotIndex();
-                int destinationIndex = slotUi.getSlotIndex();
-
-                if (sourceIndex == destinationIndex) return false;
-                if (dragData.isSplitDrag()) return inventory.getSlot(destinationIndex) == null;
-
-                return true;
-            }
-
-            @Override
-            public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-                InventoryDragData dragData = (InventoryDragData) payload.getObject();
-
-                int sourceIndex = dragData.getSourceSlotIndex();
-                int destinationIndex = slotUi.getSlotIndex();
-                boolean moved;
-
-                if (dragData.isSplitDrag()) moved = inventory.splitStack(sourceIndex, destinationIndex, dragData.getDraggedQuantity());
-                else moved = inventory.moveSlot(sourceIndex, destinationIndex);
-
-                if (!moved) return;
-
-                refresh();
-                selectSlot(destinationIndex);
-            }
-        });
     }
 
     private void createLayout(Skin skin){
         setBackground(getSkin().getDrawable("inventory-panel-background"));
         pad(20);
 
-        int localCounter = 0;
-        for (int i=Config.HOTBAR_SIZE; i < Config.INVENTORY_SIZE; i++){
-            localCounter++;
-            mainSlotsTable.add(slotViews.get(i)).size(64).pad(5);
-            if (localCounter == 5) {
-                localCounter = 0;
-                mainSlotsTable.row();
-            }
-        }
-
-        for (int i=0; i < Config.HOTBAR_SIZE; i++){
-            hotbarTable.add(slotViews.get(i)).size(64).pad(5);
-        }
-
         Table inventorySection = new Table();
 
         inventorySection.add(new Label("Inventory", skin));
         inventorySection.row();
-        inventorySection.add(mainSlotsTable);
+        inventorySection.add(mainGrid);
         inventorySection.row();
         inventorySection.add(new Label("Hotbar", skin));
         inventorySection.row();
-        inventorySection.add(hotbarTable);
+        inventorySection.add(hotbarGrid);
 
         detailsTable.top().left();
         detailsTable.add(new Label("Empty slot.", skin));
@@ -185,12 +69,26 @@ public class InventoryPanel extends MenuPanel {
         add(detailsTable).width(260).growY().padLeft(30);
     }
 
+    private void registerSelectionListeners() {
+        for (int i = 0; i < inventory.getSize(); i++) {
+            int slotIndex = i;
+            InventorySlotUi slotUi = getSlotView(slotIndex);
+
+            slotUi.addListener(new InputListener() {
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    selectSlot(slotIndex);
+                }
+            });
+        }
+    }
+
     private void selectSlot(int slotIndex){
         if (selectedSlotIndex == slotIndex) return;
         if (slotIndex < 0 || slotIndex >= Config.INVENTORY_SIZE) return;
-        if (selectedSlotIndex != Config.SLOT_NOT_SELECTED) slotViews.get(selectedSlotIndex).setSelected(false);
+        if (selectedSlotIndex != Config.SLOT_NOT_SELECTED) getSlotView(selectedSlotIndex).setSelected(false);
         selectedSlotIndex = slotIndex;
-        slotViews.get(selectedSlotIndex).setSelected(true);
+        getSlotView(selectedSlotIndex).setSelected(true);
         updateDetails();
     }
 
@@ -220,7 +118,7 @@ public class InventoryPanel extends MenuPanel {
 
     private void clearSelection() {
         if (selectedSlotIndex != Config.SLOT_NOT_SELECTED) {
-            slotViews.get(selectedSlotIndex).setSelected(false);
+            getSlotView(selectedSlotIndex).setSelected(false);
         }
 
         selectedSlotIndex = Config.SLOT_NOT_SELECTED;
@@ -317,14 +215,19 @@ public class InventoryPanel extends MenuPanel {
 
     private void beginKeyboardMove(int sourceIndex) {
         keyboardMoveSourceIndex = sourceIndex;
-        slotViews.get(sourceIndex).setKeyboardPickedUp(true);
+        getSlotView(sourceIndex).setKeyboardPickedUp(true);
     }
 
     private void clearKeyboardMove() {
-        if (keyboardMoveSourceIndex != Config.SLOT_NOT_SELECTED) {
-            slotViews.get(keyboardMoveSourceIndex).setKeyboardPickedUp(false);
-        }
+        if (keyboardMoveSourceIndex != Config.SLOT_NOT_SELECTED) getSlotView(keyboardMoveSourceIndex).setKeyboardPickedUp(false);
 
         keyboardMoveSourceIndex = Config.SLOT_NOT_SELECTED;
+    }
+
+    private InventorySlotUi getSlotView(int slotIndex){
+        if (slotIndex < Config.HOTBAR_SIZE){
+            return hotbarGrid.getSlotView(slotIndex);
+        }
+        return mainGrid.getSlotView(slotIndex);
     }
 }

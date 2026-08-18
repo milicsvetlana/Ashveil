@@ -58,10 +58,26 @@ public class WorldRenderer {
             );
         }
 
-        for (DestructibleObject o : world.getDestructibleObject()) {
-            if (o.getType() == DestructibleObjectType.TREE) shapeRenderer.setColor(0.1f, 0.4f, 0.1f, 1f);
-            else if (o.getType() == DestructibleObjectType.ROCK) shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
-            else shapeRenderer.setColor(0.55f, 0.27f, 0.07f, 1f);
+        for (DestructibleObject o : world.getDestructibleObjects()) {
+            switch(o.getType()){
+                case TREE -> {
+                    shapeRenderer.setColor(0.1f, 0.4f, 0.1f, 1f);
+                    break;
+                }
+                case ROCK -> {
+                    shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
+                    break;
+                }
+                case FENCE -> {
+                    shapeRenderer.setColor(0.55f, 0.27f, 0.07f, 1f);
+                    break;
+                }
+                case CHEST -> {
+                    shapeRenderer.setColor(0.60f, 0.38f, 0.12f, 1f);
+                    break;
+                }
+            }
+
             shapeRenderer.rect(
                 o.getX() * Config.SCALE,
                 o.getY() * Config.SCALE,

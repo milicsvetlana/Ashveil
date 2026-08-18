@@ -12,7 +12,9 @@ import com.ashveil.items.crafting.CraftStatus;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.CraftingResult;
 import com.ashveil.items.crafting.Recipe;
+import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
+import com.ashveil.objects.Chest;
 import com.ashveil.objects.DestructibleObject;
 import com.ashveil.objects.DestructibleObjectType;
 import com.ashveil.input.PlayerInput;
@@ -48,6 +50,7 @@ public class World implements CraftingAccess {
 
     private final ProgressionState progressionState;
     private TargetMode targetMode;
+    private Chest activeChest;
     private Rectangle targetBounds;
     private final Map<DestructibleObjectType, ItemType> destructibleObjectDrops;
 
@@ -67,14 +70,16 @@ public class World implements CraftingAccess {
         dayNightCycle = new DayNightCycle();
         targetMode = TargetMode.NONE;
         targetBounds = new Rectangle();
+        activeChest = null;
 
         destructibleObjectDrops = Map.of(
             DestructibleObjectType.TREE, ItemType.WOOD,
             DestructibleObjectType.ROCK, ItemType.STONE,
-            DestructibleObjectType.FENCE, ItemType.FENCE
+            DestructibleObjectType.FENCE, ItemType.FENCE,
+            DestructibleObjectType.CHEST, ItemType.CHEST
         );
 
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.FENCE, 4));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.CHEST, 4));
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -92,7 +97,7 @@ public class World implements CraftingAccess {
 
         handleHotbarSelection(playerInput);
         handlePrimaryAction(playerInput);
-        handlePickup(playerInput);
+        handleInteract(playerInput);
         handleDropItem(playerInput);
         handleUseItem(playerInput);
         dayNightCycle.update(delta);
@@ -104,7 +109,9 @@ public class World implements CraftingAccess {
         groundItems.removeIf(WorldItem::shouldDespawn);
         for (Enemy enemy : enemies){
             if (!enemy.shouldBeRemoved()) continue;
-            addGroundItem(new WorldItem(enemy.getX(), enemy.getY(), ItemType.GOLD, getRandomGoldDrop()));
+            int goldDrop = getRandomGoldDrop();
+            if (goldDrop <= 0) continue;
+            addGroundItem(new WorldItem(enemy.getX(), enemy.getY(), ItemType.GOLD, goldDrop));
         }
         enemies.removeIf(Enemy::shouldBeRemoved);
     }
@@ -121,12 +128,24 @@ public class World implements CraftingAccess {
 
             for (DestructibleObject o : destructibleObjects){
                 if (o.isDestroyed()){
-                    int dropAmount = getResourceDropAmount(o);
+                    int dropAmount = getDropAmount(o);
 
                     addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
                                                 o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
                                                    destructibleObjectDrops.get(o.getType()), dropAmount
                     ));
+
+                    if (o.getType() == DestructibleObjectType.CHEST){
+                       Chest chest = (Chest) o;
+                       for (int i=0; i < chest.getChestInventory().getSize(); i++){
+                           ItemStack itemStack = chest.getChestInventory().getSlot(i);
+                           if (itemStack == null) continue;
+
+                           addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                                                       o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                                                          itemStack));
+                       }
+                    }
 
                     collisionSystem.unregister(o);
                 }
@@ -136,7 +155,7 @@ public class World implements CraftingAccess {
         }
     }
 
-    private int getResourceDropAmount(DestructibleObject resource){
+    private int getDropAmount(DestructibleObject resource){
         if (resource.getType() == DestructibleObjectType.TREE && !progressionState.isFirstTreeDropClaimed()) {
             progressionState.claimFirstTreeDrop();
             return Config.FIRST_TREE_DROP_AMOUNT;
@@ -153,12 +172,29 @@ public class World implements CraftingAccess {
         return 0;
     }
 
-    private void handlePickup(PlayerInput playerInput) {
+    private void handleInteract(PlayerInput playerInput) {
         if (!playerInput.isInteractPressed()) return;
 
-        WorldItem nearestItem = null;
+        Chest nearestChest = null;
         Double nearestDistanceSquared = null;
+        for (DestructibleObject object : destructibleObjects){
+            if (object.getType() != DestructibleObjectType.CHEST) continue;
 
+            float dimX = object.getX() - player.getX();
+            float dimY = object.getY() - player.getY();
+            double dist = dimX * dimX + dimY * dimY;
+            if (dist > Config.PLAYER_PICKUP_RANGE * Config.PLAYER_PICKUP_RANGE) continue;
+            if (nearestDistanceSquared == null || dist < nearestDistanceSquared){
+                nearestDistanceSquared = dist;
+                nearestChest = (Chest) object;
+            }
+        }
+        if (nearestChest != null){
+            activeChest = nearestChest;
+            return;
+        }
+
+        WorldItem nearestItem = null;
         for (WorldItem item : groundItems){
             float dimX = item.getX() - player.getX();
             float dimY = item.getY() - player.getY();
@@ -176,9 +212,8 @@ public class World implements CraftingAccess {
             groundItems.remove(nearestItem);
             return;
         }
-        int remaining = player.pickUp(nearestItem.getType(), nearestItem.getAmount());
+        int remaining = player.getInventory().addStack(nearestItem.getStack());
         if (remaining == 0) groundItems.remove(nearestItem);
-        else nearestItem.setAmount(remaining);
     }
 
     private void handleHotbarSelection(PlayerInput playerInput){
@@ -199,12 +234,13 @@ public class World implements CraftingAccess {
             quantity = player.getInventory().getQuantityBySlot(player.getSelectedHotbarSlot());
         }
 
-        int removed = player.getInventory().removeFromSlot(player.getSelectedHotbarSlot(), quantity);
-        if (removed == 0) return;
+        ItemStack itemStack = player.getInventory().extractFromSlot(player.getSelectedHotbarSlot(), quantity);
+
+        if (itemStack == null) return;
         addGroundItem(new WorldItem(
-            player.getX() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
-            player.getY() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
-            itemType, removed));
+                                   player.getX() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
+                                   player.getY() + (random.nextFloat(3) - 0.5f) * Config.TILE_SIZE,
+                                      itemStack));
     }
 
     private void handleUseItem(PlayerInput playerInput){
@@ -337,10 +373,15 @@ public class World implements CraftingAccess {
             tileY = random.nextInt(tileMap.getHeight());
         } while (!isResourcePositionValid(tileX, tileY));
 
-        DestructibleObject object = new DestructibleObject(tileX * Config.TILE_SIZE, tileY * Config.TILE_SIZE, destructibleObjectType);
+        DestructibleObject object = createDestructibleObject(tileX * Config.TILE_SIZE, tileY * Config.TILE_SIZE, destructibleObjectType);
 
         destructibleObjects.add(object);
         collisionSystem.register(object);
+    }
+
+    private DestructibleObject createDestructibleObject(float worldX, float worldY, DestructibleObjectType type){
+        if (type == DestructibleObjectType.CHEST) return new Chest(worldX, worldY);
+        return new DestructibleObject(worldX, worldY, type);
     }
 
     private boolean isResourcePositionValid(int tileX, int tileY){
@@ -388,7 +429,10 @@ public class World implements CraftingAccess {
             }
 
         }
-        groundItems.add(new WorldItem(newItem.getX(), newItem.getY(), newItem.getType(), remaining));
+        if (remaining != newItem.getAmount()) {
+            newItem.setAmount(remaining);
+        }
+        groundItems.add(newItem);
         checkSafetyLimit();
     }
 
@@ -465,7 +509,7 @@ public class World implements CraftingAccess {
         int removed = player.getInventory().removeFromSlot(selectedSlot, 1);
         if (removed == 0) return;
 
-        DestructibleObject object = new DestructibleObject(worldX, worldY, itemType.getPlacedObjectType());
+        DestructibleObject object = createDestructibleObject(worldX, worldY, itemType.getPlacedObjectType());
         destructibleObjects.add(object);
         collisionSystem.register(object);
 
@@ -486,6 +530,7 @@ public class World implements CraftingAccess {
 
     public void setTargetMode(TargetMode targetMode){this.targetMode = targetMode;}
     public void cancelTargeting(){targetMode = TargetMode.NONE;}
+    public void closeChest(){activeChest = null;}
 
     public List<Recipe> getRecipes(){
         return craftingManager.getRecipes();
@@ -494,9 +539,10 @@ public class World implements CraftingAccess {
     public Player getPlayer(){return player;}
     public List<Enemy> getEnemies() { return enemies; }
     public List<WorldItem> getGroundItems() {return groundItems;}
-    public List<DestructibleObject> getDestructibleObject() {return destructibleObjects;}
+    public List<DestructibleObject> getDestructibleObjects() {return destructibleObjects;}
     public DayNightCycle getDayNightCycle() {return dayNightCycle;}
     public TargetMode getTargetMode() {return targetMode;}
+    public Chest getActiveChest() {return activeChest;}
 
     public void dispose(){
         tileMap.dispose();
