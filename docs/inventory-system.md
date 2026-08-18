@@ -773,3 +773,53 @@ Postojeća arhitektura dozvoljava kasnije dodavanje:
 - čuvanja i učitavanja inventory stanja.
 
 Sva buduća proširenja treba i dalje da koriste `Inventory` kao autoritativni backend i ne treba da premeštaju trajnu item logiku u Scene2D actor klase.
+
+## Transfers Between Inventories
+
+`Inventory` is not limited to the Player inventory.
+
+The same backend is used by Chest storage, so slot operations support a source and destination `Inventory`.
+
+```text
+Player Inventory
+       ↓
+   moveSlot(...)
+       ↓
+Chest Inventory
+```
+
+The backend handles:
+
+- moving into an empty slot;
+- swapping different items;
+- merging compatible stacks;
+- split-stack transfers.
+
+`InventoryGridUi` is reused for Player main inventory, Player hotbar and Chest inventory.
+
+Mouse drag-and-drop stores both the source Inventory and source slot index.
+
+Keyboard transfers use the same rule. Because multiple inventories can contain the same numerical slot index, keyboard selection stores both:
+
+```text
+Inventory reference + slot index
+```
+
+`K` is used as the primary item action for selecting and placing items.
+
+### Preserving ItemStack State
+
+Item transfers that represent movement rather than consumption preserve the existing `ItemStack`.
+
+`extractFromSlot(...)` removes a concrete stack without discarding its per-instance state.
+
+`addStack(...)` accepts an existing stack instead of recreating it only from `ItemType` and quantity.
+
+This is required for non-stackable items such as tools, whose durability must survive:
+
+```text
+Inventory → Ground → Inventory
+Inventory → Chest → Ground → Inventory
+```
+
+Consumption operations remain separate from transfer operations.

@@ -516,3 +516,23 @@ Future systems should reuse:
 - `WorldRenderer` for preview rendering.
 
 New systems should not duplicate mouse-to-tile conversion or placement validation logic.
+
+## Chest Placement and Interaction
+
+`CHEST` is a placeable item that uses `TargetMode.PLACE`.
+
+After normal placement validation succeeds, `World` creates a `Chest` through the destructible-object creation path.
+
+Unlike ordinary `DestructibleObject` instances, `Chest` extends `DestructibleObject` because it owns additional runtime state: a 15-slot `Inventory`.
+
+Every placed Chest therefore has independent storage.
+
+Nearby Chest interaction uses `E`. `World` selects the nearest Chest inside the interaction range and exposes it as the active Chest to `GameScreen`.
+
+While the Chest overlay is open, normal world gameplay is paused.
+
+Chest destruction uses the normal destructible-object lifecycle. The Chest item is dropped together with every stored item, while existing `ItemStack` objects are preserved so tool durability is not reset.
+
+Detailed Chest UI and storage behaviour is documented in:
+
+`docs/chest-storage-system.md`
