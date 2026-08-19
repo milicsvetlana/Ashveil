@@ -61,6 +61,15 @@ public class TileMap {
         return multiplier;
     }
 
+    public boolean isTillable(float x, float y){
+        int tileX = worldToTileX(x);
+        int tileY = worldToTileY(y);
+        TiledMapTileLayer.Cell cell = groundLayer.getCell(worldToTileX(x), worldToTileY(y));
+        if (cell == null) return false;
+        Boolean tillable = cell.getTile().getProperties().get("tillable", Boolean.class);
+        return tillable != null && tillable;
+    }
+
     public TiledMap getTiledMap() {
         return tiledMap;
     }

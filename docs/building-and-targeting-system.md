@@ -536,3 +536,35 @@ Chest destruction uses the normal destructible-object lifecycle. The Chest item 
 Detailed Chest UI and storage behaviour is documented in:
 
 `docs/chest-storage-system.md`
+
+## Farming Target Modes
+
+The tile-targeting system is also used by farming.
+
+### `TILL`
+
+A Hoe activates `TargetMode.TILL`.
+
+The target is accepted only when the base terrain is marked with the Tiled property:
+
+```text
+tillable = true
+```
+
+and the runtime tile has not already been tilled.
+
+A successful action marks the tile as farmland in `FarmingSystem` and consumes Hoe durability.
+
+### `PLANT`
+
+Wheat Seeds activate `TargetMode.PLANT`.
+
+The target is accepted only when the tile is already farmland and does not already contain a Crop.
+
+A successful action consumes one Seed and creates a Wheat Crop at the target tile.
+
+Farming target actions reuse the same mouse-to-tile targeting and World validation flow used by building. The Tiled map stores only permanent terrain metadata, while the changing farmland and crop state remains in `FarmingSystem`.
+
+Detailed farming behaviour is documented in:
+
+`docs/farming-system.md`

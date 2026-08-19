@@ -8,6 +8,10 @@ import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemyType;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.enemies.Shade;
+import com.ashveil.farming.Crop;
+import com.ashveil.farming.CropStage;
+import com.ashveil.farming.CropType;
+import com.ashveil.farming.FarmingSystem;
 import com.ashveil.items.crafting.CraftStatus;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.CraftingResult;
@@ -53,6 +57,7 @@ public class World implements CraftingAccess {
     private Chest activeChest;
     private Rectangle targetBounds;
     private final Map<DestructibleObjectType, ItemType> destructibleObjectDrops;
+    private final FarmingSystem farmingSystem;
 
     public World(){
         tileMap = new TileMap();
@@ -71,6 +76,7 @@ public class World implements CraftingAccess {
         targetMode = TargetMode.NONE;
         targetBounds = new Rectangle();
         activeChest = null;
+        farmingSystem = new FarmingSystem(tileMap.getWidth(), tileMap.getHeight());
 
         destructibleObjectDrops = Map.of(
             DestructibleObjectType.TREE, ItemType.WOOD,
@@ -79,11 +85,13 @@ public class World implements CraftingAccess {
             DestructibleObjectType.CHEST, ItemType.CHEST
         );
 
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.CHEST, 4));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 4));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_HOE, 1));
     }
 
     public void update(float delta, PlayerInput playerInput){
         player.update(delta);
+        farmingSystem.update(delta);
 
         for (Enemy e : enemies){
             e.update(delta);
@@ -172,9 +180,15 @@ public class World implements CraftingAccess {
         return 0;
     }
 
-    private void handleInteract(PlayerInput playerInput) {
+    private void handleInteract(PlayerInput playerInput){
         if (!playerInput.isInteractPressed()) return;
 
+        if (tryOpenChest()) return;
+        if (tryHarvestCrop()) return;
+        tryPickUpGroundItem();
+    }
+
+    private boolean tryOpenChest(){
         Chest nearestChest = null;
         Double nearestDistanceSquared = null;
         for (DestructibleObject object : destructibleObjects){
@@ -189,12 +203,72 @@ public class World implements CraftingAccess {
                 nearestChest = (Chest) object;
             }
         }
-        if (nearestChest != null){
-            activeChest = nearestChest;
-            return;
-        }
+        if (nearestChest == null) return false;
+        activeChest = nearestChest;
+        return true;
+    }
 
+    private boolean tryHarvestCrop() {
+        Crop nearestCrop = null;
+        int nearestTileX = -1;
+        int nearestTileY = -1;
+        Double nearestDistanceSquared = null;
+
+        for (int x=0; x < tileMap.getWidth(); x++){
+            for (int y=0; y < tileMap.getHeight(); y++){
+                Crop crop = farmingSystem.getCrop(x, y);
+
+                if (crop == null) continue;
+                if (crop.getCropStage() != CropStage.MATURE) continue;
+
+                float cropWorldX = tileMap.tileToWorldX(x);
+                float cropWorldY = tileMap.tileToWorldY(y);
+
+                float dimX = cropWorldX - player.getX();
+                float dimY = cropWorldY - player.getY();
+                double dist = dimX * dimX + dimY * dimY;
+                if (dist > Config.PLAYER_PICKUP_RANGE * Config.PLAYER_PICKUP_RANGE) continue;
+
+                if (nearestDistanceSquared == null || dist < nearestDistanceSquared){
+                    nearestDistanceSquared = dist;
+                    nearestCrop = crop;
+                    nearestTileX = x;
+                    nearestTileY = y;
+                }
+            }
+        }
+        if (nearestCrop == null) return false;
+
+        float tileWorldX = tileMap.tileToWorldX(nearestTileX);
+        float tileWorldY = tileMap.tileToWorldY(nearestTileY);
+        float wheatDropX = tileWorldX + Config.TILE_SIZE * 0.20f;
+        float seedDropX = tileWorldX + Config.TILE_SIZE * 0.60f;
+        float dropY = tileWorldY + Config.TILE_SIZE * 0.20f;
+        addGroundItem(new WorldItem(wheatDropX, dropY, ItemType.WHEAT, 1));
+
+        int seedAmount = random.nextInt(100) < 75 ? 1 : 2;
+        addGroundItem(new WorldItem(seedDropX , dropY, ItemType.WHEAT_SEED, seedAmount));
+
+        farmingSystem.removeCrop(nearestTileX, nearestTileY);
+        return true;
+    }
+
+    private boolean tryPickUpGroundItem() {
+        WorldItem nearestItem = getWorldItem();
+        if(nearestItem == null) return false;
+        if (nearestItem.getType() == ItemType.GOLD){
+            player.getWallet().addGold(nearestItem.getAmount());
+            groundItems.remove(nearestItem);
+            return true;
+        }
+        int remaining = player.getInventory().addStack(nearestItem.getStack());
+        if (remaining == 0) groundItems.remove(nearestItem);
+        return true;
+    }
+
+    private WorldItem getWorldItem() {
         WorldItem nearestItem = null;
+        Double nearestDistanceSquared = null;
         for (WorldItem item : groundItems){
             float dimX = item.getX() - player.getX();
             float dimY = item.getY() - player.getY();
@@ -206,14 +280,7 @@ public class World implements CraftingAccess {
                 nearestItem = item;
             }
         }
-        if(nearestItem == null) return;
-        if (nearestItem.getType() == ItemType.GOLD){
-            player.getWallet().addGold(nearestItem.getAmount());
-            groundItems.remove(nearestItem);
-            return;
-        }
-        int remaining = player.getInventory().addStack(nearestItem.getStack());
-        if (remaining == 0) groundItems.remove(nearestItem);
+        return nearestItem;
     }
 
     private void handleHotbarSelection(PlayerInput playerInput){
@@ -330,8 +397,11 @@ public class World implements CraftingAccess {
         }
 
         if (targetMode == TargetMode.PLANT){
-            //proverimo nekako da li je poorana zemlja ne znam kako cemo to da ubacimo da li kao poseban tile u mapi
-            //ili cemo na drugi nacin raditi
+            if(!farmingSystem.isTilled(tileX, tileY) && farmingSystem.getCrop(tileX, tileY) == null) return false;
+        }
+
+        if (targetMode == TargetMode.TILL){
+            if (!tileMap.isTillable(worldX, worldY) || farmingSystem.isTilled(tileX, tileY)) return false;
         }
 
         if (tileMap.isBlocked(tileX, tileY)) return false;
@@ -400,10 +470,8 @@ public class World implements CraftingAccess {
         int distanceFromPlayerX = (int) Math.abs(tileX - playerTileX);
         int distanceFromPlayerY = (int) Math.abs(tileY - playerTileY);
 
-        if (distanceFromPlayerX <= Config.INITIAL_SPAWN_CLEAR_RADIUS
-            && distanceFromPlayerY <= Config.INITIAL_SPAWN_CLEAR_RADIUS) return false;
-
-        return true;
+        return distanceFromPlayerX > Config.INITIAL_SPAWN_CLEAR_RADIUS
+            || distanceFromPlayerY > Config.INITIAL_SPAWN_CLEAR_RADIUS;
     }
 
     private void addGroundItem(WorldItem newItem){
@@ -517,15 +585,22 @@ public class World implements CraftingAccess {
     }
 
     private void plantTarget(int tileX, int tileY, float worldX, float worldY){
-        player.getInventory().removeFromSlot(player.getSelectedHotbarSlot(), 1);
-        //postavimo tu biljku tu nez kako je osmisljeno
+        int selectedSlot = player.getSelectedHotbarSlot();
+        ItemType itemType = player.getInventory().getItemTypeBySlot(selectedSlot);
+
+        if (itemType != ItemType.WHEAT_SEED) return;
+
+        int removed = player.getInventory().removeFromSlot(selectedSlot, 1);
+        if (removed == 0) return;
+
+        farmingSystem.plant(CropType.WHEAT, tileX, tileY);
+
+        if (player.getInventory().getItemTypeBySlot(selectedSlot) == null) cancelTargeting();
     }
 
     private void tillTarget(int tileX, int tileY, float worldX, float worldY){
-        if (player.getInventory().getItemTypeBySlot(player.getSelectedHotbarSlot()).usesDurability()){
-            //smanji durabiliti
-        }
-        //stavljamo da je taj deo zemlje pooran al to napisah da cemo da vidimo kako ce da izgleda
+        farmingSystem.till(tileX, tileY);
+        player.getInventory().getSlot(player.getSelectedHotbarSlot()).reduceDurability(1);
     }
 
     public void setTargetMode(TargetMode targetMode){this.targetMode = targetMode;}
@@ -543,6 +618,7 @@ public class World implements CraftingAccess {
     public DayNightCycle getDayNightCycle() {return dayNightCycle;}
     public TargetMode getTargetMode() {return targetMode;}
     public Chest getActiveChest() {return activeChest;}
+    public FarmingSystem getFarmingSystem() {return farmingSystem;}
 
     public void dispose(){
         tileMap.dispose();

@@ -39,7 +39,7 @@ public class Config {
     public static final int SLOT_MOVE = 1;
 
     /** Day and night cycle */
-    public static final float DAY_DURATION = 10f;
+    public static final float DAY_DURATION = 100f;
     public static final float NIGHT_DURATION = 5f;
 
     /** Ground items */
@@ -67,4 +67,9 @@ public class Config {
     /** Gold drops */
     public static final int DOUBLE_GOLD_DROP_CHANCE = 5;
     public static final int SINGLE_GOLD_DROP_CHANCE = 30;
+
+    /** Farming */
+    public static final float WHEAT_SEED_DURATION = 3f;
+    public static final float WHEAT_SPROUT_DURATION = 3f;
+    public static final float WHEAT_GROWING_DURATION = 3f;
 }

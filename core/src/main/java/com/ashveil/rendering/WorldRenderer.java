@@ -2,13 +2,15 @@ package com.ashveil.rendering;
 
 import com.ashveil.Config;
 import com.ashveil.entities.enemies.Enemy;
+import com.ashveil.farming.Crop;
 import com.ashveil.objects.DestructibleObject;
-import com.ashveil.objects.DestructibleObjectType;
 import com.ashveil.world.CameraController;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.ashveil.world.TileMap;
@@ -18,18 +20,41 @@ import com.badlogic.gdx.math.Matrix4;
 public class WorldRenderer {
 
     private ShapeRenderer shapeRenderer;
+    private final SpriteBatch spriteBatch;
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer tiledMapRenderer;
+
+    private Texture farmTileTexture;
+    private Texture wheatSeedTexture;
+    private Texture wheatSproutTexture;
+    private Texture wheatGrowingTexture;
+    private Texture wheatMatureTexture;
 
     public WorldRenderer(TileMap tileMap) {
         shapeRenderer = new ShapeRenderer();
         tiledMap = tileMap.getTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, Config.SCALE);
+
+        spriteBatch = new SpriteBatch();
+        setTextures();
+    }
+
+    public void setTextures(){
+        farmTileTexture = new Texture("textures/farming/farm_tile.png");
+        wheatSeedTexture = new Texture("textures/farming/wheat_seed.png");
+        wheatSproutTexture = new Texture("textures/farming/wheat_sprout.png");
+        wheatGrowingTexture = new Texture("textures/farming/wheat_growing.png");
+        wheatMatureTexture = new Texture("textures/farming/wheat_mature.png");
     }
 
     public void render(World world, CameraController cameraController) {
         tiledMapRenderer.setView(cameraController.camera);
         tiledMapRenderer.render();
+
+        spriteBatch.setProjectionMatrix(cameraController.camera.combined);
+        spriteBatch.begin();
+        drawFarmingTextures(world);
+        spriteBatch.end();
 
         shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
 
@@ -126,24 +151,44 @@ public class WorldRenderer {
         shapeRenderer.end();
     }
 
-    public int getMapWidthInTiles() {
-        return tiledMap.getProperties().get("width", Integer.class);
+    public void drawFarmingTextures(World world){
+        //DRAWING TILLED
+        for (int x=0; x < world.getTileMap().getWidth(); x++){
+            for (int y=0; y < world.getTileMap().getHeight(); y++){
+                if (!world.getFarmingSystem().isTilled(x, y)) continue;
+                spriteBatch.draw(farmTileTexture, x * Config.TILE_DRAW_SIZE, y * Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+            }
+        }
+        //DRAWING CROPS
+        for (int x=0; x < world.getTileMap().getWidth(); x++){
+            for (int y=0; y < world.getTileMap().getHeight(); y++){
+                Crop crop = world.getFarmingSystem().getCrop(x, y);
+                if (crop == null) continue;
+                Texture cropTexture = switch (crop.getCropStage()) {
+                    case SEED -> wheatSeedTexture;
+                    case SPROUT -> wheatSproutTexture;
+                    case GROWING -> wheatGrowingTexture;
+                    case MATURE -> wheatMatureTexture;
+                };
+                spriteBatch.draw(cropTexture, x * Config.TILE_DRAW_SIZE, y * Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+            }
+        }
     }
 
-    public int getMapHeightInTiles() {
-        return tiledMap.getProperties().get("height", Integer.class);
-    }
-
-    public float getMapRenderWidth() {
-        return getMapWidthInTiles() * Config.TILE_DRAW_SIZE;
-    }
-
-    public float getMapRenderHeight() {
-        return getMapHeightInTiles() * Config.TILE_DRAW_SIZE;
-    }
+    public int getMapWidthInTiles() {return tiledMap.getProperties().get("width", Integer.class);}
+    public int getMapHeightInTiles() {return tiledMap.getProperties().get("height", Integer.class);}
+    public float getMapRenderWidth() {return getMapWidthInTiles() * Config.TILE_DRAW_SIZE;}
+    public float getMapRenderHeight() {return getMapHeightInTiles() * Config.TILE_DRAW_SIZE;}
 
     public void dispose() {
         shapeRenderer.dispose();
         tiledMapRenderer.dispose();
+        spriteBatch.dispose();
+
+        farmTileTexture.dispose();
+        wheatSeedTexture.dispose();
+        wheatSproutTexture.dispose();
+        wheatGrowingTexture.dispose();
+        wheatMatureTexture.dispose();
     }
 }
