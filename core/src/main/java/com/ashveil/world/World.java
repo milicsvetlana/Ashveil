@@ -336,6 +336,11 @@ public class World implements CraftingAccess {
             player.useHeartRepair();
             player.getInventory().removeFromSlot(selectedSlot, 1);
         }
+
+        if (itemType == ItemType.BREAD){
+            player.heal(Config.BREAD_HEALING);
+            player.getInventory().removeFromSlot(selectedSlot, 1);
+        }
     }
 
     private void spawnEnemies(){
@@ -397,7 +402,7 @@ public class World implements CraftingAccess {
         }
 
         if (targetMode == TargetMode.PLANT){
-            if(!farmingSystem.isTilled(tileX, tileY) && farmingSystem.getCrop(tileX, tileY) == null) return false;
+            if(!farmingSystem.isTilled(tileX, tileY) || farmingSystem.getCrop(tileX, tileY) != null) return false;
         }
 
         if (targetMode == TargetMode.TILL){

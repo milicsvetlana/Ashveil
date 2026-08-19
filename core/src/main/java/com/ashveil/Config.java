@@ -29,6 +29,7 @@ public class Config {
     public static final int PLAYER_HEART_SLOTS = 5;
     public static final int HP_PER_HEART = 2;
     public static final int MAX_BROKEN_HEARTS = 3;
+    public static final int BREAD_HEALING = 1;
     public static final float DEATH_FADE_DURATION = 2f;
 
     /** Inventory */
@@ -39,7 +40,7 @@ public class Config {
     public static final int SLOT_MOVE = 1;
 
     /** Day and night cycle */
-    public static final float DAY_DURATION = 100f;
+    public static final float DAY_DURATION = 5f;
     public static final float NIGHT_DURATION = 5f;
 
     /** Ground items */
@@ -72,4 +73,5 @@ public class Config {
     public static final float WHEAT_SEED_DURATION = 3f;
     public static final float WHEAT_SPROUT_DURATION = 3f;
     public static final float WHEAT_GROWING_DURATION = 3f;
+    public static final float SAPLING_GROWTH_DURATION = 5f;
 }

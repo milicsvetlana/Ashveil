@@ -99,10 +99,6 @@ public class Player extends Entity{
         };
     }
 
-    public int pickUp(ItemType itemType, int amount){
-        return inventory.addItem(itemType, amount);
-    }
-
     public void addBrokenHeart(){
         if (brokenHearts >= Config.MAX_BROKEN_HEARTS) return;
         brokenHearts++;
@@ -123,6 +119,11 @@ public class Player extends Entity{
     public void useHeartRepair(){
         repairBrokenHeart();
         restoreHealth();
+    }
+
+    public void heal(int amount){
+        int newHp = amount + currentHp;
+        currentHp = Math.min(newHp, maxHp);
     }
 
     public boolean canUsePrimaryAction(){return primaryActionCooldown <= 0;}
