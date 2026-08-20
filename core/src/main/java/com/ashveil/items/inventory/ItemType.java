@@ -87,6 +87,17 @@ public enum ItemType {
         null
     ),
 
+    SAPLING(
+        "Sapling",
+        "A seed that can be planted to grow trees.",
+        20,
+        0,
+        true,
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.PLANT,
+        null
+    ),
+
     WOODEN_AXE(
         "Wooden Axe",
         "A basic wooden tool used for chopping trees.",

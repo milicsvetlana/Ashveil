@@ -3,14 +3,18 @@ package com.ashveil.rendering;
 import com.ashveil.Config;
 import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.farming.Crop;
+import com.ashveil.farming.GrowablePlant;
+import com.ashveil.farming.Sapling;
 import com.ashveil.objects.DestructibleObject;
 import com.ashveil.world.CameraController;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.ashveil.world.TileMap;
@@ -25,10 +29,10 @@ public class WorldRenderer {
     private OrthogonalTiledMapRenderer tiledMapRenderer;
 
     private Texture farmTileTexture;
-    private Texture wheatSeedTexture;
-    private Texture wheatSproutTexture;
-    private Texture wheatGrowingTexture;
-    private Texture wheatMatureTexture;
+    private Texture wheatTexture;
+    private TextureRegion[] wheatStages;
+    private Texture saplingTexture;
+    private TextureRegion[] saplingStages;
 
     public WorldRenderer(TileMap tileMap) {
         shapeRenderer = new ShapeRenderer();
@@ -41,10 +45,12 @@ public class WorldRenderer {
 
     public void setTextures(){
         farmTileTexture = new Texture("textures/farming/farm_tile.png");
-        wheatSeedTexture = new Texture("textures/farming/wheat_seed.png");
-        wheatSproutTexture = new Texture("textures/farming/wheat_sprout.png");
-        wheatGrowingTexture = new Texture("textures/farming/wheat_growing.png");
-        wheatMatureTexture = new Texture("textures/farming/wheat_mature.png");
+        wheatTexture = new Texture("textures/farming/wheat_stages.png");
+        TextureRegion[][] regions = TextureRegion.split(wheatTexture, 16, 16);
+        wheatStages = regions[0];
+        saplingTexture = new Texture("textures/farming/tree_stages.png");
+        regions = TextureRegion.split(saplingTexture, 16, 32);
+        saplingStages = regions[0];
     }
 
     public void render(World world, CameraController cameraController) {
@@ -86,7 +92,7 @@ public class WorldRenderer {
         for (DestructibleObject o : world.getDestructibleObjects()) {
             switch(o.getType()){
                 case TREE -> {
-                    shapeRenderer.setColor(0.1f, 0.4f, 0.1f, 1f);
+                    shapeRenderer.setColor(Color.GREEN);
                     break;
                 }
                 case ROCK -> {
@@ -162,15 +168,35 @@ public class WorldRenderer {
         //DRAWING CROPS
         for (int x=0; x < world.getTileMap().getWidth(); x++){
             for (int y=0; y < world.getTileMap().getHeight(); y++){
-                Crop crop = world.getFarmingSystem().getCrop(x, y);
-                if (crop == null) continue;
-                Texture cropTexture = switch (crop.getCropStage()) {
-                    case SEED -> wheatSeedTexture;
-                    case SPROUT -> wheatSproutTexture;
-                    case GROWING -> wheatGrowingTexture;
-                    case MATURE -> wheatMatureTexture;
-                };
-                spriteBatch.draw(cropTexture, x * Config.TILE_DRAW_SIZE, y * Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+                GrowablePlant plant = world.getFarmingSystem().getPlant(x, y);
+                if (plant == null) continue;
+
+                if (plant instanceof Crop crop){
+                    TextureRegion cropTexture = switch (plant.getGrowthStage()) {
+                        case EARLY -> wheatStages[0];
+                        case MIDDLE -> wheatStages[1];
+                        case LATE -> wheatStages[2];
+                        case MATURE -> wheatStages[3];
+                    };
+                    spriteBatch.draw(cropTexture, x * Config.TILE_DRAW_SIZE, y * Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+
+                }
+                else if (plant instanceof Sapling sapling){
+                    TextureRegion saplingTexture = switch (sapling.getGrowthStage()) {
+                        case EARLY -> saplingStages[0];
+                        case MIDDLE -> saplingStages[1];
+                        case LATE -> saplingStages[2];
+                        case MATURE -> saplingStages[3];
+                    };
+
+                    spriteBatch.draw(
+                        saplingTexture,
+                        x * Config.TILE_DRAW_SIZE,
+                        y * Config.TILE_DRAW_SIZE,
+                        Config.TILE_DRAW_SIZE,
+                        Config.TILE_DRAW_SIZE * 2
+                    );
+                }
             }
         }
     }
@@ -186,9 +212,7 @@ public class WorldRenderer {
         spriteBatch.dispose();
 
         farmTileTexture.dispose();
-        wheatSeedTexture.dispose();
-        wheatSproutTexture.dispose();
-        wheatGrowingTexture.dispose();
-        wheatMatureTexture.dispose();
+        wheatTexture.dispose();
+        saplingTexture.dispose();
     }
 }

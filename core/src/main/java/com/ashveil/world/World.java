@@ -8,10 +8,7 @@ import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemyType;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.enemies.Shade;
-import com.ashveil.farming.Crop;
-import com.ashveil.farming.CropStage;
-import com.ashveil.farming.CropType;
-import com.ashveil.farming.FarmingSystem;
+import com.ashveil.farming.*;
 import com.ashveil.items.crafting.CraftStatus;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.CraftingResult;
@@ -85,13 +82,15 @@ public class World implements CraftingAccess {
             DestructibleObjectType.CHEST, ItemType.CHEST
         );
 
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 4));
         addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_HOE, 1));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.SAPLING, 3));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 3));
     }
 
     public void update(float delta, PlayerInput playerInput){
         player.update(delta);
         farmingSystem.update(delta);
+        handleMatureSaplings();
 
         for (Enemy e : enemies){
             e.update(delta);
@@ -142,6 +141,14 @@ public class World implements CraftingAccess {
                                                 o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
                                                    destructibleObjectDrops.get(o.getType()), dropAmount
                     ));
+
+                    if (o.getType() == DestructibleObjectType.TREE){
+                        int seedAmount = random.nextInt(100) < 75 ? 1 : 2;
+                        addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                                o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                                ItemType.SAPLING, seedAmount
+                            ));
+                    }
 
                     if (o.getType() == DestructibleObjectType.CHEST){
                        Chest chest = (Chest) o;
@@ -216,10 +223,9 @@ public class World implements CraftingAccess {
 
         for (int x=0; x < tileMap.getWidth(); x++){
             for (int y=0; y < tileMap.getHeight(); y++){
-                Crop crop = farmingSystem.getCrop(x, y);
+                if (!(farmingSystem.getPlant(x, y) instanceof Crop crop)) continue;
 
-                if (crop == null) continue;
-                if (crop.getCropStage() != CropStage.MATURE) continue;
+                if (crop.getGrowthStage() != GrowthStage.MATURE) continue;
 
                 float cropWorldX = tileMap.tileToWorldX(x);
                 float cropWorldY = tileMap.tileToWorldY(y);
@@ -249,7 +255,7 @@ public class World implements CraftingAccess {
         int seedAmount = random.nextInt(100) < 75 ? 1 : 2;
         addGroundItem(new WorldItem(seedDropX , dropY, ItemType.WHEAT_SEED, seedAmount));
 
-        farmingSystem.removeCrop(nearestTileX, nearestTileY);
+        farmingSystem.removePlant(nearestTileX, nearestTileY);
         return true;
     }
 
@@ -402,11 +408,21 @@ public class World implements CraftingAccess {
         }
 
         if (targetMode == TargetMode.PLANT){
-            if(!farmingSystem.isTilled(tileX, tileY) || farmingSystem.getCrop(tileX, tileY) != null) return false;
+            if (farmingSystem.getPlant(tileX, tileY) != null) return false;
+            ItemType selectedItem = player.getInventory().getItemTypeBySlot(player.getSelectedHotbarSlot());
+            boolean validPlantTarget = switch (selectedItem){
+                case WHEAT_SEED -> farmingSystem.isTilled(tileX, tileY);
+                case SAPLING ->
+                    tileMap.isTreePlantable(tileX, tileY)
+                        && !farmingSystem.isTilled(tileX, tileY);
+                default -> false;
+            };
+
+            if (!validPlantTarget) return false;
         }
 
         if (targetMode == TargetMode.TILL){
-            if (!tileMap.isTillable(worldX, worldY) || farmingSystem.isTilled(tileX, tileY)) return false;
+            if (!tileMap.isTillable(worldX, worldY)) return false;
         }
 
         if (tileMap.isBlocked(tileX, tileY)) return false;
@@ -592,13 +608,13 @@ public class World implements CraftingAccess {
     private void plantTarget(int tileX, int tileY, float worldX, float worldY){
         int selectedSlot = player.getSelectedHotbarSlot();
         ItemType itemType = player.getInventory().getItemTypeBySlot(selectedSlot);
-
-        if (itemType != ItemType.WHEAT_SEED) return;
+        if (itemType == null) return;
 
         int removed = player.getInventory().removeFromSlot(selectedSlot, 1);
         if (removed == 0) return;
 
-        farmingSystem.plant(CropType.WHEAT, tileX, tileY);
+        if (itemType == ItemType.WHEAT_SEED) farmingSystem.plant(CropType.WHEAT, tileX, tileY);
+        else if (itemType == ItemType.SAPLING) farmingSystem.plant("sapling", tileX, tileY);
 
         if (player.getInventory().getItemTypeBySlot(selectedSlot) == null) cancelTargeting();
     }
@@ -606,6 +622,38 @@ public class World implements CraftingAccess {
     private void tillTarget(int tileX, int tileY, float worldX, float worldY){
         farmingSystem.till(tileX, tileY);
         player.getInventory().getSlot(player.getSelectedHotbarSlot()).reduceDurability(1);
+    }
+
+    private void handleMatureSaplings(){
+        for (int x=0; x < tileMap.getWidth(); x++){
+            for (int y=0; y < tileMap.getHeight(); y++){
+                GrowablePlant plant = farmingSystem.getPlant(x, y);
+                if (!(plant instanceof Sapling)) continue;
+                if (plant.getGrowthStage() != GrowthStage.MATURE) continue;
+                if (!isTreeSpawnPositionValid(x, y)) continue; // neko stoji na tileu, sačekaj
+
+                farmingSystem.removePlant(x, y);
+                DestructibleObject tree = createDestructibleObject(
+                    tileMap.tileToWorldX(x), tileMap.tileToWorldY(y), DestructibleObjectType.TREE
+                );
+                destructibleObjects.add(tree);
+                collisionSystem.register(tree);
+            }
+        }
+    }
+
+    private boolean isTreeSpawnPositionValid(int tileX, int tileY){
+        float worldX = tileMap.tileToWorldX(tileX);
+        float worldY = tileMap.tileToWorldY(tileY);
+        Rectangle treeBounds = new Rectangle(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE);
+
+        if (treeBounds.overlaps(player.getCollisionBounds())) return false;
+
+        for (Enemy enemy : enemies) {
+            if (treeBounds.overlaps(enemy.getCollisionBounds())) return false;
+        }
+
+        return true;
     }
 
     public void setTargetMode(TargetMode targetMode){this.targetMode = targetMode;}

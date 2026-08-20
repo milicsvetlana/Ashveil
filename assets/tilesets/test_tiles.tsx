@@ -4,6 +4,7 @@
  <tile id="0">
   <properties>
    <property name="tillable" type="bool" value="true"/>
+   <property name="treePlantable" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="3">

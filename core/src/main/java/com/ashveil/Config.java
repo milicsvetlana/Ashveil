@@ -69,9 +69,13 @@ public class Config {
     public static final int DOUBLE_GOLD_DROP_CHANCE = 5;
     public static final int SINGLE_GOLD_DROP_CHANCE = 30;
 
+    public static final int SAPLING_DROP_CHANCE = 40; // npr 40% šanse
+
     /** Farming */
-    public static final float WHEAT_SEED_DURATION = 3f;
-    public static final float WHEAT_SPROUT_DURATION = 3f;
-    public static final float WHEAT_GROWING_DURATION = 3f;
-    public static final float SAPLING_GROWTH_DURATION = 5f;
+    public static final float WHEAT_EARLY_DURATION = 3f;
+    public static final float WHEAT_MIDDLE_DURATION = 3f;
+    public static final float WHEAT_LATE_DURATION = 3f;
+    public static final float SAPLING_EARLY_DURATION = 5f;
+    public static final float SAPLING_MIDDLE_DURATION = 5f;
+    public static final float SAPLING_LATE_DURATION = 5f;
 }

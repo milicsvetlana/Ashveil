@@ -1,27 +1,10 @@
 package com.ashveil.farming;
 
-public class Crop {
-    private CropStage cropStage;
-    private float growthTimer;
+public class Crop extends GrowablePlant {
     private CropType cropType;
 
     public Crop(CropType cropType) {
+        super(cropType.getEarlyDuration(), cropType.getMiddleDuration(), cropType.getLateDuration());
         this.cropType = cropType;
-        cropStage = CropStage.SEED;
-        growthTimer = 0;
     }
-
-    public void updateAndCheckStageUpdate(float delta){ //apdejtuje tajmer i, ako treba, prelazi u novi crop stage
-        growthTimer += delta;
-        CropStage newStage;
-
-        if (growthTimer < cropType.getSeedDuration()) newStage = CropStage.SEED;
-        else if (growthTimer < cropType.getSeedDuration() + cropType.getSproutDuration()) newStage = CropStage.SPROUT;
-        else if (growthTimer < cropType.getSeedDuration() + cropType.getSproutDuration() + cropType.getGrowingDuration()) newStage = CropStage.GROWING;
-        else newStage = CropStage.MATURE;
-
-        if (newStage != cropStage) cropStage = newStage;
-    }
-
-    public CropStage getCropStage() {return cropStage;}
 }

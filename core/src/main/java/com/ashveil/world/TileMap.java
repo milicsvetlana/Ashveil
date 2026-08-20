@@ -70,6 +70,20 @@ public class TileMap {
         return tillable != null && tillable;
     }
 
+    public boolean isTreePlantable(int tileX, int tileY){
+        if (tileX < 0 || tileX >= width || tileY < 0 || tileY >= height) {
+            return false;
+        }
+
+        TiledMapTileLayer.Cell cell = groundLayer.getCell(tileX, tileY);
+        if (cell == null) return false;
+
+        Boolean treePlantable =
+            cell.getTile().getProperties().get("treePlantable", Boolean.class);
+
+        return treePlantable != null && treePlantable;
+    }
+
     public TiledMap getTiledMap() {
         return tiledMap;
     }
