@@ -568,3 +568,29 @@ Farming target actions reuse the same mouse-to-tile targeting and World validati
 Detailed farming behaviour is documented in:
 
 `docs/farming-system.md`
+
+## Plant Targeting Extension
+
+`TargetMode.PLANT` is shared by multiple plantable item types.
+
+The selected item determines the terrain rule:
+
+```text
+WHEAT_SEED
+→ requires empty farmland
+
+SAPLING
+→ requires empty terrain marked `treePlantable = true`
+```
+
+The common targeting flow remains:
+
+```text
+Mouse
+→ TileTargetingSystem
+→ TargetMode.PLANT
+→ World validation
+→ item-specific plant action
+```
+
+Only one growable plant may occupy a plant tile at a time.
