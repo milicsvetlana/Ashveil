@@ -38,4 +38,9 @@ public class DestructibleObject extends WorldObject implements Hittable, Collida
     public boolean blocksMovement(MovementType movementType) {
         return movementType == MovementType.GROUND;
     }
+
+    @Override
+    public boolean blocksNavigation(MovementType movementType) {
+        return movementType == MovementType.GROUND && type != DestructibleObjectType.FENCE;
+    }
 }

@@ -64,6 +64,7 @@ public class Config {
     public static final float ENEMY_DYING_DURATION = 0.5f;
     public static final float ENEMY_HP_BAR_DURATION = 1.5f;
     public static final float ENEMY_HIT_FLASH_DURATION = 0.15f;
+    public static final float ENEMY_AI_DECISION_INTERVAL = 0.15f;
 
     /** Gold drops */
     public static final int DOUBLE_GOLD_DROP_CHANCE = 5;

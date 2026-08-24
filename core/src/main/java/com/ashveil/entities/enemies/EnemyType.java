@@ -8,7 +8,7 @@ public enum EnemyType {
     WRAITH(6, 30, 2, MovementType.GROUND);
 
     private final int maxHp;
-    private float maxSpeed;
+    private final float maxSpeed;
     private final int damage;
     private final MovementType movementType;
 

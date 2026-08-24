@@ -15,6 +15,7 @@ import com.ashveil.items.crafting.CraftingResult;
 import com.ashveil.items.crafting.Recipe;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
+import com.ashveil.navigation.DistanceField;
 import com.ashveil.objects.Chest;
 import com.ashveil.objects.DestructibleObject;
 import com.ashveil.objects.DestructibleObjectType;
@@ -56,6 +57,8 @@ public class World implements CraftingAccess {
     private final Map<DestructibleObjectType, ItemType> destructibleObjectDrops;
     private final FarmingSystem farmingSystem;
 
+    private final DistanceField distanceField;
+
     public World(){
         tileMap = new TileMap();
         collisionSystem = new CollisionSystem(tileMap);
@@ -74,6 +77,7 @@ public class World implements CraftingAccess {
         targetBounds = new Rectangle();
         activeChest = null;
         farmingSystem = new FarmingSystem(tileMap.getWidth(), tileMap.getHeight());
+        distanceField = new DistanceField(tileMap, collisionSystem);
 
         destructibleObjectDrops = Map.of(
             DestructibleObjectType.TREE, ItemType.WOOD,
@@ -89,6 +93,10 @@ public class World implements CraftingAccess {
 
     public void update(float delta, PlayerInput playerInput){
         player.update(delta);
+        player.move(playerInput.getMoveX(), playerInput.getMoveY(), delta);
+
+        distanceField.update(tileMap.worldToTileX(player.getCenterX()), tileMap.worldToTileY(player.getCenterY()));
+
         farmingSystem.update(delta);
         handleMatureSaplings();
 
@@ -96,8 +104,7 @@ public class World implements CraftingAccess {
             e.update(delta);
         }
 
-        player.move(playerInput.getMoveX(), playerInput.getMoveY(), delta);
-
+        dayNightCycle.update(delta);
         if (dayNightCycle.justBecameNight()){
             spawnEnemies();
         }
@@ -107,13 +114,13 @@ public class World implements CraftingAccess {
         handleInteract(playerInput);
         handleDropItem(playerInput);
         handleUseItem(playerInput);
-        dayNightCycle.update(delta);
 
         for (WorldItem item : groundItems){
             item.update(delta);
         }
 
         groundItems.removeIf(WorldItem::shouldDespawn);
+
         for (Enemy enemy : enemies){
             if (!enemy.shouldBeRemoved()) continue;
             int goldDrop = getRandomGoldDrop();
@@ -368,7 +375,7 @@ public class World implements CraftingAccess {
         float worldY = tileY * Config.TILE_SIZE;
 
         if (enemyType == EnemyType.SHADE) {
-            enemies.add(new Shade(worldX, worldY, player, collisionSystem));
+            enemies.add(new Shade(worldX, worldY, player, collisionSystem, distanceField));
         }
     }
 

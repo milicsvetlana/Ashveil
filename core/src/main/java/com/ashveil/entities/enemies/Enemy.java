@@ -17,6 +17,7 @@ public abstract class Enemy extends Entity implements Hittable {
     private float hitFlashTimer = 0f;
     private float hpBarTimer;
     private float dyingTimer;
+    private float aiDecisionTimer;
 
     public Enemy(float x, float y, EnemyType enemyType, Player target, CollisionSystem collisionSystem) {
         super(x, y, enemyType.getMaxHp(), enemyType.getMaxSpeed(), enemyType.getMovementType());
@@ -39,6 +40,11 @@ public abstract class Enemy extends Entity implements Hittable {
             return;
         }
 
+        aiDecisionTimer -= delta;
+        if (aiDecisionTimer <= 0){
+            updateAiDecision();
+            aiDecisionTimer = Config.ENEMY_AI_DECISION_INTERVAL;
+        }
         updateAlive(delta);
     }
 
@@ -66,12 +72,9 @@ public abstract class Enemy extends Entity implements Hittable {
         return state == EnemyState.ALIVE;
     }
 
-    protected void moveTowardTarget(float delta) {
-        float dirX = target.getX() - x;
-        float dirY = target.getY() - y;
-
+    protected void move(float dirX, float dirY, float delta) {
         float length = (float) Math.sqrt(dirX * dirX + dirY * dirY);
-
+        if (length == 0) return;
         if (length > 0){
             dirX = dirX / length;
             dirY = dirY / length;
@@ -86,6 +89,8 @@ public abstract class Enemy extends Entity implements Hittable {
         if (Math.abs(dirX) > Math.abs(dirY)) facing = dirX > 0 ? Facing.RIGHT : Facing.LEFT;
         else facing = dirY > 0 ? Facing.UP : Facing.DOWN;
     }
+
+    protected abstract void updateAiDecision();
 
     @Override
     public void receiveHit(int amount) {takeDamage(amount);}
