@@ -61,4 +61,5 @@ public abstract class Entity {
     }
 
     public abstract void update(float delta);
+    public Facing getFacing() {return facing;}
 }

@@ -23,6 +23,7 @@ import com.badlogic.gdx.math.Matrix4;
 
 public class WorldRenderer {
 
+    private final EnemyRenderer enemyRenderer;
     private ShapeRenderer shapeRenderer;
     private final SpriteBatch spriteBatch;
     private TiledMap tiledMap;
@@ -38,6 +39,7 @@ public class WorldRenderer {
         shapeRenderer = new ShapeRenderer();
         tiledMap = tileMap.getTiledMap();
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, Config.SCALE);
+        enemyRenderer = new EnemyRenderer();
 
         spriteBatch = new SpriteBatch();
         setTextures();
@@ -60,6 +62,9 @@ public class WorldRenderer {
         spriteBatch.setProjectionMatrix(cameraController.camera.combined);
         spriteBatch.begin();
         drawFarmingTextures(world);
+        for (Enemy enemy : world.getEnemies()) {
+            enemyRenderer.render(enemy, spriteBatch);
+        }
         spriteBatch.end();
 
         shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
@@ -73,21 +78,6 @@ public class WorldRenderer {
             Config.TILE_DRAW_SIZE,
             Config.TILE_DRAW_SIZE
         );
-
-        shapeRenderer.setColor(1f, 0f, 0f, 1f);
-        for (Enemy e : world.getEnemies()) {
-            if (e.getHitFlashTimer() > 0) {
-                shapeRenderer.setColor(1f, 1f, 1f, 1f);
-            } else {
-                shapeRenderer.setColor(1f, 0f, 0f, 1f);
-            }
-            shapeRenderer.rect(
-                e.getX() * Config.SCALE,
-                e.getY() * Config.SCALE,
-                Config.TILE_DRAW_SIZE,
-                Config.TILE_DRAW_SIZE
-            );
-        }
 
         for (DestructibleObject o : world.getDestructibleObjects()) {
             switch(o.getType()){
@@ -210,6 +200,7 @@ public class WorldRenderer {
         shapeRenderer.dispose();
         tiledMapRenderer.dispose();
         spriteBatch.dispose();
+        enemyRenderer.dispose();
 
         farmTileTexture.dispose();
         wheatTexture.dispose();
