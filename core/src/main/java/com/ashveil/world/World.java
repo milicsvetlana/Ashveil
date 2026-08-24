@@ -86,9 +86,10 @@ public class World implements CraftingAccess {
             DestructibleObjectType.CHEST, ItemType.CHEST
         );
 
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_HOE, 1));
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.SAPLING, 3));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_AXE, 1));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.CHEST, 3));
         addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 3));
+        addGroundItem(new WorldItem(player.getX() + 20, player.getY(), ItemType.FENCE, 20));
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -100,9 +101,7 @@ public class World implements CraftingAccess {
         farmingSystem.update(delta);
         handleMatureSaplings();
 
-        for (Enemy e : enemies){
-            e.update(delta);
-        }
+        for (Enemy e : enemies) e.update(delta);
 
         dayNightCycle.update(delta);
         if (dayNightCycle.justBecameNight()){
@@ -114,6 +113,7 @@ public class World implements CraftingAccess {
         handleInteract(playerInput);
         handleDropItem(playerInput);
         handleUseItem(playerInput);
+        handleDestroyedObjects();
 
         for (WorldItem item : groundItems){
             item.update(delta);
@@ -137,44 +137,46 @@ public class World implements CraftingAccess {
             targets.addAll(enemies);
             targets.addAll(destructibleObjects);
 
-            int numberOfHits = combatSystem.performPrimaryAction(player, targets);
+            combatSystem.performPrimaryAction(player, targets);
             player.resetPrimaryActionCooldown();
-
-            for (DestructibleObject o : destructibleObjects){
-                if (o.isDestroyed()){
-                    int dropAmount = getDropAmount(o);
-
-                    addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                                o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                                   destructibleObjectDrops.get(o.getType()), dropAmount
-                    ));
-
-                    if (o.getType() == DestructibleObjectType.TREE){
-                        int seedAmount = random.nextInt(100) < 75 ? 1 : 2;
-                        addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                ItemType.SAPLING, seedAmount
-                            ));
-                    }
-
-                    if (o.getType() == DestructibleObjectType.CHEST){
-                       Chest chest = (Chest) o;
-                       for (int i=0; i < chest.getChestInventory().getSize(); i++){
-                           ItemStack itemStack = chest.getChestInventory().getSlot(i);
-                           if (itemStack == null) continue;
-
-                           addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                                       o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
-                                                          itemStack));
-                       }
-                    }
-
-                    collisionSystem.unregister(o);
-                }
-            }
-
-            destructibleObjects.removeIf(DestructibleObject::isDestroyed);
         }
+    }
+
+    private void handleDestroyedObjects(){
+        for (DestructibleObject o : destructibleObjects){
+            if (o.isDestroyed()){
+                int dropAmount = getDropAmount(o);
+
+                addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                    o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                    destructibleObjectDrops.get(o.getType()), dropAmount
+                ));
+
+                if (o.getType() == DestructibleObjectType.TREE){
+                    int seedAmount = random.nextInt(100) < 75 ? 1 : 2;
+                    addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                        o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                        ItemType.SAPLING, seedAmount
+                    ));
+                }
+
+                if (o.getType() == DestructibleObjectType.CHEST){
+                    Chest chest = (Chest) o;
+                    for (int i=0; i < chest.getChestInventory().getSize(); i++){
+                        ItemStack itemStack = chest.getChestInventory().getSlot(i);
+                        if (itemStack == null) continue;
+
+                        addGroundItem(new WorldItem(o.getX() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                            o.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE,
+                            itemStack));
+                    }
+                }
+
+                collisionSystem.unregister(o);
+            }
+        }
+
+        destructibleObjects.removeIf(DestructibleObject::isDestroyed);
     }
 
     private int getDropAmount(DestructibleObject resource){

@@ -5,6 +5,7 @@ import com.ashveil.collision.CollidableObject;
 import com.ashveil.collision.MovementType;
 import com.ashveil.combat.HitCategory;
 import com.ashveil.combat.Hittable;
+import com.ashveil.navigation.NavigationMode;
 import com.badlogic.gdx.math.Rectangle;
 
 public class DestructibleObject extends WorldObject implements Hittable, CollidableObject {
@@ -40,7 +41,9 @@ public class DestructibleObject extends WorldObject implements Hittable, Collida
     }
 
     @Override
-    public boolean blocksNavigation(MovementType movementType) {
-        return movementType == MovementType.GROUND && type != DestructibleObjectType.FENCE;
+    public boolean blocksNavigation(MovementType movementType, NavigationMode navigationMode) {
+        if (movementType != MovementType.GROUND) return false;
+        if (type == DestructibleObjectType.FENCE) return navigationMode == NavigationMode.NORMAL;
+        return true;
     }
 }

@@ -5,6 +5,7 @@ import com.ashveil.entities.Player;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.world.DayNightCycle;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -46,6 +47,7 @@ public class HudRenderer {
         drawDayText(dayNightCycle);
         drawGoldText(player);
         drawHotbarText(player);
+        drawFps();
         batch.end();
     }
 
@@ -143,6 +145,11 @@ public class HudRenderer {
         font.draw(batch, "DAY: " + dayNightCycle.getDayCount(),
             hudViewport.getWorldWidth() - 100f,
             hudViewport.getWorldHeight() - 10f);
+    }
+
+    private void drawFps(){
+        font.setColor(1f, 1f, 1f, 1f);
+        font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10f, hudViewport.getWorldHeight() - 80f);
     }
 
     private void drawGoldText(Player player){

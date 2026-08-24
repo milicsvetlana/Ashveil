@@ -92,6 +92,34 @@ public abstract class Enemy extends Entity implements Hittable {
 
     protected abstract void updateAiDecision();
 
+    protected boolean moveToward(float targetX, float targetY, float delta) {
+        float dirX = targetX - x;
+        float dirY = targetY - y;
+
+        float distance = (float) Math.sqrt(dirX * dirX + dirY * dirY);
+        if (distance <= 0.001f) {
+            x = targetX;
+            y = targetY;
+            return true;
+        }
+
+        dirX /= distance;
+        dirY /= distance;
+
+        float step = Math.min(speed * delta, distance);
+
+        float newX = x + dirX * step;
+        float newY = y + dirY * step;
+
+        if (!isCollidingAt(newX, y)) x = newX;
+        if (!isCollidingAt(x, newY)) y = newY;
+
+        if (Math.abs(dirX) > Math.abs(dirY)) facing = dirX > 0 ? Facing.RIGHT : Facing.LEFT;
+        else facing = dirY > 0 ? Facing.UP : Facing.DOWN;
+
+        return Math.abs(x - targetX) <= 0.001f && Math.abs(y - targetY) <= 0.001f;
+    }
+
     @Override
     public void receiveHit(int amount) {takeDamage(amount);}
 
@@ -103,4 +131,5 @@ public abstract class Enemy extends Entity implements Hittable {
     public HitCategory getHitCategory() {return HitCategory.ENTITY;}
     public EnemyType getEnemyType() {return enemyType;}
     public float getHitFlashTimer() {return hitFlashTimer;}
+    protected CollisionSystem getCollisionSystem(){return collisionSystem;}
 }

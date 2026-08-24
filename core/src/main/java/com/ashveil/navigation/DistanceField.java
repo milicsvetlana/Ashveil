@@ -11,7 +11,8 @@ import java.util.Queue;
 public class DistanceField {
     private final TileMap tileMap;
     private final CollisionSystem collisionSystem;
-    private final int[][] distances;
+    private final int[][] normalDistances;
+    private final int[][] breakFenceDistances;
 
     private int targetTileX;
     private int targetTileY;
@@ -30,7 +31,8 @@ public class DistanceField {
     public DistanceField(TileMap tileMap, CollisionSystem collisionSystem){
         this.tileMap = tileMap;
         this.collisionSystem = collisionSystem;
-        distances = new int[tileMap.getWidth()][tileMap.getHeight()];
+        normalDistances = new int[tileMap.getWidth()][tileMap.getHeight()];
+        breakFenceDistances = new int[tileMap.getWidth()][tileMap.getHeight()];
         states = new BfsState[tileMap.getWidth()][tileMap.getHeight()];
         lastRevisionUpdate = -1;
         targetTileX = -1;
@@ -47,13 +49,16 @@ public class DistanceField {
         lastRevisionUpdate = collisionSystem.getRevision();
         this.targetTileX = targetTileX;
         this.targetTileY = targetTileY;
-        bfsUpdate();
+        bfsUpdate(normalDistances, NavigationMode.NORMAL);
+        bfsUpdate(breakFenceDistances, NavigationMode.BREAK_FENCES);
     }
 
-    private void bfsUpdate(){
-        resetBfs();
+    private void bfsUpdate(int[][] distances, NavigationMode navigationMode){
+        resetBfs(distances);
+
         while (!queue.isEmpty()){
             int[] current = queue.remove();
+
             int currentX = current[0];
             int currentY = current[1];
 
@@ -67,7 +72,8 @@ public class DistanceField {
                 float worldX = tileMap.tileToWorldX(neigX);
                 float worldY = tileMap.tileToWorldY(neigY);
 
-                if (collisionSystem.isNavigationBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, MovementType.GROUND)) continue;
+                if (collisionSystem.isNavigationBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE,
+                    MovementType.GROUND, navigationMode)) continue;
 
                 states[neigX][neigY] = BfsState.GREY;
                 distances[neigX][neigY] = distances[currentX][currentY] + 1;
@@ -78,7 +84,7 @@ public class DistanceField {
         }
     }
 
-    private void resetBfs(){
+    private void resetBfs(int[][] distances){
         for (int i=0; i < tileMap.getWidth(); i++){
             for (int j=0; j < tileMap.getHeight(); j++){
                 distances[i][j] = UNREACHABLE;
@@ -91,17 +97,17 @@ public class DistanceField {
         queue.add(new int[]{targetTileX, targetTileY});
     }
 
-    public boolean isNavigationBlocked(int tileX, int tileY){
+    public boolean isNavigationBlocked(int tileX, int tileY, NavigationMode navigationMode){
         if (tileX < 0 || tileX >= tileMap.getWidth() || tileY < 0 || tileY >= tileMap.getHeight()) return true;
-
         float worldX = tileMap.tileToWorldX(tileX);
         float worldY = tileMap.tileToWorldY(tileY);
-        return collisionSystem.isNavigationBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, MovementType.GROUND);
+        return collisionSystem.isNavigationBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, MovementType.GROUND, navigationMode);
     }
 
-    public int getDistance(int tileX, int tileY){
+    public int getDistance(int tileX, int tileY, NavigationMode navigationMode){
         if (tileX < 0 || tileX >= tileMap.getWidth() || tileY < 0 || tileY >= tileMap.getHeight()) return UNREACHABLE;
-        return distances[tileX][tileY];
+        if (navigationMode == NavigationMode.NORMAL)return normalDistances[tileX][tileY];
+        return breakFenceDistances[tileX][tileY];
     }
 
     public int worldToTileX(float worldX){

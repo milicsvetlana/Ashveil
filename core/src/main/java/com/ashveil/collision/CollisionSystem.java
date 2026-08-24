@@ -1,5 +1,6 @@
 package com.ashveil.collision;
 
+import com.ashveil.navigation.NavigationMode;
 import com.ashveil.world.TileMap;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -53,11 +54,11 @@ public class CollisionSystem {
         return false;
     }
 
-    public boolean isNavigationBlocked(float x, float y, float width, float height, MovementType movementType){
+    public boolean isNavigationBlocked(float x, float y, float width, float height, MovementType movementType, NavigationMode navigationMode){
         testedBounds.set(x, y, width, height);
 
         for (CollidableObject object : collidableObjects){
-            if (testedBounds.overlaps(object.getCollisionBounds()) && object.blocksNavigation(movementType)) return true; //ugradjena metoda overlaps
+            if (testedBounds.overlaps(object.getCollisionBounds()) && object.blocksNavigation(movementType, navigationMode)) return true; //ugradjena metoda overlaps
         }
 
         int firstTileX = tileMap.worldToTileX(x);
@@ -75,6 +76,15 @@ public class CollisionSystem {
         }
 
         return false;
+    }
+
+    public CollidableObject getBlockingObject(float x, float y, float width, float height, MovementType movementType){
+        testedBounds.set(x, y, width, height);
+
+        for (CollidableObject object : collidableObjects){
+            if (testedBounds.overlaps(object.getCollisionBounds()) && object.blocksMovement(movementType)) return object;
+        }
+        return null;
     }
 
     public long getRevision() {return revision;}
