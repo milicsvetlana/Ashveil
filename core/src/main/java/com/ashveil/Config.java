@@ -67,6 +67,12 @@ public class Config {
     public static final float ENEMY_AI_DECISION_INTERVAL = 0.15f;
     public static final float ENEMY_ATTACK_COOLDOWN = 1f;
 
+    public static final float WISP_CHARGE_RANGE = TILE_SIZE * 5f;
+    public static final float WISP_CHARGE_DURATION = 0.6f;
+    public static final float WISP_DASH_SPEED = 180f;
+    public static final float WISP_DASH_DURATION = 0.45f;
+    public static final float WISP_RECOVERY_DURATION = 0.7f;
+
     /** Gold drops */
     public static final int DOUBLE_GOLD_DROP_CHANCE = 5;
     public static final int SINGLE_GOLD_DROP_CHANCE = 30;

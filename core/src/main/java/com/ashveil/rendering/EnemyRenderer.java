@@ -4,6 +4,7 @@ import com.ashveil.Config;
 import com.ashveil.entities.Facing;
 import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemyType;
+import com.ashveil.entities.enemies.Wisp;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,6 +19,8 @@ public class EnemyRenderer {
 
     private final Map<EnemyType, Texture> textures;
     private final Map<EnemyType, TextureRegion[]> regions;
+    private Texture wispChargeTexture;
+    private TextureRegion[] wispChargeRegions;
 
     public EnemyRenderer(){
         textures = new EnumMap<>(EnemyType.class);
@@ -33,10 +36,15 @@ public class EnemyRenderer {
         TextureRegion[][] split = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
         textures.put(enemyType, texture);
         regions.put(enemyType, split[0]);
+
+        wispChargeTexture = new Texture("textures/entities/enemies/wisp_charge.png");
+        wispChargeTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        wispChargeRegions = TextureRegion.split(wispChargeTexture, FRAME_WIDTH, FRAME_HEIGHT)[0];
     }
 
     public void render(Enemy enemy, SpriteBatch batch){
         TextureRegion[] enemyRegions = regions.get(enemy.getEnemyType());
+        if (enemy instanceof Wisp wisp && wisp.isCharging()) enemyRegions = wispChargeRegions;
         if (enemyRegions == null) return;
 
         int frameIndex = getFrameIndex(enemy.getFacing());
@@ -64,6 +72,7 @@ public class EnemyRenderer {
 
     public void dispose(){
         for (Texture texture : textures.values()) texture.dispose();
+        wispChargeTexture.dispose();
     }
 
 }

@@ -45,9 +45,8 @@ public class CollisionSystem {
 
         for (int tileX = firstTileX; tileX <= lastTileX; tileX++) {
             for (int tileY = firstTileY; tileY <= lastTileY; tileY++) {
-                if (tileMap.isBlocked(tileX, tileY)) {
-                    return true;
-                }
+                if (tileMap.isOutOfBounds(tileX, tileY)) return true;
+                if (movementType == MovementType.GROUND && tileMap.hasCollisionTile(tileX, tileY)) return true;
             }
         }
 
@@ -69,9 +68,8 @@ public class CollisionSystem {
 
         for (int tileX = firstTileX; tileX <= lastTileX; tileX++) {
             for (int tileY = firstTileY; tileY <= lastTileY; tileY++) {
-                if (tileMap.isBlocked(tileX, tileY)) {
-                    return true;
-                }
+                if (tileMap.isOutOfBounds(tileX, tileY)) return true;
+                if (movementType == MovementType.GROUND && tileMap.hasCollisionTile(tileX, tileY)) return true;
             }
         }
 

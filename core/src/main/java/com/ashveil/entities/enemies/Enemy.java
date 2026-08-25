@@ -72,16 +72,18 @@ public abstract class Enemy extends Entity implements Hittable {
         return state == EnemyState.ALIVE;
     }
 
-    protected void move(float dirX, float dirY, float delta) {
+    protected void moveInDirection(float dirX, float dirY, float delta) {
+        moveInDirection(dirX, dirY, delta, speed);
+    }
+
+    protected void moveInDirection(float dirX, float dirY, float delta, float movementSpeed){
         float length = (float) Math.sqrt(dirX * dirX + dirY * dirY);
         if (length == 0) return;
-        if (length > 0){
-            dirX = dirX / length;
-            dirY = dirY / length;
-        }
+        dirX = dirX / length;
+        dirY = dirY / length;
 
-        float newX = x + dirX * speed * delta;
-        float newY = y + dirY * speed * delta;
+        float newX = x + dirX * movementSpeed * delta;
+        float newY = y + dirY * movementSpeed * delta;
 
         if (!isCollidingAt(newX, y)) x = newX;
         if (!isCollidingAt(x, newY)) y = newY;
@@ -92,7 +94,7 @@ public abstract class Enemy extends Entity implements Hittable {
 
     protected abstract void updateAiDecision();
 
-    protected boolean moveToward(float targetX, float targetY, float delta) {
+    protected boolean moveTowardPoint(float targetX, float targetY, float delta) {
         float dirX = targetX - x;
         float dirY = targetY - y;
 

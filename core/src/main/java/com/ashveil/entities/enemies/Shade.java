@@ -64,7 +64,7 @@ public class Shade extends Enemy{
                 float targetX = distanceField.tileToWorldX(nextTileX);
                 float targetY = distanceField.tileToWorldY(nextTileY);
 
-                if (moveToward(targetX, targetY, delta)){
+                if (moveTowardPoint(targetX, targetY, delta)){
                     hasNextTile = false;
                     selectNextTile();
                 }

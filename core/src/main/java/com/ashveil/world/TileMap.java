@@ -39,8 +39,7 @@ public class TileMap {
     }
 
     public boolean isBlocked(int x, int y){
-        if (x < 0 || x >= width || y < 0 || y >= height) return true;
-        return collisionLayer.getCell(x, y) != null;
+        return isOutOfBounds(x, y) || hasCollisionTile(x, y);
     }
 
     public int worldToTileX(float worldX){return (int) Math.floor(worldX / tileWidth);}
@@ -82,6 +81,15 @@ public class TileMap {
             cell.getTile().getProperties().get("treePlantable", Boolean.class);
 
         return treePlantable != null && treePlantable;
+    }
+
+    public boolean isOutOfBounds(int x, int y) {
+        return x < 0 || x >= width || y < 0 || y >= height;
+    }
+
+    public boolean hasCollisionTile(int x, int y) {
+        if (isOutOfBounds(x, y)) return false;
+        return collisionLayer.getCell(x, y) != null;
     }
 
     public TiledMap getTiledMap() {

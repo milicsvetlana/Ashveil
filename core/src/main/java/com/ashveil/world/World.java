@@ -8,6 +8,7 @@ import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemyType;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.enemies.Shade;
+import com.ashveil.entities.enemies.Wisp;
 import com.ashveil.farming.*;
 import com.ashveil.items.crafting.CraftStatus;
 import com.ashveil.items.crafting.CraftingManager;
@@ -359,8 +360,11 @@ public class World implements CraftingAccess {
     }
 
     private void spawnEnemies(){
-        for (int i = 0; i < dayNightCycle.getDayCount() * 2; i++) {
-            spawnEnemy(EnemyType.SHADE);
+        int enemyCount = dayNightCycle.getDayCount() * 2;
+
+        for (int i = 0; i < enemyCount; i++) {
+            if (i % 2 == 0) spawnEnemy(EnemyType.SHADE);
+            else spawnEnemy(EnemyType.WISP);
         }
     }
 
@@ -378,6 +382,9 @@ public class World implements CraftingAccess {
 
         if (enemyType == EnemyType.SHADE) {
             enemies.add(new Shade(worldX, worldY, player, collisionSystem, distanceField));
+        }
+        else if (enemyType == EnemyType.WISP) {
+            enemies.add(new Wisp(worldX, worldY, player, collisionSystem));
         }
     }
 
