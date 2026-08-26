@@ -40,8 +40,15 @@ public class Config {
     public static final int SLOT_MOVE = 1;
 
     /** Day and night cycle */
-    public static final float DAY_DURATION = 5f;
+    public static final float FIRST_DAY_DURATION = 10f;
+
+    public static final float DAY_DURATION = 10f;
+    public static final float DUSK_DURATION = 20f;
     public static final float NIGHT_DURATION = 5f;
+
+    public static final float DAY_PHASE_RATIO = 0.60f;
+    public static final float DUSK_PHASE_RATIO = 0.10f;
+    public static final float NIGHT_PHASE_RATIO = 0.30f;
 
     /** Ground items */
     public static final float WORLD_ITEM_MERGE_RANGE = TILE_SIZE * 2;

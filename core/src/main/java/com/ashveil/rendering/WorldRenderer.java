@@ -7,9 +7,7 @@ import com.ashveil.farming.Crop;
 import com.ashveil.farming.GrowablePlant;
 import com.ashveil.farming.Sapling;
 import com.ashveil.objects.DestructibleObject;
-import com.ashveil.world.CameraController;
-import com.ashveil.world.World;
-import com.ashveil.world.WorldItem;
+import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -18,7 +16,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.ashveil.world.TileMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 
@@ -29,6 +26,7 @@ public class WorldRenderer {
     private final SpriteBatch spriteBatch;
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer tiledMapRenderer;
+    private final Matrix4 screenProjection;
 
     private Texture farmTileTexture;
     private Texture wheatTexture;
@@ -44,6 +42,7 @@ public class WorldRenderer {
 
         spriteBatch = new SpriteBatch();
         setTextures();
+        screenProjection = new Matrix4().setToOrtho2D(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
     }
 
     public void setTextures(){
@@ -123,19 +122,21 @@ public class WorldRenderer {
 
         shapeRenderer.end();
 
-        if (world.getDayNightCycle().isNight()) {
-            shapeRenderer.setProjectionMatrix(
-                new Matrix4().setToOrtho2D(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
-            );
+        DayPhase dayPhase = world.getDayNightCycle().getDayPhase();
+        if (dayPhase != DayPhase.DAY){
+            shapeRenderer.setProjectionMatrix(screenProjection);
 
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(0f, 0f, 0.3f, 0.5f);
+            if (dayPhase == DayPhase.DUSK) {
+                float alpha = 0.25f * world.getDayNightCycle().getPhaseProgress();
+                shapeRenderer.setColor(0.76f, 0.32f, 0.10f, alpha);
+            }
+            else shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
             shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
             shapeRenderer.end();
-
             Gdx.gl.glDisable(GL20.GL_BLEND);
         }
     }

@@ -131,14 +131,17 @@ public class HudRenderer {
     }
 
     private void drawDayNightIcon(DayNightCycle dayNightCycle){
-        if (!dayNightCycle.isNight()){
-            shapeRenderer.setColor(1f, 0.9f, 0f, 1f);
-            shapeRenderer.rect(hudViewport.getWorldWidth() - 80f, hudViewport.getWorldHeight() - 80f, 50, 50);
+        switch (dayNightCycle.getDayPhase()) {
+            case DAY ->
+                shapeRenderer.setColor(1f, 0.9f, 0f, 1f);
+
+            case DUSK ->
+                shapeRenderer.setColor(0.9f, 0.35f, 0.08f, 1f);
+
+            case NIGHT ->
+                shapeRenderer.setColor(0.1f, 0.1f, 0.4f, 1f);
         }
-        else{
-            shapeRenderer.setColor(0.1f, 0.1f, 0.4f, 1f);
-            shapeRenderer.rect(hudViewport.getWorldWidth() - 80f, hudViewport.getWorldHeight() - 80f, 50, 50);
-        }
+        shapeRenderer.rect(hudViewport.getWorldWidth() - 80f, hudViewport.getWorldHeight() - 80f, 50, 50);
     }
 
     private void drawDayText(DayNightCycle dayNightCycle){
