@@ -1,6 +1,7 @@
 package com.ashveil.rendering;
 
 import com.ashveil.Config;
+import com.ashveil.combat.Projectile;
 import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.farming.Crop;
 import com.ashveil.farming.GrowablePlant;
@@ -64,6 +65,9 @@ public class WorldRenderer {
         drawFarmingTextures(world);
         for (Enemy enemy : world.getEnemies()) {
             enemyRenderer.render(enemy, spriteBatch);
+        }
+        for (Projectile projectile : world.getProjectileSystem().getProjectiles()){
+            enemyRenderer.renderProjectile(projectile, spriteBatch);
         }
         spriteBatch.end();
 

@@ -4,11 +4,9 @@ import com.ashveil.Config;
 import com.ashveil.collision.CollisionSystem;
 import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
-import com.ashveil.entities.enemies.Enemy;
-import com.ashveil.entities.enemies.EnemyType;
+import com.ashveil.combat.ProjectileSystem;
+import com.ashveil.entities.enemies.*;
 import com.ashveil.entities.Player;
-import com.ashveil.entities.enemies.Shade;
-import com.ashveil.entities.enemies.Wisp;
 import com.ashveil.farming.*;
 import com.ashveil.items.crafting.CraftStatus;
 import com.ashveil.items.crafting.CraftingManager;
@@ -59,6 +57,7 @@ public class World implements CraftingAccess {
     private final FarmingSystem farmingSystem;
 
     private final DistanceField distanceField;
+    private final ProjectileSystem projectileSystem;
 
     public World(){
         tileMap = new TileMap();
@@ -79,6 +78,7 @@ public class World implements CraftingAccess {
         activeChest = null;
         farmingSystem = new FarmingSystem(tileMap.getWidth(), tileMap.getHeight());
         distanceField = new DistanceField(tileMap, collisionSystem);
+        projectileSystem = new ProjectileSystem(player, collisionSystem);
 
         destructibleObjectDrops = Map.of(
             DestructibleObjectType.TREE, ItemType.WOOD,
@@ -103,6 +103,7 @@ public class World implements CraftingAccess {
         handleMatureSaplings();
 
         for (Enemy e : enemies) e.update(delta);
+        projectileSystem.update(delta);
 
         dayNightCycle.update(delta);
         if (dayNightCycle.justBecameNight()){
@@ -363,7 +364,8 @@ public class World implements CraftingAccess {
         int enemyCount = dayNightCycle.getDayCount() * 2;
 
         for (int i = 0; i < enemyCount; i++) {
-            if (i % 2 == 0) spawnEnemy(EnemyType.SHADE);
+            if (i % 3 == 0) spawnEnemy(EnemyType.SHADE);
+            else if (i % 3 == 1) spawnEnemy(EnemyType.WRAITH);
             else spawnEnemy(EnemyType.WISP);
         }
     }
@@ -385,6 +387,9 @@ public class World implements CraftingAccess {
         }
         else if (enemyType == EnemyType.WISP) {
             enemies.add(new Wisp(worldX, worldY, player, collisionSystem));
+        }
+        else{
+            enemies.add(new Wraith(worldX, worldY, player, collisionSystem, distanceField, projectileSystem));
         }
     }
 
@@ -688,6 +693,7 @@ public class World implements CraftingAccess {
     public TargetMode getTargetMode() {return targetMode;}
     public Chest getActiveChest() {return activeChest;}
     public FarmingSystem getFarmingSystem() {return farmingSystem;}
+    public ProjectileSystem getProjectileSystem() {return projectileSystem;}
 
     public void dispose(){
         tileMap.dispose();

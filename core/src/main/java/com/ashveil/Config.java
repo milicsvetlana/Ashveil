@@ -72,6 +72,11 @@ public class Config {
     public static final float WISP_DASH_SPEED = 180f;
     public static final float WISP_DASH_DURATION = 0.45f;
     public static final float WISP_RECOVERY_DURATION = 0.7f;
+    public static final float WRAITH_RETREAT_RANGE = TILE_SIZE * 3f;
+    public static final float WRAITH_ATTACK_RANGE = TILE_SIZE * 7f;
+    public static final float WRAITH_ATTACK_COOLDOWN = 1.5f;
+    public static final float WRAITH_PROJECTILE_SPEED = 70f;
+    public static final float WRAITH_PROJECTILE_LIFETIME = 4f;
 
     /** Gold drops */
     public static final int DOUBLE_GOLD_DROP_CHANCE = 5;

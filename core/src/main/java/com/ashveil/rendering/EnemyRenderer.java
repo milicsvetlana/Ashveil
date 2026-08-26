@@ -1,6 +1,7 @@
 package com.ashveil.rendering;
 
 import com.ashveil.Config;
+import com.ashveil.combat.Projectile;
 import com.ashveil.entities.Facing;
 import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemyType;
@@ -21,6 +22,8 @@ public class EnemyRenderer {
     private final Map<EnemyType, TextureRegion[]> regions;
     private Texture wispChargeTexture;
     private TextureRegion[] wispChargeRegions;
+    private Texture projectileTexture;
+    private TextureRegion[] projectileRegions;
 
     public EnemyRenderer(){
         textures = new EnumMap<>(EnemyType.class);
@@ -33,6 +36,7 @@ public class EnemyRenderer {
 
     private void loadEnemyTexture(EnemyType enemyType, String path){
         Texture texture = new Texture(path);
+        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         TextureRegion[][] split = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
         textures.put(enemyType, texture);
         regions.put(enemyType, split[0]);
@@ -40,6 +44,10 @@ public class EnemyRenderer {
         wispChargeTexture = new Texture("textures/entities/enemies/wisp_charge.png");
         wispChargeTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         wispChargeRegions = TextureRegion.split(wispChargeTexture, FRAME_WIDTH, FRAME_HEIGHT)[0];
+
+        projectileTexture = new Texture("textures/entities/enemies/projectile.png");
+        projectileTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        projectileRegions = TextureRegion.split(projectileTexture, FRAME_WIDTH, FRAME_HEIGHT)[0];
     }
 
     public void render(Enemy enemy, SpriteBatch batch){
@@ -61,6 +69,21 @@ public class EnemyRenderer {
         batch.setColor(1f, 1f, 1f, 1f);
     }
 
+    public void renderProjectile(Projectile projectile, SpriteBatch batch){
+        int frameIndex = getProjectileFrameIndex(projectile);
+        TextureRegion region = projectileRegions[frameIndex];
+        float drawWidth = Config.TILE_DRAW_SIZE;
+        float drawHeight = Config.TILE_DRAW_SIZE;
+
+        float centerX = (projectile.getCollisionBounds().x + projectile.getCollisionBounds().width / 2f) * Config.SCALE;
+        float centerY = (projectile.getCollisionBounds().y + projectile.getCollisionBounds().height / 2f) * Config.SCALE;
+
+        float drawX = centerX - drawWidth / 2f;
+        float drawY = centerY - drawHeight / 2f;
+
+        batch.draw(region, drawX, drawY, drawWidth, drawHeight);
+    }
+
     private int getFrameIndex(Facing facing){
         return switch (facing){
             case DOWN -> 0;
@@ -70,9 +93,18 @@ public class EnemyRenderer {
         };
     }
 
+    private int getProjectileFrameIndex(Projectile projectile){
+        float velocityX = projectile.getVelocityX();
+        float velocityY = projectile.getVelocityY();
+
+        if (Math.abs(velocityX) > Math.abs(velocityY)) return velocityX > 0 ? 3 : 2;
+        return velocityY > 0 ? 1 : 0;
+    }
+
     public void dispose(){
         for (Texture texture : textures.values()) texture.dispose();
         wispChargeTexture.dispose();
+        projectileTexture.dispose();
     }
 
 }
