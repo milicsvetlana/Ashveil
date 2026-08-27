@@ -55,6 +55,7 @@ public class World implements CraftingAccess {
     private Rectangle targetBounds;
     private final Map<DestructibleObjectType, ItemType> destructibleObjectDrops;
     private final FarmingSystem farmingSystem;
+    private final EnemySpawnSystem enemySpawnSystem;
 
     private final DistanceField distanceField;
     private final ProjectileSystem projectileSystem;
@@ -79,6 +80,7 @@ public class World implements CraftingAccess {
         farmingSystem = new FarmingSystem(tileMap.getWidth(), tileMap.getHeight());
         distanceField = new DistanceField(tileMap, collisionSystem);
         projectileSystem = new ProjectileSystem(player, collisionSystem);
+        enemySpawnSystem = new EnemySpawnSystem(progressionState, player, tileMap, collisionSystem, distanceField, enemies, projectileSystem);
 
         destructibleObjectDrops = Map.of(
             DestructibleObjectType.TREE, ItemType.WOOD,
@@ -106,9 +108,9 @@ public class World implements CraftingAccess {
         projectileSystem.update(delta);
 
         dayNightCycle.update(delta);
-        if (dayNightCycle.justBecameNight()){
-            spawnEnemies();
-        }
+        if (dayNightCycle.justBecameNight()) enemySpawnSystem.startNight(dayNightCycle.getDayCount());
+        if (dayNightCycle.isNight()) enemySpawnSystem.update(delta);
+        if (dayNightCycle.justBecameDay()) enemySpawnSystem.endNight();
 
         handleHotbarSelection(playerInput);
         handlePrimaryAction(playerInput);
@@ -358,56 +360,6 @@ public class World implements CraftingAccess {
             player.heal(Config.BREAD_HEALING);
             player.getInventory().removeFromSlot(selectedSlot, 1);
         }
-    }
-
-    private void spawnEnemies(){
-        int enemyCount = dayNightCycle.getDayCount() * 2;
-
-        for (int i = 0; i < enemyCount; i++) {
-            if (i % 3 == 0) spawnEnemy(EnemyType.SHADE);
-            else if (i % 3 == 1) spawnEnemy(EnemyType.WRAITH);
-            else spawnEnemy(EnemyType.WISP);
-        }
-    }
-
-    private void spawnEnemy(EnemyType enemyType){
-        int tileX;
-        int tileY;
-
-        do {
-            tileX = random.nextInt(tileMap.getWidth());
-            tileY = random.nextInt(tileMap.getHeight());
-        } while (!isEnemySpawnPositionValid(tileX, tileY, enemyType));
-
-        float worldX = tileX * Config.TILE_SIZE;
-        float worldY = tileY * Config.TILE_SIZE;
-
-        if (enemyType == EnemyType.SHADE) {
-            enemies.add(new Shade(worldX, worldY, player, collisionSystem, distanceField));
-        }
-        else if (enemyType == EnemyType.WISP) {
-            enemies.add(new Wisp(worldX, worldY, player, collisionSystem));
-        }
-        else{
-            enemies.add(new Wraith(worldX, worldY, player, collisionSystem, distanceField, projectileSystem));
-        }
-    }
-
-    private boolean isEnemySpawnPositionValid(int tileX, int tileY, EnemyType enemyType){
-        float worldX = tileX * Config.TILE_SIZE;
-        float worldY = tileY * Config.TILE_SIZE;
-
-        if (collisionSystem.isBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, enemyType.getMovementType())) return false;
-
-        Rectangle spawnBounds = new Rectangle(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE);
-
-        if (spawnBounds.overlaps(player.getCollisionBounds())) return false;
-
-        for (Enemy enemy : enemies) {
-            if (spawnBounds.overlaps(enemy.getCollisionBounds())) return false;
-        }
-
-        return true;
     }
 
     public boolean isCurrentTargetValid(int tileX, int tileY, float worldX, float worldY){
