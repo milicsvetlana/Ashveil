@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 
 //na jednom mestu pravi privremeni ui izgled
 //kasnije, kad budemo imali teksture i fontove, menjacemo ovu klasu ili iz nje ucitavati pravi skin
@@ -42,6 +43,9 @@ public final class UiSkinFactory {
         buttonStyle.checkedFontColor = Color.YELLOW;
 
         skin.add("default", buttonStyle);
+
+        Window.WindowStyle windowStyle = new Window.WindowStyle(font, Color.WHITE, skin.getDrawable("menu-background"));
+        skin.add("default", windowStyle);
 
         return skin;
     }

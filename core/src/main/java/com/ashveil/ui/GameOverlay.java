@@ -4,5 +4,6 @@ public enum GameOverlay {
     NONE,
     MENU,
     CHEST,
-    SCROLL
+    SCROLL,
+    PAUSE
 }

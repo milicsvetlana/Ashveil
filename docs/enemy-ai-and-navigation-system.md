@@ -500,3 +500,31 @@ Destroyed object cleanup se izvršava nakon toga, pa Fence koji uništi Shade il
 Ovakva struktura omogućava da svaki enemy ima različito ponašanje, dok zajedničke funkcionalnosti ostaju u `Enemy`, `CollisionSystem`, `DistanceField` i `ProjectileSystem`.
 
 Vizuelni asseti i animacije mogu kasnije da budu prošireni bez promene osnovne AI i navigation arhitekture.
+
+# CP12 Enemy Lifecycle Addendum
+
+Checkpoint 12 extends the common Enemy lifecycle with dawn escape behavior.
+
+The shared lifecycle is now:
+
+```text
+ALIVE
+├── HP reaches zero → DYING
+└── ordinary dawn → FLEEING
+```
+
+`DYING` keeps the existing death timer and reward path.
+
+`FLEEING`:
+
+- skips subclass AI updates;
+- moves directly toward a stored off-map target;
+- ignores normal movement collision;
+- cannot receive hits;
+- cannot attack;
+- uses reduced render alpha;
+- is removed without Gold after leaving the world.
+
+This behavior belongs to the base `Enemy` class because Shade, Wisp and Wraith use the same ordinary-dawn removal rule.
+
+Navigation behavior while ALIVE remains specific to each enemy type and the CP11 shared distance-field system.

@@ -10,6 +10,7 @@ import com.ashveil.targeting.TargetMode;
 import com.ashveil.targeting.TileTargetingSystem;
 import com.ashveil.ui.GameMenuUi;
 import com.ashveil.ui.GameOverlay;
+import com.ashveil.ui.PauseMenuUi;
 import com.ashveil.ui.UiSkinFactory;
 import com.ashveil.ui.chest.ChestUI;
 import com.ashveil.world.*;
@@ -40,6 +41,7 @@ public class GameScreen implements Screen {
     private TileTargetingSystem tileTargetingSystem;
     private Stage overlayStage;
     private ChestUI chestUi;
+    private PauseMenuUi pauseMenuUi;
     private Skin uiSkin;
 
     public GameScreen(GameApp game){
@@ -58,49 +60,67 @@ public class GameScreen implements Screen {
         tileTargetingSystem = new TileTargetingSystem(cameraController, world.getTileMap());
         overlayStage = new Stage(new ScreenViewport());
         chestUi = null;
+        //prosledjujemo closepause kao runnable callback. ne sluzi za novu nit, vec samo prosledjuje akciju
+        //koja pausemenuui moze kasnije pozvati
+        pauseMenuUi = new PauseMenuUi(uiSkin, this::closePause);
     }
 
     @Override
-    public void render(float delta) { // delta je vreme proteklo od prethodnog frejma, u sekundama (za 60FPS je 0.016s)
+    public void render(float delta) {
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
+
         handleCancelBackInput();
         tileTargetingSystem.update();
 
-        PlayerInput playerInput = readPlayerInput();
+        if (Gdx.input.isKeyJustPressed(keyBindings.getToggleOverlayKey())) {
+            toggleMenu();
+        }
 
-        if (Gdx.input.isKeyJustPressed(keyBindings.getToggleOverlayKey())) toggleMenu();
+        PlayerInput playerInput;
+
+        if (activeOverlay == GameOverlay.NONE) playerInput = readPlayerInput();
+        else playerInput = getNeutralPlayerInput();
 
         if (deathTransitionState != DeathTransitionState.NONE) updateDeathTransition(delta);
-        else if (activeOverlay == GameOverlay.MENU) {
-            handleMenuInput();
-            gameMenuUi.act(delta);
-        }
-        else if (activeOverlay == GameOverlay.CHEST){
-            handleChestInput();
-            overlayStage.act(delta);
-        }
-        else if (activeOverlay == GameOverlay.NONE){
+        else if (activeOverlay == GameOverlay.PAUSE) overlayStage.act(delta);
+        else {
             world.update(delta, playerInput);
+
             if (world.getPlayer().isDead()) startDeathTransition();
-            else if (world.getActiveChest() != null) openChest();
-            else{
-                handleTargetActionInput();
+            else {
+                if (activeOverlay == GameOverlay.MENU) {
+                    handleMenuInput();
+                    gameMenuUi.act(delta);
+                }
+                else if (activeOverlay == GameOverlay.CHEST) {
+                    handleChestInput();
+                    overlayStage.act(delta);
+                }
+                else if (activeOverlay == GameOverlay.NONE) {
+                    if (world.getActiveChest() != null) openChest();
+                    else handleTargetActionInput();
+                }
+
                 cameraController.update(world.getPlayer().getCenterX() * Config.SCALE,
-                    world.getPlayer().getCenterY() * Config.SCALE,
-                    worldRenderer.getMapRenderWidth(), worldRenderer.getMapRenderHeight(), delta);
+                                        world.getPlayer().getCenterY() * Config.SCALE,
+                                               worldRenderer.getMapRenderWidth(),
+                                               worldRenderer.getMapRenderHeight(), delta);
             }
         }
 
         worldRenderer.render(world, cameraController);
+
         if (world.getTargetMode() != TargetMode.NONE){
-            boolean targetValid = world.isCurrentTargetValid(tileTargetingSystem.getTileX(), tileTargetingSystem.getTileY(), tileTargetingSystem.getWorldX(), tileTargetingSystem.getWorldY());
-            worldRenderer.renderTargetPreview(cameraController, tileTargetingSystem.getWorldX(), tileTargetingSystem.getWorldY(), targetValid);
+            boolean targetValid = world.isCurrentTargetValid(tileTargetingSystem.getTileX(), tileTargetingSystem.getTileY(),
+                                                           tileTargetingSystem.getWorldX(), tileTargetingSystem.getWorldY());
+            worldRenderer.renderTargetPreview(cameraController, tileTargetingSystem.getWorldX(),
+                                              tileTargetingSystem.getWorldY(), targetValid);
         }
+
         hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
 
         if (activeOverlay == GameOverlay.MENU) gameMenuUi.draw();
-        if (activeOverlay == GameOverlay.CHEST) overlayStage.draw();
-
+        if (activeOverlay == GameOverlay.CHEST || activeOverlay == GameOverlay.PAUSE) overlayStage.draw();
         if (deathTransitionState != DeathTransitionState.NONE) renderDeathFade();
     }
 
@@ -123,6 +143,28 @@ public class GameScreen implements Screen {
         overlayStage.clear();
         chestUi = null;
         world.closeChest();
+        activeOverlay = GameOverlay.NONE;
+        Gdx.input.setInputProcessor(null);
+    }
+
+    private void openPause(){
+        if (activeOverlay != GameOverlay.NONE) return;
+        overlayStage.clear();
+        Table overlayRoot = new Table();
+        overlayRoot.setFillParent(true);
+        overlayRoot.add(pauseMenuUi);
+
+        overlayStage.addActor(overlayRoot);
+        activeOverlay = GameOverlay.PAUSE;
+        Gdx.input.setInputProcessor(overlayStage);
+
+        world.cancelTargeting();
+    }
+
+    private void closePause(){
+        if (activeOverlay != GameOverlay.PAUSE) return;
+
+        overlayStage.clear();
         activeOverlay = GameOverlay.NONE;
         Gdx.input.setInputProcessor(null);
     }
@@ -156,6 +198,12 @@ public class GameScreen implements Screen {
 
         return new PlayerInput(moveX, moveY, primaryActionPressed, interactPressed, useItemPressed, dropItemPressed, dropWholeStack,
             dashPressed, selectedHotbarSlot);
+    }
+    //input koji saljemo worldu dok smo u inventory/chest meniju, da bi svet i dalje radio ali Player ne bi
+    //mogao da se seta, udara i sl.
+    private PlayerInput getNeutralPlayerInput(){
+        return new PlayerInput(0f, 0f, false, false, false,
+            false, false, false, -1);
     }
 
     private void handleMenuInput(){
@@ -209,9 +257,16 @@ public class GameScreen implements Screen {
             return;
         }
 
+        if (activeOverlay == GameOverlay.PAUSE){
+            closePause();
+            return;
+        }
+
         if (world.getTargetMode() != TargetMode.NONE){
             world.cancelTargeting();
         }
+
+        if (activeOverlay == GameOverlay.NONE) openPause();
     }
 
     private void handleTargetActionInput(){
@@ -229,7 +284,9 @@ public class GameScreen implements Screen {
     private void startDeathTransition(){
         deathTransitionState = DeathTransitionState.FADING_OUT;
         deathFadeAlpha = 0f;
-        if (activeOverlay == GameOverlay.MENU){
+        if (activeOverlay == GameOverlay.CHEST) closeChest();
+        else if (activeOverlay == GameOverlay.MENU){
+            gameMenuUi.onClose();
             activeOverlay = GameOverlay.NONE;
             Gdx.input.setInputProcessor(null);
         }
