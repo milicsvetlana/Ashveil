@@ -110,7 +110,10 @@ public class World implements CraftingAccess {
         dayNightCycle.update(delta);
         if (dayNightCycle.justBecameNight()) enemySpawnSystem.startNight(dayNightCycle.getDayCount());
         if (dayNightCycle.isNight()) enemySpawnSystem.update(delta);
-        if (dayNightCycle.justBecameDay()) enemySpawnSystem.endNight();
+        if (dayNightCycle.justBecameDay()){
+            enemySpawnSystem.endNight();
+            for (Enemy enemy : enemies) enemy.startFleeing(tileMap.getWidth(), tileMap.getHeight());
+        }
 
         handleHotbarSelection(playerInput);
         handlePrimaryAction(playerInput);
@@ -127,6 +130,7 @@ public class World implements CraftingAccess {
 
         for (Enemy enemy : enemies){
             if (!enemy.shouldBeRemoved()) continue;
+            if (!enemy.wasKilled()) continue;
             int goldDrop = getRandomGoldDrop();
             if (goldDrop <= 0) continue;
             addGroundItem(new WorldItem(enemy.getX(), enemy.getY(), ItemType.GOLD, goldDrop));
@@ -386,8 +390,7 @@ public class World implements CraftingAccess {
             boolean validPlantTarget = switch (selectedItem){
                 case WHEAT_SEED -> farmingSystem.isTilled(tileX, tileY);
                 case SAPLING ->
-                    tileMap.isTreePlantable(tileX, tileY)
-                        && !farmingSystem.isTilled(tileX, tileY);
+                    tileMap.isTreePlantable(tileX, tileY) && !farmingSystem.isTilled(tileX, tileY);
                 default -> false;
             };
 

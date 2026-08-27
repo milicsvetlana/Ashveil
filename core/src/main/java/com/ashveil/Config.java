@@ -44,7 +44,7 @@ public class Config {
 
     public static final float DAY_DURATION = 5f;
     public static final float DUSK_DURATION = 5f;
-    public static final float NIGHT_DURATION = 55f;
+    public static final float NIGHT_DURATION = 30f;
 
     public static final float DAY_PHASE_RATIO = 0.60f;
     public static final float DUSK_PHASE_RATIO = 0.10f;
@@ -99,10 +99,12 @@ public class Config {
     public static final float SAPLING_MIDDLE_DURATION = 5f;
     public static final float SAPLING_LATE_DURATION = 5f;
 
-    /** Enemy Spawn */
+    /** Enemy Spawn/Despawn */
     public static final int INITIAL_NIGHT_THREAT_BUDGET = 3;
     public static final int NIGHT_THREAT_BUDGET_INCREASE = 2;
     public static final int ENEMY_SPAWN_MIN_TILE_DISTANCE = 20;
     public static final int ENEMY_SPAWN_MAX_TILE_DISTANCE = 28;
     public static final int ENEMY_SPAWN_MAX_ATTEMPTS = 50;
+
+    public static final float ENEMY_FLEE_SPEED = 150f;
 }

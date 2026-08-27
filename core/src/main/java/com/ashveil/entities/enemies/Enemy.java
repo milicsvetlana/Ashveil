@@ -18,6 +18,9 @@ public abstract class Enemy extends Entity implements Hittable {
     private float hpBarTimer;
     private float dyingTimer;
     private float aiDecisionTimer;
+    private float fleeTargetX;
+    private float fleeTargetY;
+    private boolean fleeFinished;
 
     public Enemy(float x, float y, EnemyType enemyType, Player target, CollisionSystem collisionSystem) {
         super(x, y, enemyType.getMaxHp(), enemyType.getMaxSpeed(), enemyType.getMovementType());
@@ -28,6 +31,7 @@ public abstract class Enemy extends Entity implements Hittable {
         this.hpBarTimer = 0;
         this.dyingTimer = 0;
         this.collisionSystem = collisionSystem;
+        this.fleeFinished = false;
     }
 
     public final void update(float delta){ //ova i naredna klasa su bitne jer ovde stavljamo final kako ne bi moglo da se nasledi,
@@ -37,6 +41,11 @@ public abstract class Enemy extends Entity implements Hittable {
 
         if (state == EnemyState.DYING){
             dyingTimer -= delta;
+            return;
+        }
+
+        if (state == EnemyState.FLEEING){
+            updateFleeing(delta);
             return;
         }
 
@@ -50,7 +59,7 @@ public abstract class Enemy extends Entity implements Hittable {
 
     @Override
     public void takeDamage(int amount) {
-        if (state == EnemyState.DYING) return;
+        if (state != EnemyState.ALIVE) return;
         super.takeDamage(amount);
         hitFlashTimer = Config.ENEMY_HIT_FLASH_DURATION;
         hpBarTimer = Config.ENEMY_HP_BAR_DURATION;
@@ -64,7 +73,7 @@ public abstract class Enemy extends Entity implements Hittable {
     protected abstract void updateAlive(float delta);
 
     public boolean shouldBeRemoved(){
-        return state == EnemyState.DYING && dyingTimer <= 0;
+        return (state == EnemyState.DYING && dyingTimer <= 0) || (state == EnemyState.FLEEING && fleeFinished);
     }
 
     @Override
@@ -122,6 +131,59 @@ public abstract class Enemy extends Entity implements Hittable {
         return Math.abs(x - targetX) <= 0.001f && Math.abs(y - targetY) <= 0.001f;
     }
 
+    public void startFleeing(float worldWidth, float worldHeight){
+        if (state != EnemyState.ALIVE) return;
+
+        float minDistance = this.getX();
+
+        fleeTargetX = -Config.TILE_SIZE;
+        fleeTargetY = getY();
+        facing = Facing.LEFT;
+
+        if (minDistance > worldWidth - this.getX()){
+            minDistance = worldWidth - this.getX();
+
+            fleeTargetX = worldWidth + Config.TILE_SIZE;
+            fleeTargetY = getY();
+            facing = Facing.RIGHT;
+        }
+        if (minDistance > this.getY()){
+            minDistance = this.getY();
+
+            fleeTargetX = getX();
+            fleeTargetY = -Config.TILE_SIZE;
+            facing = Facing.DOWN;
+        }
+        if (minDistance > worldHeight - this.getY()){
+            fleeTargetX = getX();
+            fleeTargetY = worldHeight + Config.TILE_SIZE;
+            facing = Facing.UP;
+        }
+
+        fleeFinished = false;
+        state = EnemyState.FLEEING;
+    }
+
+    private void updateFleeing(float delta){
+        float dirX = fleeTargetX - x;
+        float dirY = fleeTargetY - y;
+
+        float distance = (float) Math.sqrt(dirX * dirX + dirY * dirY);
+        float step = Config.ENEMY_FLEE_SPEED * delta;
+
+        if (distance <= step) {
+            x = fleeTargetX;
+            y = fleeTargetY;
+            fleeFinished = true;
+            return;
+        }
+
+        dirX /= distance;
+        dirY /= distance;
+        x += dirX * step;
+        y += dirY * step;
+    }
+
     @Override
     public void receiveHit(int amount) {takeDamage(amount);}
 
@@ -134,4 +196,6 @@ public abstract class Enemy extends Entity implements Hittable {
     public EnemyType getEnemyType() {return enemyType;}
     public float getHitFlashTimer() {return hitFlashTimer;}
     protected CollisionSystem getCollisionSystem(){return collisionSystem;}
+    public float getRenderAlpha(){return state == EnemyState.FLEEING ? 0.80f : 1f;}
+    public boolean wasKilled(){return state == EnemyState.DYING;}
 }

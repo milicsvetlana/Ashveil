@@ -64,9 +64,9 @@ public class EnemyRenderer {
         float drawY = enemy.getY() * Config.SCALE;
 
         if (enemy.getHitFlashTimer() > 0) batch.setColor(1f, 0.4f, 0.4f, 1f);
-        else batch.setColor(1f, 1f, 1f, 1f);
+        else batch.setColor(1f, 1f, 1f, enemy.getRenderAlpha());
         batch.draw(region, drawX, drawY, drawWidth, drawHeight);
-        batch.setColor(1f, 1f, 1f, 1f);
+        batch.setColor(1f, 1f, 1f, enemy.getRenderAlpha());
     }
 
     public void renderProjectile(Projectile projectile, SpriteBatch batch){
