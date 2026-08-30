@@ -2,18 +2,16 @@ package com.ashveil.items.crafting;
 
 import com.ashveil.items.inventory.Inventory;
 import com.ashveil.items.inventory.ItemType;
+import com.ashveil.progression.ProgressionState;
 
 import java.util.*;
 
 public class CraftingManager {
     private final List<Recipe> recipes;
-    private final Set<CraftingCategory> unlockedCategories = new HashSet<>();
+    private final ProgressionState progressionState;
 
-    public CraftingManager() {
-        unlockedCategories.add(CraftingCategory.WEAPONS);
-        unlockedCategories.add(CraftingCategory.TOOLS);
-        unlockedCategories.add(CraftingCategory.FOOD);
-        unlockedCategories.add(CraftingCategory.BUILDING);
+    public CraftingManager(ProgressionState progressionState) {
+        this.progressionState = progressionState;
         recipes = RecipeBook.getAllRecipes();
     }
 
@@ -57,7 +55,7 @@ public class CraftingManager {
         return null;
     }
 
-    public boolean isCategoryUnlocked(CraftingCategory category) {return unlockedCategories.contains(category);}
-    public void unlockCategory(CraftingCategory category) {unlockedCategories.add(category);}
+    public boolean isCategoryUnlocked(CraftingCategory category) {return progressionState.isCraftingCategoryUnlocked(category);}
+    public void unlockCategory(CraftingCategory category) {progressionState.unlockCraftingCategory(category);}
     public List<Recipe> getRecipes() {return recipes;}
 }

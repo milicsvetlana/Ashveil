@@ -60,6 +60,8 @@ public class World implements CraftingAccess {
     private final DistanceField distanceField;
     private final ProjectileSystem projectileSystem;
 
+    private double totalPlayTimeSeconds;
+
     public World(){
         tileMap = new TileMap();
         collisionSystem = new CollisionSystem(tileMap);
@@ -69,9 +71,9 @@ public class World implements CraftingAccess {
         enemies = new ArrayList<>();
         destructibleObjects = new ArrayList<>();
         groundItems = new ArrayList<>();
-        craftingManager = new CraftingManager();
         combatSystem = new CombatSystem();
         progressionState = new ProgressionState();
+        craftingManager = new CraftingManager(progressionState);
         spawnInitialResources();
         dayNightCycle = new DayNightCycle();
         targetMode = TargetMode.NONE;
@@ -81,6 +83,7 @@ public class World implements CraftingAccess {
         distanceField = new DistanceField(tileMap, collisionSystem);
         projectileSystem = new ProjectileSystem(player, collisionSystem);
         enemySpawnSystem = new EnemySpawnSystem(progressionState, player, tileMap, collisionSystem, distanceField, enemies, projectileSystem);
+        totalPlayTimeSeconds = 0;
 
         destructibleObjectDrops = Map.of(
             DestructibleObjectType.TREE, ItemType.WOOD,
@@ -96,6 +99,7 @@ public class World implements CraftingAccess {
     }
 
     public void update(float delta, PlayerInput playerInput){
+        totalPlayTimeSeconds += delta;
         player.update(delta);
         player.move(playerInput.getMoveX(), playerInput.getMoveY(), delta);
 
@@ -649,6 +653,8 @@ public class World implements CraftingAccess {
     public Chest getActiveChest() {return activeChest;}
     public FarmingSystem getFarmingSystem() {return farmingSystem;}
     public ProjectileSystem getProjectileSystem() {return projectileSystem;}
+    public double getTotalPlayTimeSeconds() {return totalPlayTimeSeconds;}
+    public ProgressionState getProgressionState() {return progressionState;}
 
     public void dispose(){
         tileMap.dispose();
