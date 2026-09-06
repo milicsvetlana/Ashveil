@@ -89,7 +89,6 @@ public class EnemySpawnSystem {
     }
 
     private int[] findSpawnTile(EnemyType enemyType){
-        spawnInterval = 0;
         int playerTileX = tileMap.worldToTileX(player.getCenterX());
         int playerTileY = tileMap.worldToTileY(player.getCenterY());
 
@@ -161,4 +160,8 @@ public class EnemySpawnSystem {
         spawnInterval = 0;
     }
 
+    //saljemo novi ArrayList zato sto zelimo zabraniti da neko spolja dobije stvarni queue.
+    public List<EnemyType> getRemainingSpawnQueue(){return new ArrayList<>(spawnQueue);}
+    public float getSpawnTimer(){return spawnTimer;}
+    public float getSpawnInterval(){return spawnInterval;}
 }

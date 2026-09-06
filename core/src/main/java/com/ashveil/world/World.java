@@ -92,10 +92,9 @@ public class World implements CraftingAccess {
             DestructibleObjectType.CHEST, ItemType.CHEST
         );
 
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_AXE, 1));
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.CHEST, 3));
-        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 3));
-        addGroundItem(new WorldItem(player.getX() + 20, player.getY(), ItemType.FENCE, 20));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_HOE, 1));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 5));
+        addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.SAPLING, 5));
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -116,7 +115,7 @@ public class World implements CraftingAccess {
         if (dayNightCycle.isNight()) enemySpawnSystem.update(delta);
         if (dayNightCycle.justBecameDay()){
             enemySpawnSystem.endNight();
-            for (Enemy enemy : enemies) enemy.startFleeing(tileMap.getWidth(), tileMap.getHeight());
+            for (Enemy enemy : enemies) enemy.startFleeing(tileMap.getWidth() * Config.TILE_SIZE, tileMap.getHeight() * Config.TILE_SIZE);
         }
 
         handleHotbarSelection(playerInput);
@@ -655,6 +654,7 @@ public class World implements CraftingAccess {
     public ProjectileSystem getProjectileSystem() {return projectileSystem;}
     public double getTotalPlayTimeSeconds() {return totalPlayTimeSeconds;}
     public ProgressionState getProgressionState() {return progressionState;}
+    public EnemySpawnSystem getEnemySpawnSystem() {return enemySpawnSystem;}
 
     public void dispose(){
         tileMap.dispose();

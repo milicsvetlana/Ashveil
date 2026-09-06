@@ -198,4 +198,5 @@ public abstract class Enemy extends Entity implements Hittable {
     protected CollisionSystem getCollisionSystem(){return collisionSystem;}
     public float getRenderAlpha(){return state == EnemyState.FLEEING ? 0.80f : 1f;}
     public boolean wasKilled(){return state == EnemyState.DYING;}
+    public boolean isAlive(){return state == EnemyState.ALIVE;}
 }

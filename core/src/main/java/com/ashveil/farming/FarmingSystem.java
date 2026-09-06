@@ -32,6 +32,10 @@ public class FarmingSystem {
 
     public GrowablePlant getPlant(int tileX, int tileY){return plants[tileX][tileY];}
     public boolean isTilled(int tileX, int tileY){return tilledTiles[tileX][tileY];}
+
+    public int getWidth(){return tilledTiles.length;}
+    public int getHeight(){return tilledTiles[0].length;}
+
 }
 
 

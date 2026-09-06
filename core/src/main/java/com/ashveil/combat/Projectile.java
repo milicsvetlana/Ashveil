@@ -55,6 +55,7 @@ public class Projectile {
     public boolean isActive() {return active;}
     public float getVelocityX() {return velocityX;}
     public float getVelocityY() {return velocityY;}
+    public float getLifetime() {return lifetime;}
 }
 
 
