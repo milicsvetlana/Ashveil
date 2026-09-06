@@ -27,4 +27,5 @@ public abstract class WorldObject {
     public float getY() {return y;}
     public float getCenterX() {return x + Config.TILE_SIZE / 2f;}
     public float getCenterY() {return y + Config.TILE_SIZE / 2f;}
+    public int getCurrenthp() {return currentHp;}
 }

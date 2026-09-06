@@ -4,6 +4,8 @@ import com.ashveil.Config;
 import com.ashveil.entities.Player;
 import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.items.inventory.ItemStack;
+import com.ashveil.objects.Chest;
+import com.ashveil.objects.DestructibleObject;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.save.data.*;
 import com.ashveil.world.DayNightCycle;
@@ -22,6 +24,9 @@ public class SaveMapper {
         saveData.dayNight = createDayNightSaveData(world.getDayNightCycle());
         saveData.progressionState = createProgressionSaveData(world.getProgressionState());
 
+        saveData.currentAreaId = SaveConstants.MAIN_ISLAND_ID;
+        saveData.areas.add(createAreaSaveData(world));
+
         return saveData;
     }
 
@@ -35,15 +40,18 @@ public class SaveMapper {
             ItemStack itemStack = player.getInventory().getSlot(i);
             if (itemStack == null) continue;
 
-            ItemStackSaveData itemData = new ItemStackSaveData();
-            itemData.slot = i;
-            itemData.itemType = itemStack.getType().name();
-            itemData.quantity = itemStack.getQuantity();
-            itemData.durability = itemStack.getDurability();
-
-            playerData.inventory.add(itemData);
+            playerData.inventory.add(createItemStackSaveData(itemStack, i));
         }
         return playerData;
+    }
+
+    private ItemStackSaveData createItemStackSaveData(ItemStack itemStack, int slot){
+        ItemStackSaveData itemData = new ItemStackSaveData();
+        itemData.slot = slot;
+        itemData.itemType = itemStack.getType().name();
+        itemData.quantity = itemStack.getQuantity();
+        itemData.durability = itemStack.getDurability();
+        return itemData;
     }
 
     public DayNightSaveData createDayNightSaveData(DayNightCycle dayNightCycle){
@@ -69,4 +77,30 @@ public class SaveMapper {
         return progressionSaveData;
     }
 
+    private DestructibleObjectSaveData createDestructibleObjectSaveData(DestructibleObject object){
+        DestructibleObjectSaveData destructibleObjectSaveData = new DestructibleObjectSaveData();
+        destructibleObjectSaveData.objectType = object.getType().name();
+        destructibleObjectSaveData.x = object.getX();
+        destructibleObjectSaveData.y = object.getY();
+        destructibleObjectSaveData.currentHp = object.getCurrenthp();
+
+        if (object instanceof Chest chest){
+            for (int i=0; i < chest.getChestInventory().getSize(); i++){
+                ItemStack itemStack = chest.getChestInventory().getSlot(i);
+                if (itemStack == null) continue;
+                destructibleObjectSaveData.chestInventory.add(createItemStackSaveData(itemStack, i));
+            }
+        }
+        return destructibleObjectSaveData;
+    }
+
+    private AreaSaveData createAreaSaveData(World world){
+        AreaSaveData areaSaveData = new AreaSaveData();
+        areaSaveData.areaId = SaveConstants.MAIN_ISLAND_ID;
+
+        for (DestructibleObject object : world.getDestructibleObjects()){
+            areaSaveData.destructibleObjects.add(createDestructibleObjectSaveData(object));
+        }
+        return areaSaveData;
+    }
 }
