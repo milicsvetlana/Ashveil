@@ -1,0 +1,364 @@
+{
+"saveVersion": 1,
+"savedAt": 1788740312449,
+"playTimeSeconds": 28.543315591756254,
+"player": {
+	"x": 692.4476,
+	"y": 852.0399,
+	"checkPointX": 355.333,
+	"checkPointY": 1351.333,
+	"health": 10,
+	"brokenHearts": 0,
+	"gold": 0,
+	"selectedHotbarSlot": 2,
+	"inventory": [
+		{
+			"slot": 0,
+			"itemType": "STONE_HOE",
+			"quantity": 1,
+			"durability": 51
+		},
+		{
+			"slot": 1,
+			"itemType": "SAPLING",
+			"quantity": 1,
+			"durability": 0
+		}
+	]
+},
+"dayNight": {
+	"dayCount": 2,
+	"phase": "NIGHT",
+	"phaseTimer": 3.5433114
+},
+"progressionState": {
+	"firstTreeDropClaimed": true,
+	"wispNightUnlocked": false,
+	"wraithNightUnlocked": false,
+	"unlockedCraftingCategories": [
+		"WEAPONS",
+		"BUILDING",
+		"FOOD",
+		"TOOLS"
+	]
+},
+"currentAreaId": "MAIN_ISLAND",
+"areas": [
+	{
+		"areaId": "MAIN_ISLAND",
+		"destructibleObjects": [
+			{
+				"objectType": "TREE",
+				"x": 848,
+				"y": 160,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 0,
+				"y": 464,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1008,
+				"y": 1424,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 160,
+				"y": 1136,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1536,
+				"y": 1184,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1120,
+				"y": 1136,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1456,
+				"y": 1136,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 656,
+				"y": 1232,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 464,
+				"y": 240,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 336,
+				"y": 784,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1504,
+				"y": 1296,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 848,
+				"y": 1184,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 768,
+				"y": 656,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 160,
+				"y": 400,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 448,
+				"y": 576,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1520,
+				"y": 1296,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1248,
+				"y": 1344,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1088,
+				"y": 528,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1536,
+				"y": 896,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 576,
+				"y": 128,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1552,
+				"y": 560,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1584,
+				"y": 1104,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 304,
+				"y": 1360,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 304,
+				"y": 1344,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 336,
+				"y": 1360,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 320,
+				"y": 1344,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 320,
+				"y": 1360,
+				"currentHp": 3,
+				"chestInventory": []
+			}
+		],
+		"tilledTiles": [
+			{
+				"tileX": 13,
+				"tileY": 84
+			},
+			{
+				"tileX": 13,
+				"tileY": 85
+			},
+			{
+				"tileX": 13,
+				"tileY": 86
+			},
+			{
+				"tileX": 14,
+				"tileY": 84
+			},
+			{
+				"tileX": 14,
+				"tileY": 85
+			},
+			{
+				"tileX": 14,
+				"tileY": 86
+			},
+			{
+				"tileX": 15,
+				"tileY": 84
+			},
+			{
+				"tileX": 15,
+				"tileY": 85
+			},
+			{
+				"tileX": 15,
+				"tileY": 86
+			}
+		],
+		"plants": [
+			{
+				"tileX": 13,
+				"tileY": 85,
+				"plantKind": "CROP",
+				"cropType": "WHEAT",
+				"growthTimer": 22.73991
+			},
+			{
+				"tileX": 14,
+				"tileY": 85,
+				"plantKind": "CROP",
+				"cropType": "WHEAT",
+				"growthTimer": 23.017637
+			},
+			{
+				"tileX": 14,
+				"tileY": 86,
+				"plantKind": "CROP",
+				"cropType": "WHEAT",
+				"growthTimer": 23.317678
+			},
+			{
+				"tileX": 15,
+				"tileY": 85,
+				"plantKind": "CROP",
+				"cropType": "WHEAT",
+				"growthTimer": 22.117342
+			},
+			{
+				"tileX": 15,
+				"tileY": 86,
+				"plantKind": "CROP",
+				"cropType": "WHEAT",
+				"growthTimer": 22.291199
+			}
+		],
+		"groundItems": [
+			{
+				"x": 368,
+				"y": 1248,
+				"itemType": "WOOD",
+				"quantity": 2,
+				"durability": 0
+			}
+		],
+		"enemies": [
+			{
+				"enemyType": "SHADE",
+				"x": 174.49953,
+				"y": 848,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 770.7736,
+				"y": 701.2264,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 686.6802,
+				"y": 1185.3197,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 319.91223,
+				"y": 912.08777,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 688,
+				"y": 401.4973,
+				"currentHp": 6
+			}
+		],
+		"projectiles": [],
+		"nightSpawn": {
+			"remainingQueue": [],
+			"spawnTimer": 6.34253E-4,
+			"spawnInterval": 0.7
+		}
+	}
+]
+}

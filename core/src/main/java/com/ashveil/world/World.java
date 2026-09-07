@@ -655,6 +655,8 @@ public class World implements CraftingAccess {
     public double getTotalPlayTimeSeconds() {return totalPlayTimeSeconds;}
     public ProgressionState getProgressionState() {return progressionState;}
     public EnemySpawnSystem getEnemySpawnSystem() {return enemySpawnSystem;}
+    public float getCheckpointX() {return checkpointX;}
+    public float getCheckpointY() {return checkpointY;}
 
     public void dispose(){
         tileMap.dispose();

@@ -31,6 +31,8 @@ public class SaveMapper {
         saveData.playTimeSeconds = world.getTotalPlayTimeSeconds();
 
         saveData.player = createPlayerSaveData(world.getPlayer());
+        saveData.player.checkPointX = world.getCheckpointX();
+        saveData.player.checkPointY = world.getCheckpointY();
         saveData.dayNight = createDayNightSaveData(world.getDayNightCycle());
         saveData.progressionState = createProgressionSaveData(world.getProgressionState());
 
@@ -46,6 +48,8 @@ public class SaveMapper {
         playerData.y = player.getY();
         playerData.health = player.getCurrentHp();
         playerData.selectedHotbarSlot = player.getSelectedHotbarSlot();
+        playerData.brokenHearts = player.getBrokenHearts();
+        playerData.gold = player.getWallet().getGold();
         for (int i=0; i < Config.INVENTORY_SIZE; i++){
             ItemStack itemStack = player.getInventory().getSlot(i);
             if (itemStack == null) continue;

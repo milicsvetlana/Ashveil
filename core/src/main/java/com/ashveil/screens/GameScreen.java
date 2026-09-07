@@ -6,6 +6,7 @@ import com.ashveil.rendering.HudRenderer;
 import com.ashveil.rendering.WorldRenderer;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.input.KeyBindings;
+import com.ashveil.save.SaveService;
 import com.ashveil.targeting.TargetMode;
 import com.ashveil.targeting.TileTargetingSystem;
 import com.ashveil.ui.GameMenuUi;
@@ -42,11 +43,15 @@ public class GameScreen implements Screen {
     private Stage overlayStage;
     private ChestUI chestUi;
     private PauseMenuUi pauseMenuUi;
+    private SaveService saveService;
+    private final int saveSlot;
     private Skin uiSkin;
 
-    public GameScreen(GameApp game){
+    public GameScreen(GameApp game, int saveSlot){
         this.game = game;
+        this.saveSlot = saveSlot;
         world = new World();
+        saveService = new SaveService();
         worldRenderer = new WorldRenderer(world.getTileMap());
         cameraController = new CameraController();
         hudRenderer = new HudRenderer();
@@ -62,7 +67,7 @@ public class GameScreen implements Screen {
         chestUi = null;
         //prosledjujemo closepause kao runnable callback. ne sluzi za novu nit, vec samo prosledjuje akciju
         //koja pausemenuui moze kasnije pozvati
-        pauseMenuUi = new PauseMenuUi(uiSkin, this::closePause);
+        pauseMenuUi = new PauseMenuUi(uiSkin, this::closePause, this::saveGame);
     }
 
     @Override
@@ -167,6 +172,10 @@ public class GameScreen implements Screen {
         overlayStage.clear();
         activeOverlay = GameOverlay.NONE;
         Gdx.input.setInputProcessor(null);
+    }
+
+    private void saveGame(){
+        saveService.requestSave(saveSlot, world);
     }
 
     private PlayerInput readPlayerInput(){
@@ -345,6 +354,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        saveService.shutdownAndWait();
         worldRenderer.dispose();
         hudRenderer.dispose();
         world.dispose();
