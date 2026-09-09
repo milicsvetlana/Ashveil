@@ -227,6 +227,12 @@ public class Inventory {
         return itemStack.getQuantity();
     }
 
+    public void replaceContents(ItemStack[] newContents){
+        if (newContents == null) throw new IllegalArgumentException("Inventory contents can't be null.");
+        if (newContents.length != slots.length) throw new IllegalArgumentException("Invalid inventory size.");
+        System.arraycopy(newContents, 0, slots, 0, slots.length);
+    }
+
     public int getSize(){return slots.length;}
 }
 

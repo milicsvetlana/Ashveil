@@ -24,6 +24,19 @@ public final class ProgressionState {
         unlockedCraftingCategories.add(CraftingCategory.BUILDING);
     }
 
+    public void applyPersistentState(boolean firstTreeDropClaimed, boolean wispNightUnlocked,
+                                     boolean wraithNightUnlocked, Set<CraftingCategory> unlockedCraftingCategories){
+        if (unlockedCraftingCategories == null) throw new IllegalArgumentException("Unlocked crafting categories can't be null");
+        this.firstTreeDropClaimed = firstTreeDropClaimed;
+        this.wispNightUnlocked = wispNightUnlocked;
+        this.wraithNightUnlocked = wraithNightUnlocked;
+
+        this.unlockedCraftingCategories.clear();
+        this.unlockedCraftingCategories.addAll(unlockedCraftingCategories);
+    }
+
+
+
     public boolean isFirstTreeDropClaimed() {return firstTreeDropClaimed;}
     public void claimFirstTreeDrop() {firstTreeDropClaimed = true;}
     public boolean isWispNightUnlocked() {return wispNightUnlocked;}

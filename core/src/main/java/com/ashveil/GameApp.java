@@ -9,4 +9,7 @@ public class GameApp extends Game {
     public void create() {
         setScreen(new GameScreen(this, 1));
     }
+    public void dispose(){
+        if (getScreen() != null) getScreen().dispose();
+    }
 }

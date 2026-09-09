@@ -13,15 +13,68 @@ import com.ashveil.farming.GrowablePlant;
 import com.ashveil.farming.Sapling;
 import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.items.inventory.ItemStack;
+import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.Chest;
 import com.ashveil.objects.DestructibleObject;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.save.data.*;
 import com.ashveil.world.DayNightCycle;
+import com.ashveil.world.DayPhase;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
 
+import java.util.EnumSet;
+
 public class SaveMapper {
+
+    public World createWorld(SaveData saveData){
+        if (saveData == null) throw new IllegalArgumentException("SaveData can't be null.");
+
+        World world = World.createForLoad();
+
+        applyWorldState(world, saveData);
+        applyPlayerState(world.getPlayer(), saveData.player);
+        applyProgressionState(world.getProgressionState(), saveData.progressionState);
+        applyDayNightState(world.getDayNightCycle(), saveData.dayNight);
+        return world;
+    }
+
+    private void applyWorldState(World world, SaveData saveData){
+        world.applyPersistentState(saveData.player.checkPointX, saveData.player.checkPointY, saveData.playTimeSeconds);
+    }
+
+    private void applyPlayerState(Player player, PlayerSaveData playerSaveData){
+        player.setPosition(playerSaveData.x, playerSaveData.y);
+
+        ItemStack[] inventoryContents = createInventoryContents(playerSaveData);
+        player.applyPersistentState(playerSaveData.health, playerSaveData.brokenHearts, playerSaveData.gold,
+                                    playerSaveData.selectedHotbarSlot, inventoryContents);
+    }
+
+    private void applyDayNightState(DayNightCycle dayNightCycle, DayNightSaveData dayNightSaveData){
+        DayPhase phase = DayPhase.valueOf(dayNightSaveData.phase);
+        dayNightCycle.applyPersistentState(dayNightSaveData.dayCount, phase, dayNightSaveData.phaseTimer);
+    }
+
+    private void applyProgressionState(ProgressionState progressionState, ProgressionSaveData progressionSaveData){
+        EnumSet<CraftingCategory> unlockedCategories = EnumSet.noneOf(CraftingCategory.class);
+
+        for (String categoryName : progressionSaveData.unlockedCraftingCategories){
+            unlockedCategories.add(CraftingCategory.valueOf(categoryName));
+        }
+
+        progressionState.applyPersistentState(progressionSaveData.firstTreeDropClaimed, progressionSaveData.wispNightUnlocked,
+                                              progressionSaveData.wraithNightUnlocked, unlockedCategories);
+    }
+
+    private ItemStack[] createInventoryContents(PlayerSaveData playerSaveData){
+        ItemStack [] contents = new ItemStack[Config.INVENTORY_SIZE];
+        for (ItemStackSaveData itemData : playerSaveData.inventory){
+            ItemType itemType = ItemType.valueOf(itemData.itemType);
+            contents[itemData.slot] = new ItemStack(itemType, itemData.quantity, itemData.durability);
+        }
+        return contents;
+    }
 
     public SaveData createSaveData(World world){
         SaveData saveData = new SaveData();
@@ -216,5 +269,8 @@ public class SaveMapper {
 
         return nightSpawnSaveData;
     }
+
+
+
 }
 

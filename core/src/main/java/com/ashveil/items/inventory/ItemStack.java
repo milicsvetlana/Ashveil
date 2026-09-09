@@ -6,11 +6,15 @@ public class ItemStack {
     private int durability;
 
     public ItemStack(ItemType type, int quantity) {
+        this(type, quantity, type.getMaxDurability());
+    }
+
+    public ItemStack(ItemType type, int quantity, int durability){
         if (type == null) throw new IllegalArgumentException("Item type cannot be null");
         if (quantity <= 0 || quantity > type.getMaxStack()) throw new IllegalArgumentException("Invalid item stack quantity");
         this.type = type;
         this.quantity = quantity;
-        this.durability = type.getMaxDurability();
+        this.durability = durability;
     }
 
     public ItemType getType() {

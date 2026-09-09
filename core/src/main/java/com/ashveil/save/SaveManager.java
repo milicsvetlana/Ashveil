@@ -15,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 public class SaveManager {
     private final Json json;
     private final FileHandle saveDirectory;
+    private final SaveValidator saveValidator;
 
     public SaveManager() {
         json = new Json();
@@ -22,6 +23,7 @@ public class SaveManager {
         json.setOutputType(JsonWriter.OutputType.json);
         saveDirectory = Gdx.files.local("saves");
         saveDirectory.mkdirs();
+        saveValidator = new SaveValidator();
     }
 
     private FileHandle getSlotFile(int slot){
@@ -89,6 +91,28 @@ public class SaveManager {
         }
     }
 
+    public SaveData load(int slot){
+        FileHandle slotFile = getSlotFile(slot);
+        SaveData saveData = readSaveDataFile(slotFile);
+        if (saveData != null) return saveData;
+
+        FileHandle backupFile = getBackupFile(slot);
+        return readSaveDataFile(backupFile);
+    }
+
+    private SaveData readSaveDataFile(FileHandle file){
+        if (!file.exists()) return null;
+        try{
+            String jsonText = file.readString("UTF-8");
+            SaveData saveData = json.fromJson(SaveData.class, jsonText);
+
+            if (!saveValidator.isValid(saveData)) return null;
+            return saveData;
+        }
+        catch(Exception exception){
+            return null;
+        }
+    }
 
 }
 

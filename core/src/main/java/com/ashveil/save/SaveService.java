@@ -44,4 +44,10 @@ public class SaveService {
         }
     }
 
+    public World loadWorld(int slot){
+        SaveData saveData = saveManager.load(slot);
+        if (saveData == null) return null;
+        return saveMapper.createWorld(saveData);
+    }
+
 }

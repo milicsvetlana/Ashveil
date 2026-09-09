@@ -63,6 +63,10 @@ public class World implements CraftingAccess {
     private double totalPlayTimeSeconds;
 
     public World(){
+        this(true);
+    }
+
+    private World(boolean initializeNewGame){
         tileMap = new TileMap();
         collisionSystem = new CollisionSystem(tileMap);
         player = new Player(tileMap.getPlayerSpawnX(), tileMap.getPlayerSpawnY(), tileMap, collisionSystem);
@@ -74,7 +78,6 @@ public class World implements CraftingAccess {
         combatSystem = new CombatSystem();
         progressionState = new ProgressionState();
         craftingManager = new CraftingManager(progressionState);
-        spawnInitialResources();
         dayNightCycle = new DayNightCycle();
         targetMode = TargetMode.NONE;
         targetBounds = new Rectangle();
@@ -92,9 +95,19 @@ public class World implements CraftingAccess {
             DestructibleObjectType.CHEST, ItemType.CHEST
         );
 
+        if (initializeNewGame) initializeNewGameState();
+    }
+
+    private void initializeNewGameState(){
+        spawnInitialResources();
+
         addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.STONE_HOE, 1));
         addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 5));
         addGroundItem(new WorldItem(player.getX(), player.getY(), ItemType.SAPLING, 5));
+    }
+
+    public static World createForLoad(){
+        return new World(false);
     }
 
     public void update(float delta, PlayerInput playerInput){
@@ -633,6 +646,14 @@ public class World implements CraftingAccess {
         }
 
         return true;
+    }
+
+    public void applyPersistentState(float checkpointX, float checkpointY, double playTimeSeconds){
+        if (playTimeSeconds < 0) throw new IllegalArgumentException("Play time cannot be negative.");
+
+        this.checkpointX = checkpointX;
+        this.checkpointY = checkpointY;
+        this.totalPlayTimeSeconds = playTimeSeconds;
     }
 
     public void setTargetMode(TargetMode targetMode){this.targetMode = targetMode;}

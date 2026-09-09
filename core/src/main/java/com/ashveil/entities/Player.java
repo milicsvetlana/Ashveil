@@ -146,4 +146,23 @@ public class Player extends Entity{
         if (selectedHotbarSlot < 0 ||  selectedHotbarSlot >= Config.HOTBAR_SIZE) return;
         this.selectedHotbarSlot = selectedHotbarSlot;
     }
+
+    public void applyPersistentState(int health, int brokenHearts, int gold, int selectedHotbarSlot, ItemStack[] inventoryContents){
+        if (brokenHearts < 0 || brokenHearts > Config.MAX_BROKEN_HEARTS){
+            throw new IllegalArgumentException("Invalid broken hearts count.");
+        }
+        int restoredMaxHp = Config.PLAYER_HP - brokenHearts * Config.HP_PER_HEART;
+
+        if (health < 0 || health > restoredMaxHp) throw new IllegalArgumentException("Invalid player health");
+        if (gold < 0) throw new IllegalArgumentException("Gold can't be negative");
+        if (selectedHotbarSlot < 0 || selectedHotbarSlot >= Config.HOTBAR_SIZE) throw new IllegalArgumentException("Invalid hotbar slot.");
+        if (inventoryContents == null || inventoryContents.length != Config.INVENTORY_SIZE) throw new IllegalArgumentException("Invalid inventory contents.");
+
+        this.brokenHearts = brokenHearts;
+        this.maxHp = restoredMaxHp;
+        this.currentHp = health;
+        this.selectedHotbarSlot = selectedHotbarSlot;
+        inventory.replaceContents(inventoryContents);
+        wallet.addGold(gold);
+    }
 }
