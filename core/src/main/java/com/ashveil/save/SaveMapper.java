@@ -2,20 +2,17 @@ package com.ashveil.save;
 
 import com.ashveil.Config;
 import com.ashveil.combat.Projectile;
-import com.ashveil.combat.ProjectileSystem;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemySpawnSystem;
 import com.ashveil.entities.enemies.EnemyType;
-import com.ashveil.farming.Crop;
-import com.ashveil.farming.FarmingSystem;
-import com.ashveil.farming.GrowablePlant;
-import com.ashveil.farming.Sapling;
+import com.ashveil.farming.*;
 import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.Chest;
 import com.ashveil.objects.DestructibleObject;
+import com.ashveil.objects.DestructibleObjectType;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.save.data.*;
 import com.ashveil.world.DayNightCycle;
@@ -24,6 +21,7 @@ import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
 
 import java.util.EnumSet;
+import java.util.List;
 
 public class SaveMapper {
 
@@ -36,7 +34,32 @@ public class SaveMapper {
         applyPlayerState(world.getPlayer(), saveData.player);
         applyProgressionState(world.getProgressionState(), saveData.progressionState);
         applyDayNightState(world.getDayNightCycle(), saveData.dayNight);
+
+        AreaSaveData currentArea = findCurrentArea(saveData);
+        applyDestructibleObjectState(world, currentArea);
+
+        applyFarmingState(world.getFarmingSystem(), currentArea);
+
         return world;
+    }
+
+    private AreaSaveData findCurrentArea(SaveData saveData){
+        for (AreaSaveData areaSaveData : saveData.areas){
+            if (saveData.currentAreaId.equals(areaSaveData.areaId)) return areaSaveData;
+        }
+        throw new IllegalStateException("Current area not found in save data.");
+    }
+
+    public void applyDestructibleObjectState(World world, AreaSaveData areaSaveData){
+        for (DestructibleObjectSaveData objectSaveData : areaSaveData.destructibleObjects){
+            DestructibleObjectType type = DestructibleObjectType.valueOf(objectSaveData.objectType);
+            DestructibleObject object = world.getDestructibleObjectSystem().createAndAdd(objectSaveData.x, objectSaveData.y,
+                                                                                         type, objectSaveData.currentHp);
+            if (object instanceof Chest chest){
+                ItemStack[] chestContents = createInventoryContents(objectSaveData.chestInventory, Config.CHEST_INVENTORY_SIZE);
+                chest.getChestInventory().replaceContents(chestContents);
+            }
+        }
     }
 
     private void applyWorldState(World world, SaveData saveData){
@@ -46,7 +69,7 @@ public class SaveMapper {
     private void applyPlayerState(Player player, PlayerSaveData playerSaveData){
         player.setPosition(playerSaveData.x, playerSaveData.y);
 
-        ItemStack[] inventoryContents = createInventoryContents(playerSaveData);
+        ItemStack[] inventoryContents = createInventoryContents(playerSaveData.inventory, Config.INVENTORY_SIZE);
         player.applyPersistentState(playerSaveData.health, playerSaveData.brokenHearts, playerSaveData.gold,
                                     playerSaveData.selectedHotbarSlot, inventoryContents);
     }
@@ -67,9 +90,28 @@ public class SaveMapper {
                                               progressionSaveData.wraithNightUnlocked, unlockedCategories);
     }
 
-    private ItemStack[] createInventoryContents(PlayerSaveData playerSaveData){
+    private void applyFarmingState(FarmingSystem farmingSystem, AreaSaveData areaSaveData){
+        for (TilledTileSaveData tileData : areaSaveData.tilledTiles){
+            farmingSystem.till(tileData.tileX, tileData.tileY);
+        }
+
+        for (PlantSaveData plantData : areaSaveData.plants){
+            if ("CROP".equals(plantData.plantKind)){
+                CropType cropType = CropType.valueOf(plantData.cropType);
+                farmingSystem.plant(cropType, plantData.tileX, plantData.tileY);
+            }
+            else if ("SAPLING".equals(plantData.plantKind)){
+                farmingSystem.plantSapling(plantData.tileX, plantData.tileY);
+            }
+
+            GrowablePlant plant = farmingSystem.getPlant(plantData.tileX, plantData.tileY);
+            plant.restoreGrowthTimer(plantData.growthTimer);
+        }
+    }
+
+    private ItemStack[] createInventoryContents(List<ItemStackSaveData> itemDataList, int inventorySize){
         ItemStack [] contents = new ItemStack[Config.INVENTORY_SIZE];
-        for (ItemStackSaveData itemData : playerSaveData.inventory){
+        for (ItemStackSaveData itemData : itemDataList){
             ItemType itemType = ItemType.valueOf(itemData.itemType);
             contents[itemData.slot] = new ItemStack(itemType, itemData.quantity, itemData.durability);
         }

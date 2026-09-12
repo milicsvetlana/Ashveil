@@ -68,7 +68,7 @@ public class DayNightCycle {
     public void applyPersistentState(int dayCount, DayPhase dayPhase, float phaseTimer){
         float phaseDuration = getPhaseDuration(dayPhase, dayCount);
 
-        if (phaseTimer <= 0 || phaseTimer >= phaseDuration) throw new IllegalArgumentException("Invalid phase timer.");
+        if (phaseTimer < 0 || phaseTimer >= phaseDuration) throw new IllegalArgumentException("Invalid phase timer.");
 
         this.dayCount = dayCount;
         this.dayPhase = dayPhase;

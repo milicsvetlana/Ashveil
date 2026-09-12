@@ -14,9 +14,12 @@ public class DestructibleObject extends WorldObject implements Hittable, Collida
     private final Rectangle collisionBounds;
 
     public DestructibleObject(float x, float y, DestructibleObjectType type) {
-        super(x, y, type.getHp());
-        this.type = type;
+        this(x, y, type, type.getHp());
+    }
 
+    public DestructibleObject(float x, float y, DestructibleObjectType type, int currentHp){
+        super(x, y, currentHp);
+        this.type = type;
         collisionBounds = new Rectangle(x, y, Config.TILE_SIZE, Config.TILE_SIZE);
     }
 

@@ -16,6 +16,16 @@ public abstract class WorldObject {
         this.currentHp = maxHp;
     }
 
+    public WorldObject(float x, float y, int maxHp, int currentHp){
+        if (maxHp <= 0) throw new IllegalArgumentException("Max HP must be positive.");
+        if (currentHp <= 0 || currentHp > maxHp) throw new IllegalArgumentException("Invalid current HP.");
+
+        this.x = x;
+        this.y = y;
+        this.maxHp = maxHp;
+        this.currentHp = currentHp;
+    }
+
     public void hit(int amount){
         currentHp -= amount;
         if (currentHp < 0) currentHp = 0;

@@ -8,7 +8,11 @@ public class Chest extends DestructibleObject{
     private final Inventory chestInventory;
 
     public Chest(float x, float y) {
-        super(x, y, DestructibleObjectType.CHEST);
+        this(x, y, DestructibleObjectType.CHEST.getHp());
+    }
+
+    public Chest(float x, float y, int currentHp){
+        super(x, y, DestructibleObjectType.CHEST, currentHp);
         chestInventory = new Inventory(Config.CHEST_INVENTORY_SIZE);
     }
 

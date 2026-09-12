@@ -31,6 +31,7 @@ public class GrowablePlant {
     }
 
     public void restoreGrowthTimer(float growthTimer){
+        if (growthTimer < 0) throw new IllegalArgumentException("Invalid growth timer.");
         this.growthTimer = growthTimer;
         updateGrowthStage();
     }

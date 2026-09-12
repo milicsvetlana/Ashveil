@@ -21,7 +21,7 @@ public class FarmingSystem {
     public void plant(CropType cropType, int tileX, int tileY){
         plants[tileX][tileY] = new Crop(cropType);
     }
-    public void plant(String string, int tileX, int tileY){plants[tileX][tileY] = new Sapling();}
+    public void plantSapling(int tileX, int tileY){plants[tileX][tileY] = new Sapling();}
 
     public void till(int tileX, int tileY) {
         tilledTiles[tileX][tileY] = true;
