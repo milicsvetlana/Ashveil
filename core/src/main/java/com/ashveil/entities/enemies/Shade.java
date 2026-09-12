@@ -36,6 +36,15 @@ public class Shade extends Enemy{
         hasNextTile = false;
     }
 
+    public Shade(float x, float y, Player target, CollisionSystem collisionSystem, DistanceField distanceField, int currentHp){
+        super(x, y, EnemyType.SHADE, target, collisionSystem, currentHp);
+        this.distanceField = distanceField;
+        shadeState = ShadeState.CHASE;
+        targetFence = null;
+        attackCooldown = 0f;
+        hasNextTile = false;
+    }
+
     @Override
     protected void updateAlive(float delta) {
         if (attackCooldown > 0) attackCooldown -= delta;

@@ -3,6 +3,8 @@ package com.ashveil.combat;
 import com.ashveil.Config;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.List;
+
 public class Projectile {
     private float x;
     private float y;
@@ -34,6 +36,27 @@ public class Projectile {
         float size = Config.TILE_SIZE / 2f;
         this.collisionBounds = new Rectangle(x, y, size, size);
         this.active = true;
+    }
+
+    private Projectile(float x, float y, float velocityX, float velocityY, int damage, float lifetime){
+        this.x = x;
+        this.y = y;
+
+        this.velocityX = velocityX;
+        this.velocityY = velocityY;
+
+        this.damage = damage;
+        this.lifetime = lifetime;
+
+        float size = Config.TILE_SIZE / 2f;
+        this.collisionBounds = new Rectangle(x, y, size, size);
+        this.active = true;
+    }
+
+    public static Projectile fromVelocity(float x, float y, float velocityX, float velocityY, int damage, float lifetime){
+        if (damage <= 0) throw new IllegalArgumentException("Projectile damage must be positive.");
+        if (lifetime <= 0) throw new IllegalArgumentException("Projectile lifetime must be positive.");
+        return new Projectile(x, y, velocityX, velocityY, damage, lifetime);
     }
 
     public void update(float delta){

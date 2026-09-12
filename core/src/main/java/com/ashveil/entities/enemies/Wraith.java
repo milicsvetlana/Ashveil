@@ -39,6 +39,19 @@ public class Wraith extends Enemy{
         hasNextTile = false;
     }
 
+    public Wraith(float x, float y, Player target, CollisionSystem collisionSystem, DistanceField distanceField, ProjectileSystem projectileSystem, int currentHp){
+        super(x, y, EnemyType.WRAITH, target, collisionSystem, currentHp);
+        this.distanceField = distanceField;
+        this.projectileSystem = projectileSystem;
+
+        wraithState = WraithState.APPROACH;
+        attackCooldown = 0f;
+
+        nextTileX = 0;
+        nextTileY = 0;
+        hasNextTile = false;
+    }
+
     @Override
     protected void updateAlive(float delta) {
         if (attackCooldown > 0) attackCooldown -= delta;

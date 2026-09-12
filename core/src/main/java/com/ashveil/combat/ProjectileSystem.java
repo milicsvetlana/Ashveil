@@ -60,6 +60,16 @@ public class ProjectileSystem {
         if (collisionSystem.isBlocked(bounds.x, bounds.y, bounds.width, bounds.height, MovementType.GROUND)) projectile.deactivate();
     }
 
+
+    public void replaceProjectiles(List<Projectile> restoredProjectiles){
+        if (restoredProjectiles == null) throw new IllegalArgumentException("Restores projectiles cannot be null.");
+        for (Projectile projectile : restoredProjectiles){
+            if (projectile == null) throw new IllegalArgumentException("Restored projectile cannot be null.");
+        }
+        projectiles.clear();
+        projectiles.addAll(restoredProjectiles);
+    }
+
     public List<Projectile> getProjectiles() {return projectiles;}
 }
 

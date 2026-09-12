@@ -15,10 +15,16 @@ public abstract class Entity {
     private final MovementType movementType;
 
     public Entity (float x, float y, int maxHp, float speed, MovementType movementType){
+        this(x, y, maxHp, maxHp, speed, movementType);
+    }
+
+    public Entity(float x, float y, int maxHp, int currentHp, float speed, MovementType movementType){
+        if (maxHp <= 0) throw new IllegalArgumentException("Max HP must be positive.");
+        if (currentHp <= 0 || currentHp > maxHp) throw new IllegalArgumentException("Invalid current HP.");
         this.x = x;
         this.y = y;
         this.maxHp = maxHp;
-        this.currentHp = maxHp;
+        this.currentHp = currentHp;
         this.speed = speed;
         collisionBounds = new Rectangle(x, y, Config.TILE_SIZE, Config.TILE_SIZE);
         this.movementType = movementType;

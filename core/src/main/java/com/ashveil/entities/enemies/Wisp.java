@@ -29,6 +29,15 @@ public class Wisp extends Enemy {
         damagedPlayerThisDash = false;
     }
 
+    public Wisp(float x, float y, Player target, CollisionSystem collisionSystem, int currentHp){
+        super(x, y, EnemyType.WISP, target, collisionSystem, currentHp);
+        wispState = WispState.APPROACH;
+        stateTimer = 0f;
+        dashDirX = 0f;
+        dashDirY = 0f;
+        damagedPlayerThisDash = false;
+    }
+
     @Override
     protected void updateAlive(float delta) {
         switch (wispState){

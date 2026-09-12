@@ -466,6 +466,7 @@ public class World implements CraftingAccess {
     public List<WorldItem> getGroundItems(){return worldItemSystem.getItems();}
     public List<DestructibleObject> getDestructibleObjects(){return destructibleObjectSystem.getObjects();}
     public DestructibleObjectSystem getDestructibleObjectSystem(){return destructibleObjectSystem;}
+    public WorldItemSystem getWorldItemSystem(){return worldItemSystem;}
 
     public void dispose(){
         tileMap.dispose();

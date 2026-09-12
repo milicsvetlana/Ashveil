@@ -49,6 +49,15 @@ public class WorldItemSystem {
         checkSafetyLimit();
     }
 
+    public void replaceItems(List<WorldItem> restoredItems){
+        if (restoredItems == null) throw new IllegalArgumentException("Restored world items cannot be null.");
+        for (WorldItem item : restoredItems){
+            if (item == null) throw new IllegalArgumentException("Restored world item cannot be null.");
+        }
+        items.clear();
+        items.addAll(restoredItems);
+    }
+
     public boolean tryPickUpNearest(Player player){
         if (player == null) throw new IllegalArgumentException("Player cannot be null.");
 

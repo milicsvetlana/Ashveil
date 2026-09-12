@@ -23,7 +23,11 @@ public abstract class Enemy extends Entity implements Hittable {
     private boolean fleeFinished;
 
     public Enemy(float x, float y, EnemyType enemyType, Player target, CollisionSystem collisionSystem) {
-        super(x, y, enemyType.getMaxHp(), enemyType.getMaxSpeed(), enemyType.getMovementType());
+        this(x, y, enemyType, target, collisionSystem, enemyType.getMaxHp());
+    }
+
+    public Enemy(float x, float y, EnemyType enemyType, Player target, CollisionSystem collisionSystem, int currentHp){
+        super(x, y, enemyType.getMaxHp(), currentHp, enemyType.getMaxSpeed(), enemyType.getMovementType());
         this.enemyType = enemyType;
         this.target = target;
         this.state = EnemyState.ALIVE;

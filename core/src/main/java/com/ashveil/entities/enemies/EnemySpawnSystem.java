@@ -131,15 +131,15 @@ public class EnemySpawnSystem {
         return null;
     }
 
-    private Enemy createEnemy(EnemyType enemyType, float worldX, float worldY){
+    private Enemy createEnemy(EnemyType enemyType, float worldX, float worldY, int currentHp){
         return switch (enemyType){
             case SHADE ->
-                new Shade(worldX, worldY, player, collisionSystem, distanceField);
+                new Shade(worldX, worldY, player, collisionSystem, distanceField, currentHp);
             case WISP ->
-                new Wisp(worldX, worldY, player, collisionSystem);
+                new Wisp(worldX, worldY, player, collisionSystem, currentHp);
 
             case WRAITH ->
-                new Wraith(worldX, worldY, player, collisionSystem, distanceField, projectileSystem);
+                new Wraith(worldX, worldY, player, collisionSystem, distanceField, projectileSystem, currentHp);
         };
     }
 
@@ -150,7 +150,7 @@ public class EnemySpawnSystem {
         float worldX = tileMap.tileToWorldX(spawnTile[0]);
         float worldY = tileMap.tileToWorldY(spawnTile[1]);
 
-        enemies.add(createEnemy(enemyType, worldX, worldY));
+        enemies.add(createAndAddEnemy(enemyType, worldX, worldY));
         return true;
     }
 
@@ -158,6 +158,37 @@ public class EnemySpawnSystem {
         spawnQueue.clear();
         spawnTimer = 0;
         spawnInterval = 0;
+    }
+
+    public Enemy createAndAddEnemy(EnemyType enemyType, float worldX, float worldY){
+        return createAndAddEnemy(enemyType, worldX, worldY, enemyType.getMaxHp());
+    }
+
+    public Enemy createAndAddEnemy(EnemyType enemyType, float worldX, float worldY, int currentHp){
+        Enemy enemy = createEnemy(enemyType, worldX, worldY, currentHp);
+        enemies.add(enemy);
+        return enemy;
+    }
+
+    public void applyPersistentState(List<EnemyType> remainingQueue, float spawnTimer, float spawnInterval){
+        if (remainingQueue == null) throw new IllegalArgumentException("Remaining spawn queue cannot be null.");
+        if (Float.isNaN(spawnTimer) || Float.isInfinite(spawnTimer) || spawnTimer < 0)
+            throw new IllegalArgumentException ("Invalid spawn timer.");
+
+        if (Float.isNaN(spawnInterval) || Float.isInfinite(spawnInterval) || spawnInterval < 0)
+            throw new IllegalArgumentException("Invalid spawn interval.");
+
+        if (!remainingQueue.isEmpty() && spawnInterval <= 0) throw new IllegalArgumentException("Non-empty spawn" +
+            " queue requires a positive spawn interval.");
+
+        for (EnemyType enemyType : remainingQueue){
+            if (enemyType == null) throw new IllegalArgumentException("Spawn queue cannot contain null enemy types.");
+        }
+
+        this.spawnQueue.clear();
+        this.spawnQueue.addAll(remainingQueue);
+        this.spawnTimer = spawnTimer;
+        this.spawnInterval = spawnInterval;
     }
 
     //saljemo novi ArrayList zato sto zelimo zabraniti da neko spolja dobije stvarni queue.

@@ -2,6 +2,7 @@ package com.ashveil.save;
 
 import com.ashveil.Config;
 import com.ashveil.combat.Projectile;
+import com.ashveil.combat.ProjectileSystem;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemySpawnSystem;
@@ -20,6 +21,7 @@ import com.ashveil.world.DayPhase;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -39,6 +41,10 @@ public class SaveMapper {
         applyDestructibleObjectState(world, currentArea);
 
         applyFarmingState(world.getFarmingSystem(), currentArea);
+        applyGroundItemState(world, currentArea);
+        applyEnemyState(world, currentArea);
+        applyProjectileState(world.getProjectileSystem(), currentArea);
+        applyNightSpawnState(world.getEnemySpawnSystem(), currentArea.nightSpawn);
 
         return world;
     }
@@ -107,6 +113,43 @@ public class SaveMapper {
             GrowablePlant plant = farmingSystem.getPlant(plantData.tileX, plantData.tileY);
             plant.restoreGrowthTimer(plantData.growthTimer);
         }
+    }
+
+    private void applyGroundItemState(World world, AreaSaveData areaSaveData){
+        List<WorldItem> restoredItems = new ArrayList<>();
+        for (WorldItemSaveData itemSaveData : areaSaveData.groundItems){
+            ItemType itemType = ItemType.valueOf(itemSaveData.itemType);
+            ItemStack itemStack = new ItemStack(itemType, itemSaveData.quantity, itemSaveData.durability);
+            restoredItems.add(new WorldItem(itemSaveData.x, itemSaveData.y, itemStack));
+        }
+        world.getWorldItemSystem().replaceItems(restoredItems);
+    }
+
+    private void applyEnemyState(World world, AreaSaveData areaSaveData){
+        for (EnemySaveData enemySaveData : areaSaveData.enemies){
+            EnemyType enemyType = EnemyType.valueOf(enemySaveData.toString());
+            world.getEnemySpawnSystem().createAndAddEnemy(enemyType, enemySaveData.x, enemySaveData.y, enemySaveData.currentHp);
+        }
+    }
+
+    private void applyProjectileState(ProjectileSystem projectileSystem, AreaSaveData areaSaveData){
+        List<Projectile> restoredProjectiles = new ArrayList<>();
+
+        for (ProjectileSaveData projectileSaveData : areaSaveData.projectiles){
+            restoredProjectiles.add(Projectile.fromVelocity(projectileSaveData.x, projectileSaveData.y, projectileSaveData.velocityX,
+                                                             projectileSaveData.velocityY, projectileSaveData.damage, projectileSaveData.remainingLifetime));
+        }
+        projectileSystem.replaceProjectiles(restoredProjectiles);
+    }
+
+    private void applyNightSpawnState(EnemySpawnSystem enemySpawnSystem, NightSpawnSaveData nightSpawnSaveData){
+        List<EnemyType> remainingQueue = new ArrayList<>();
+
+        for (String enemyTypeName : nightSpawnSaveData.remainingQueue){
+            remainingQueue.add(EnemyType.valueOf(enemyTypeName));
+        }
+
+        enemySpawnSystem.applyPersistentState(remainingQueue, nightSpawnSaveData.spawnTimer, nightSpawnSaveData.spawnInterval);
     }
 
     private ItemStack[] createInventoryContents(List<ItemStackSaveData> itemDataList, int inventorySize){
