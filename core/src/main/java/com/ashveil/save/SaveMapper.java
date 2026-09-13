@@ -127,7 +127,7 @@ public class SaveMapper {
 
     private void applyEnemyState(World world, AreaSaveData areaSaveData){
         for (EnemySaveData enemySaveData : areaSaveData.enemies){
-            EnemyType enemyType = EnemyType.valueOf(enemySaveData.toString());
+            EnemyType enemyType = EnemyType.valueOf(enemySaveData.enemyType);
             world.getEnemySpawnSystem().createAndAddEnemy(enemyType, enemySaveData.x, enemySaveData.y, enemySaveData.currentHp);
         }
     }

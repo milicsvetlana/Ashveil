@@ -114,6 +114,17 @@ public class SaveManager {
         }
     }
 
+    public SaveSlotStatus getSaveSlotStatus(int slot){
+        boolean hasPrimary = getSlotFile(slot).exists();
+        boolean hasBackup = getBackupFile(slot).exists();
+
+        if (!hasPrimary && !hasBackup) return SaveSlotStatus.EMPTY;
+        SaveData saveData = load(slot);
+
+        if (saveData != null) return SaveSlotStatus.VALID;
+        return SaveSlotStatus.INVALID;
+    }
+
 }
 
 

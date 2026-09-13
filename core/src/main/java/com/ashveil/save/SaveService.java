@@ -3,27 +3,25 @@ package com.ashveil.save;
 import com.ashveil.save.data.SaveData;
 import com.ashveil.world.World;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class SaveService {
     private final SaveMapper saveMapper;
     private final SaveManager saveManager;
-    private final ExecutorService saveExecutor;
+    private final ExecutorService ioExecutor;
 
     public SaveService(){
         saveMapper = new SaveMapper();
         saveManager = new SaveManager();
 
-        saveExecutor = Executors.newSingleThreadExecutor();
+        ioExecutor = Executors.newSingleThreadExecutor();
     }
 
     public void requestSave(int slot, World world){
         if (world == null) throw new IllegalArgumentException("World can't be null.");
 
         SaveData snapshot = saveMapper.createSaveData(world);
-        saveExecutor.execute(new Runnable() {
+        ioExecutor.execute(new Runnable() { //execute - posalji posao, ne treba mi rezultat
             @Override
             public void run() {
                 saveManager.save(slot, snapshot);
@@ -32,22 +30,50 @@ public class SaveService {
     }
 
     public void shutdownAndWait(){
-        saveExecutor.shutdown(); //nemoj primati nove zadatke, ali zavrsi postojece; ne ubija nit odmah
+        ioExecutor.shutdown(); //nemoj primati nove zadatke, ali zavrsi postojece; ne ubija nit odmah
 
         try{
-            if (!saveExecutor.awaitTermination(10, TimeUnit.SECONDS)) saveExecutor.shutdownNow();
+            if (!ioExecutor.awaitTermination(10, TimeUnit.SECONDS)) ioExecutor.shutdownNow();
             //sacekaj max 10 sekundi, ako traje duze od toga, onda je ubij odmah
         }
         catch (InterruptedException exception){
-            saveExecutor.shutdownNow();
+            ioExecutor.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }
 
     public World loadWorld(int slot){
-        SaveData saveData = saveManager.load(slot);
+        SaveData saveData = loadSaveData(slot);
         if (saveData == null) return null;
         return saveMapper.createWorld(saveData);
     }
 
+    private SaveData loadSaveData(int slot){
+        Future<SaveData> loadTask = ioExecutor.submit(() -> saveManager.load(slot));
+        //submit pozvanu savemanager.load stavlja u red executora
+        try{
+            return loadTask.get(); //ako je rezultat spreman, vraca ga odmah; u suprotnom - blokira trenutni thread dok load ne zavrsi
+        }
+        catch (InterruptedException exception){
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Game loading was interrupted", exception);
+        }
+        catch (ExecutionException exception){
+            throw new IllegalStateException("Failed to load game.", exception.getCause());
+        }
+    }
+
+    public SaveSlotStatus getSlotStatus(int slot){
+        Future<SaveSlotStatus> statusTask = ioExecutor.submit(() -> saveManager.getSaveSlotStatus(slot));
+        try{
+            return statusTask.get();
+        }
+        catch (InterruptedException exception){
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Save slot inspection was interrupted.", exception);
+        }
+        catch (ExecutionException executionException){
+            throw new IllegalStateException("Failed to inspect save slot.", executionException.getCause());
+        }
+    }
 }

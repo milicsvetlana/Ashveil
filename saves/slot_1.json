@@ -1,10 +1,10 @@
 {
-"saveVersion": 1,
-"savedAt": 1788740540991,
-"playTimeSeconds": 3.6965761012397707,
+"saveVersion": 999,
+"savedAt": 1789260032753,
+"playTimeSeconds": 10.356704112607986,
 "player": {
-	"x": 314.32596,
-	"y": 1351.333,
+	"x": 264.58835,
+	"y": 1437.159,
 	"checkPointX": 355.333,
 	"checkPointY": 1351.333,
 	"health": 10,
@@ -34,8 +34,8 @@
 },
 "dayNight": {
 	"dayCount": 1,
-	"phase": "DAY",
-	"phaseTimer": 3.6965752
+	"phase": "NIGHT",
+	"phaseTimer": 0.3567034
 },
 "progressionState": {
 	"firstTreeDropClaimed": false,
@@ -44,8 +44,8 @@
 	"unlockedCraftingCategories": [
 		"BUILDING",
 		"WEAPONS",
-		"TOOLS",
-		"FOOD"
+		"FOOD",
+		"TOOLS"
 	]
 },
 "currentAreaId": "MAIN_ISLAND",
@@ -55,148 +55,232 @@
 		"destructibleObjects": [
 			{
 				"objectType": "TREE",
-				"x": 112,
-				"y": 144,
+				"x": 1552,
+				"y": 208,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 1280,
-				"y": 1152,
+				"x": 352,
+				"y": 784,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 656,
-				"y": 1040,
+				"x": 880,
+				"y": 320,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 448,
-				"y": 800,
+				"x": 736,
+				"y": 496,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 512,
-				"y": 704,
+				"x": 1584,
+				"y": 624,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 272,
-				"y": 416,
+				"x": 1184,
+				"y": 272,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 304,
-				"y": 112,
+				"x": 496,
+				"y": 816,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 1296,
-				"y": 848,
+				"x": 816,
+				"y": 48,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 528,
-				"y": 960,
+				"x": 1312,
+				"y": 304,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 160,
+				"x": 976,
+				"y": 832,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 672,
+				"y": 1344,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1120,
 				"y": 1488,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 0,
-				"y": 736,
+				"x": 592,
+				"y": 1344,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 1312,
-				"y": 1440,
+				"x": 992,
+				"y": 1168,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 240,
-				"y": 864,
+				"x": 864,
+				"y": 208,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 816,
-				"y": 464,
+				"x": 1328,
+				"y": 720,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 1200,
-				"y": 1104,
+				"x": 1184,
+				"y": 256,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 1472,
-				"y": 1360,
+				"x": 80,
+				"y": 432,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 1392,
-				"y": 176,
+				"x": 992,
+				"y": 240,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 176,
-				"y": 1584,
-				"currentHp": 3,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 784,
-				"y": 320,
-				"currentHp": 3,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1104,
-				"y": 848,
+				"x": 1136,
+				"y": 1152,
 				"currentHp": 3,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
+				"x": 352,
+				"y": 800,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 0,
+				"y": 608,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 320,
+				"y": 640,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
 				"x": 1024,
-				"y": 1008,
+				"y": 528,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 736,
+				"y": 80,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 960,
+				"y": 1056,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 384,
+				"y": 768,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 944,
+				"y": 608,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 720,
+				"y": 704,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 400,
+				"y": 1504,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 96,
+				"y": 800,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 624,
+				"y": 992,
+				"currentHp": 3,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 64,
+				"y": 592,
 				"currentHp": 3,
 				"chestInventory": []
 			}
@@ -207,9 +291,13 @@
 		"enemies": [],
 		"projectiles": [],
 		"nightSpawn": {
-			"remainingQueue": [],
-			"spawnTimer": 0,
-			"spawnInterval": 0
+			"remainingQueue": [
+				"SHADE",
+				"SHADE",
+				"SHADE"
+			],
+			"spawnTimer": 0.35908708,
+			"spawnInterval": 1.1666666
 		}
 	}
 ]

@@ -48,10 +48,16 @@ public class GameScreen implements Screen {
     private Skin uiSkin;
 
     public GameScreen(GameApp game, int saveSlot){
+        this(game, saveSlot, new World());
+    }
+
+    public GameScreen(GameApp game, int saveSlot, World world){
+        if (game == null) throw new IllegalArgumentException("Game cannot be null.");
+        if (world == null) throw new IllegalArgumentException("World cannot be null.");
         this.game = game;
         this.saveSlot = saveSlot;
-        world = new World();
-        saveService = new SaveService();
+        this.world = world;
+        saveService = game.getSaveService();
         worldRenderer = new WorldRenderer(world.getTileMap());
         cameraController = new CameraController();
         hudRenderer = new HudRenderer();
@@ -68,6 +74,7 @@ public class GameScreen implements Screen {
         //prosledjujemo closepause kao runnable callback. ne sluzi za novu nit, vec samo prosledjuje akciju
         //koja pausemenuui moze kasnije pozvati
         pauseMenuUi = new PauseMenuUi(uiSkin, this::closePause, this::saveGame);
+
     }
 
     @Override
@@ -354,7 +361,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        saveService.shutdownAndWait();
         worldRenderer.dispose();
         hudRenderer.dispose();
         world.dispose();
