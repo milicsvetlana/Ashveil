@@ -97,6 +97,7 @@ public class GameScreen implements Screen {
         else if (activeOverlay == GameOverlay.PAUSE) overlayStage.act(delta);
         else {
             world.update(delta, playerInput);
+            if (world.getDayNightCycle().justBecameDay()) saveService.requestSave(saveSlot, world);
 
             if (world.getPlayer().isDead()) startDeathTransition();
             else {
@@ -181,7 +182,7 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(null);
     }
 
-    private void saveGame(){
+    public void saveGame(){
         saveService.requestSave(saveSlot, world);
     }
 

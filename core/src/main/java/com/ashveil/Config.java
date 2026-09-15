@@ -107,4 +107,11 @@ public class Config {
     public static final int ENEMY_SPAWN_MAX_ATTEMPTS = 50;
 
     public static final float ENEMY_FLEE_SPEED = 110f;
+
+    /** Loading Screen */
+    public static final float LOADING_FADE_IN_DURATION = 0.25f;
+    public static final float LOADING_MIN_VISIBLE_DURATION = 1f;
+    public static final float LOADING_FADE_OUT_DURATION = 0.25f;
+
+
 }

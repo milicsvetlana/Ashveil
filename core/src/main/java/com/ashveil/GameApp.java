@@ -3,8 +3,12 @@ package com.ashveil;
 import com.ashveil.save.SaveService;
 import com.ashveil.save.SaveSlotStatus;
 import com.ashveil.screens.GameScreen;
+import com.ashveil.screens.LoadingScreen;
+import com.ashveil.screens.MainMenuScreen;
+import com.ashveil.screens.SaveSlotScreen;
 import com.ashveil.world.World;
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
 public class GameApp extends Game {
@@ -13,11 +17,7 @@ public class GameApp extends Game {
     @Override
     public void create() {
         saveService = new SaveService();
-        openSlot(1);
-    }
-    public void dispose(){
-        if (getScreen() != null) getScreen().dispose();
-        saveService.shutdownAndWait();
+        showStartupLoading();
     }
 
     public void startNewGame(int slot){
@@ -49,4 +49,28 @@ public class GameApp extends Game {
     }
 
     public SaveService getSaveService() {return saveService;}
+
+    public void showMainMenu(){
+        switchScreen(new MainMenuScreen(this));
+    }
+
+    public void showSaveSlots(){
+        switchScreen(new SaveSlotScreen(this));
+    }
+
+    public void showStartupLoading(){
+        switchScreen(new LoadingScreen(this::showMainMenu));
+    }
+
+    public void quit() {
+        Gdx.app.exit();
+    }
+
+    public void dispose(){
+        Screen currentScreen = getScreen();
+        if (currentScreen instanceof GameScreen gameScreen) gameScreen.saveGame();
+        if (currentScreen != null) currentScreen.dispose();
+        saveService.shutdownAndWait();
+    }
+
 }

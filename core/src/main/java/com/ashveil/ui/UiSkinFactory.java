@@ -1,5 +1,6 @@
 package com.ashveil.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -43,6 +44,26 @@ public final class UiSkinFactory {
         buttonStyle.checkedFontColor = Color.YELLOW;
 
         skin.add("default", buttonStyle);
+
+        Texture mainMenuButtonNormal = new Texture(Gdx.files.internal("ui/main-menu/buttons/button-normal.png"));
+        Texture mainMenuButtonHover = new Texture(Gdx.files.internal("ui/main-menu/buttons/button-hover.png"));
+        Texture mainMenuButtonPressed = new Texture(Gdx.files.internal("ui/main-menu/buttons/button-pressed.png"));
+        Texture mainMenuButtonDisabled = new Texture(Gdx.files.internal("ui/main-menu/buttons/button-disabled.png"));
+
+        skin.add("main-menu-button-normal", mainMenuButtonNormal);
+        skin.add("main-menu-button-hover", mainMenuButtonHover);
+        skin.add("main-menu-button-pressed", mainMenuButtonPressed);
+        skin.add("main-menu-button-disabled", mainMenuButtonDisabled);
+
+        TextButton.TextButtonStyle mainMenuButtonStyle = new TextButton.TextButtonStyle();
+        mainMenuButtonStyle.up = skin.getDrawable("main-menu-button-normal");
+        mainMenuButtonStyle.over = skin.getDrawable("main-menu-button-hover");
+        mainMenuButtonStyle.down = skin.getDrawable("main-menu-button-pressed");
+        mainMenuButtonStyle.disabled = skin.getDrawable("main-menu-button-disabled");
+        mainMenuButtonStyle.font = font;
+        mainMenuButtonStyle.fontColor = Color.WHITE;
+
+        skin.add("main-menu", mainMenuButtonStyle);
 
         Window.WindowStyle windowStyle = new Window.WindowStyle(font, Color.WHITE, skin.getDrawable("menu-background"));
         skin.add("default", windowStyle);
