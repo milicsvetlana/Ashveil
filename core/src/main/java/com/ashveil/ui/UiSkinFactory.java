@@ -122,5 +122,6 @@ public final class UiSkinFactory {
         addUiTexture(skin, "save-slot-portrait-frame", "ui/save-slots/portrait-frame.png");
         addUiTexture(skin, "save-slots-title-divider", "ui/save-slots/save-slots-title-divider.png");
         addUiTexture(skin, "save-slot-empty-icon", "ui/save-slots/slot-card-empty-icon.png");
+        addUiTexture(skin, "dialog-box", "ui/save-slots/dialog-box.png");
     }
 }

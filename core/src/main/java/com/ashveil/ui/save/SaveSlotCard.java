@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Scaling;
 
 public class SaveSlotCard extends Stack {
@@ -14,9 +15,11 @@ public class SaveSlotCard extends Stack {
     private final SaveSlotInfo slotInfo;
     private final Image backgroundImage;
     private boolean hovered;
-    private boolean selected;
 
-    public SaveSlotCard(Skin skin, SaveSlotInfo slotInfo){
+    private final Runnable primaryAction;
+    private final Runnable deleteAction;
+
+    public SaveSlotCard(Skin skin, SaveSlotInfo slotInfo, Runnable primaryAction, Runnable deleteAction){
         if (skin == null) throw new IllegalArgumentException("Skin cannot be null.");
         if (slotInfo == null) throw new IllegalArgumentException("SlotSaveInfo cannot be null.");
 
@@ -24,7 +27,8 @@ public class SaveSlotCard extends Stack {
         this.slotInfo = slotInfo;
         this.backgroundImage = new Image(skin.getDrawable("save-slot-card-normal"));
         this.hovered = false;
-        this.selected = false;
+        this.primaryAction = primaryAction;
+        this.deleteAction = deleteAction;
 
         build();
         setTouchable(Touchable.enabled);
@@ -50,9 +54,6 @@ public class SaveSlotCard extends Stack {
 
         if (slotInfo.getStatus() == SaveSlotStatus.INVALID){
             drawableName = "save-slot-card-unavailable";
-        }
-        else if (selected){
-            drawableName = "save-slot-card-selected";
         }
         else if (hovered){
             drawableName = "save-slot-card-hover";
@@ -86,7 +87,7 @@ public class SaveSlotCard extends Stack {
 
         Label emptyLabel = new Label("Empty", skin);
         TextButton newGameButton = new TextButton("New Game", skin, "save-slot-action");
-        newGameButton.setDisabled(true);
+        bindAction(newGameButton, primaryAction);
 
         Table info = new Table();
         info.top().left();
@@ -114,8 +115,8 @@ public class SaveSlotCard extends Stack {
 
         TextButton playButton = new TextButton("Play", skin, "save-slot-action");
         TextButton deleteButton = new TextButton("Delete", skin, "save-slot-action");
-        playButton.setDisabled(true);
-        deleteButton.setDisabled(true);
+        bindAction(playButton, primaryAction);
+        bindAction(deleteButton, deleteAction);
 
         Table info = new Table();
         info.top().left();
@@ -161,7 +162,7 @@ public class SaveSlotCard extends Stack {
         Label messageLabel = new Label("Save data could not be loaded.", skin);
 
         TextButton deleteButton = new TextButton("Delete", skin, "save-slot-action");
-        deleteButton.setDisabled(true);
+        bindAction(deleteButton, deleteAction);
 
         Table info = new Table();
         info.top().left();
@@ -203,9 +204,17 @@ public class SaveSlotCard extends Stack {
         return stack;
     }
 
-    public void setSelected(boolean selected){
-        this.selected = selected;
-        refreshBackground();
+    private void bindAction(TextButton button, Runnable action){
+        button.setDisabled(action == null);
+
+        if (action == null) return;
+
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                action.run();
+            }
+        });
     }
 
 }

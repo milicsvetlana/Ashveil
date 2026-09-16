@@ -23,8 +23,7 @@ public class SaveSlotScreen implements Screen {
     private final Stage stage;
     private final Skin skin;
     private final Texture backgroundTexture;
-    private final SaveSlotCard[] slotCards = new SaveSlotCard[3];
-    private int selectedSlot = -1;
+    private Stack activeModal;
 
     public SaveSlotScreen(GameApp game){
         if (game == null) throw new IllegalArgumentException("Game cannot be null.");
@@ -33,6 +32,7 @@ public class SaveSlotScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = game.getUiSkin();
         backgroundTexture = new Texture("ui/save-slots/save-slots-background.png");
+        activeModal = null;
 
         buildBackground();
         buildUi();
@@ -76,21 +76,13 @@ public class SaveSlotScreen implements Screen {
 
         for (int slot = 1; slot <= 3; slot++){
             SaveSlotInfo slotInfo = game.getSaveService().getSlotInfo(slot);
-            SaveSlotCard slotCard = new SaveSlotCard(skin, slotInfo);
+
+            final int slotNumber = slot;
+            Runnable deleteAction = slotInfo.getStatus() == SaveSlotStatus.EMPTY ? null : () -> showDeleteConfirmation(slotNumber);
+            SaveSlotCard slotCard = new SaveSlotCard(skin, slotInfo, null, deleteAction);
 
             slotsTable.add(slotCard).width(720f).height(247f).padBottom(slot < 3 ? 8f : 0f);
             if (slot < 3) slotsTable.row();
-            slotCards[slot-1] = slotCard;
-
-            final int slotNumber = slot;
-
-            slotCard.addListener(new ClickListener(){
-               @Override
-               public void clicked(InputEvent event, float x, float y){
-                   if (slotInfo.getStatus() == SaveSlotStatus.INVALID) return;
-                   selectSlot(slotNumber);
-               }
-            });
         }
 
         root.add(titleBlock).padBottom(30f);
@@ -102,20 +94,70 @@ public class SaveSlotScreen implements Screen {
         stage.addActor(root);
     }
 
-    private void selectSlot(int slotNumber){
-        if (selectedSlot == slotNumber) return;
-        selectedSlot = slotNumber;
+    private void showDeleteConfirmation(int slotNumber){
+        if (activeModal != null) return;
 
-        for (int i=0; i < slotCards.length; i++){
-            SaveSlotCard card = slotCards[i];
+        activeModal = new Stack();
+        activeModal.setFillParent(true);
 
-            if (card != null) card.setSelected(i + 1 == selectedSlot);
-        }
+        Image dim = new Image(skin.getDrawable("screen-dim"));
+        dim.setColor(0f, 0f, 0f, 0.70f);
+
+        Table dialogContainer = new Table();
+
+        Table dialog = new Table();
+        dialog.setBackground(skin.getDrawable("dialog-box"));
+        dialog.pad(24f);
+
+        Label message = new Label("Delete Slot " + slotNumber + "? This action cannot be undone.", skin);
+        TextButton cancelButton = new TextButton("Cancel", skin, "save-slot-action");
+        TextButton deleteButton = new TextButton("Delete", skin, "save-slot-action");
+
+        dialog.add(message).colspan(2).padBottom(80f);
+        dialog.row();
+        dialog.add(cancelButton).width(150f).height(43f).padRight(8f);
+        dialog.add(deleteButton).width(150f).height(43f).padLeft(8f);
+        dialogContainer.add(dialog).width(600).height(390f);
+
+        activeModal.add(dim);
+        activeModal.add(dialogContainer);
+
+        cancelButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                closeModal();
+            }
+        });
+
+        deleteButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                boolean deleted = game.getSaveService().deleteSlot(slotNumber);
+                if (!deleted){
+                    message.setText("Could not delete Slot " + slotNumber + ".");
+                    return;
+                }
+                game.showSaveSlots();
+            }
+        });
+
+        stage.addActor(activeModal);
+    }
+
+    private void closeModal(){
+        if (activeModal == null) return;
+        activeModal.remove();
+        activeModal = null;
     }
 
     @Override
     public void render(float delta){
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+            if (activeModal != null){
+                closeModal();
+                return;
+            }
+
             game.showMainMenu();
             return;
         }

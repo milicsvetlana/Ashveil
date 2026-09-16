@@ -77,4 +77,20 @@ public class SaveService {
             throw new IllegalStateException("Failed to inspect save slot.", executionException.getCause());
         }
     }
+
+    public boolean deleteSlot(int slot){
+        Future<Boolean> future = ioExecutor.submit(() -> saveManager.deleteSlot(slot));
+
+        try{
+            return future.get();
+        }
+        catch (InterruptedException exception){
+            Thread.currentThread().interrupt();
+            return false;
+        }
+        catch (ExecutionException exception){
+            return false;
+        }
+    }
+
 }

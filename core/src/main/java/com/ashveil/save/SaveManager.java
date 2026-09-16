@@ -129,6 +129,25 @@ public class SaveManager {
 
         return SaveSlotInfo.valid(slot, saveData.savedAt, saveData.playTimeSeconds, saveData.currentAreaId, saveData.dayNight.dayCount);
     }
+
+    public boolean deleteSlot(int slot){
+        FileHandle slotFile = getSlotFile(slot);
+        FileHandle backupFile = getBackupFile(slot);
+        FileHandle tempFile = getTempFile(slot);
+
+        boolean success = true;
+
+        success &= deleteIfExists(slotFile);
+        success &= deleteIfExists(backupFile);
+        success &= deleteIfExists(tempFile);
+
+        return success;
+    }
+
+    private boolean deleteIfExists(FileHandle file){
+        if (!file.exists()) return true;
+        return file.delete();
+    }
 }
 
 
