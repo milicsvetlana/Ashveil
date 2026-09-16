@@ -2,12 +2,19 @@ package com.ashveil.ui.save;
 
 import com.ashveil.save.SaveSlotInfo;
 import com.ashveil.save.SaveSlotStatus;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Scaling;
 
 public class SaveSlotCard extends Stack {
     private final Skin skin;
     private final SaveSlotInfo slotInfo;
+    private final Image backgroundImage;
+    private boolean hovered;
+    private boolean selected;
 
     public SaveSlotCard(Skin skin, SaveSlotInfo slotInfo){
         if (skin == null) throw new IllegalArgumentException("Skin cannot be null.");
@@ -15,15 +22,16 @@ public class SaveSlotCard extends Stack {
 
         this.skin = skin;
         this.slotInfo = slotInfo;
+        this.backgroundImage = new Image(skin.getDrawable("save-slot-card-normal"));
+        this.hovered = false;
+        this.selected = false;
 
         build();
+        setTouchable(Touchable.enabled);
+        addHoverListener();
     }
 
     private void build(){
-        Stack card = new Stack();
-
-        String backgroundStyle = slotInfo.getStatus() == SaveSlotStatus.INVALID ? "save-slot-card-unavailable" : "save-slot-card";
-        Image cardBackground = new Image(skin.getDrawable(backgroundStyle));
         Table content = new Table();
 
         switch (slotInfo.getStatus()){
@@ -32,15 +40,47 @@ public class SaveSlotCard extends Stack {
             case INVALID -> buildInvalidContent(content);
         }
 
-        add(cardBackground);
+        add(backgroundImage);
         add(content);
+        refreshBackground();
     }
 
+    private void refreshBackground(){
+        String drawableName;
+
+        if (slotInfo.getStatus() == SaveSlotStatus.INVALID){
+            drawableName = "save-slot-card-unavailable";
+        }
+        else if (selected){
+            drawableName = "save-slot-card-selected";
+        }
+        else if (hovered){
+            drawableName = "save-slot-card-hover";
+        }
+        else {
+            drawableName = "save-slot-card-normal";
+        }
+
+        backgroundImage.setDrawable(skin.getDrawable(drawableName));
+    }
+
+    private void addHoverListener(){
+        addListener(new InputListener(){
+           @Override
+           public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor){
+               hovered = true;
+               refreshBackground();
+           }
+           @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor){
+               hovered = false;
+               refreshBackground();
+           }
+        });
+    }
 
     private void buildEmptyContent(Table content){
-        Stack portraitStack = new Stack();
-        Image portraitFrame = new Image(skin.getDrawable("save-slot-portrait-frame"));
-        portraitStack.add(portraitFrame);
+        Stack portraitStack = createStatusIcon();
         Label slotLabel = new Label("Slot " + slotInfo.getSlot(), skin);
         slotLabel.setFontScale(1.3f);
 
@@ -64,17 +104,7 @@ public class SaveSlotCard extends Stack {
     }
 
     private void buildValidContent(Table content){
-        Stack portraitStack = new Stack();
-        Image portraitImage = new Image(skin.getDrawable("save-slot-portrait-placeholder"));
-        portraitImage.setScaling(Scaling.fill);
-        Image portraitFrame = new Image(skin.getDrawable("save-slot-portrait-frame"));
-
-        Table portraitLayer = new Table();
-        portraitLayer.pad(29f, 25f, 29f, 25f);
-        portraitLayer.add(portraitImage).expand().fill();
-
-        portraitStack.add(portraitLayer);
-        portraitStack.add(portraitFrame);
+        Stack portraitStack = createPortraitFrame();
 
         Label slotLabel = new Label("Slot " + slotInfo.getSlot(), skin);
         slotLabel.setFontScale(1.3f);
@@ -123,9 +153,7 @@ public class SaveSlotCard extends Stack {
     }
 
     private void buildInvalidContent(Table content){
-        Stack portraitStack = new Stack();
-        Image portraitFrame = new Image(skin.getDrawable("save-slot-portrait-frame"));
-        portraitStack.add(portraitFrame);
+        Stack portraitStack = createStatusIcon();
 
         Label slotLabel = new Label("Slot " + slotInfo.getSlot(), skin);
         slotLabel.setFontScale(1.3f);
@@ -150,6 +178,34 @@ public class SaveSlotCard extends Stack {
         content.add(portraitStack).size(140f, 140f).padLeft(30f).padRight(24f);
         content.add(info).expand().left().top().padTop(40f);
         content.add(actions).right().top().padTop(52f).padRight(30f);
+    }
+
+    private Stack createStatusIcon(){
+        Stack stack = new Stack();
+        Image icon = new Image(skin.getDrawable("save-slot-empty-icon"));
+        icon.setScaling(Scaling.fit);
+
+        Table iconLayer = new Table();
+        iconLayer.pad(38f);
+        iconLayer.add(icon).size(104f, 104f);
+
+        Image frame = new Image(skin.getDrawable("save-slot-portrait-frame"));
+
+        stack.add(iconLayer);
+        stack.add(frame);
+        return stack;
+    }
+
+    private Stack createPortraitFrame() {
+        Stack stack = new Stack();
+        Image frame = new Image(skin.getDrawable("save-slot-portrait-frame"));
+        stack.add(frame);
+        return stack;
+    }
+
+    public void setSelected(boolean selected){
+        this.selected = selected;
+        refreshBackground();
     }
 
 }

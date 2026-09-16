@@ -5,10 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 
 //na jednom mestu pravi privremeni ui izgled
 //kasnije, kad budemo imali teksture i fontove, menjacemo ovu klasu ili iz nje ucitavati pravi skin
@@ -26,6 +23,7 @@ public final class UiSkinFactory {
         addDefaultStyles(skin);
         addMainMenuStyles(skin);
         addSaveSlotStyles(skin);
+        addSolidTexture(skin, "screen-dim", Color.WHITE);
 
         return skin;
     }
@@ -116,10 +114,13 @@ public final class UiSkinFactory {
     }
 
     private static void addSaveSlotStyles(Skin skin){
-        addUiTexture(skin, "save-slot-card", "ui/save-slots/slot-card.png");
+        addUiTexture(skin, "save-slot-card-normal", "ui/save-slots/slot-card-normal.png");
+        addUiTexture(skin, "save-slot-card-hover", "ui/save-slots/slot-card-hover.png");
+        addUiTexture(skin, "save-slot-card-selected", "ui/save-slots/slot-card-selected.png");
         addUiTexture(skin, "save-slot-card-unavailable", "ui/save-slots/slot-card-unavailable.png");
         addTextButtonStyle(skin, "save-slot-action", "ui/save-slots/action-button");
         addUiTexture(skin, "save-slot-portrait-frame", "ui/save-slots/portrait-frame.png");
-        addUiTexture(skin, "save-slot-portrait-placeholder", "ui/save-slots/temp-image.png");
+        addUiTexture(skin, "save-slots-title-divider", "ui/save-slots/save-slots-title-divider.png");
+        addUiTexture(skin, "save-slot-empty-icon", "ui/save-slots/slot-card-empty-icon.png");
     }
 }
