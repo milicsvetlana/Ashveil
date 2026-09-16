@@ -237,7 +237,7 @@ public class SaveValidator {
 
     private boolean worldItemIsValid(WorldItemSaveData itemData) {
         if (itemData == null) return false;
-        if (Float.isNaN(itemData.x) || Float.isInfinite(itemData.y) || Float.isInfinite(itemData.y)) return false;
+        if (Float.isNaN(itemData.x) || Float.isInfinite(itemData.x) || Float.isInfinite(itemData.y)) return false;
         if (itemData.itemType == null) return false;
 
         ItemType itemType;

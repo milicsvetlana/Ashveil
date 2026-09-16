@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerSaveData {
+    public String characterName = "";
     public float x;
     public float y;
     public float checkPointX;

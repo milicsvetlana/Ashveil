@@ -127,7 +127,7 @@ public class SaveManager {
         SaveData saveData = load(slot);
         if (saveData == null) return SaveSlotInfo.invalid(slot);
 
-        return SaveSlotInfo.valid(slot, saveData.savedAt, saveData.playTimeSeconds, saveData.currentAreaId, saveData.dayNight.dayCount);
+        return SaveSlotInfo.valid(slot, saveData.savedAt, saveData.playTimeSeconds, saveData.currentAreaId, saveData.dayNight.dayCount, saveData.player.characterName);
     }
 
     public boolean deleteSlot(int slot){

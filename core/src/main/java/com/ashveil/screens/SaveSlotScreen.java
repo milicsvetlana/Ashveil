@@ -8,15 +8,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
 
 public class SaveSlotScreen implements Screen {
     private final GameApp game;
@@ -79,7 +78,15 @@ public class SaveSlotScreen implements Screen {
 
             final int slotNumber = slot;
             Runnable deleteAction = slotInfo.getStatus() == SaveSlotStatus.EMPTY ? null : () -> showDeleteConfirmation(slotNumber);
-            SaveSlotCard slotCard = new SaveSlotCard(skin, slotInfo, null, deleteAction);
+            Runnable primaryAction = null;
+            if (slotInfo.getStatus() == SaveSlotStatus.EMPTY){
+                primaryAction = () -> game.showCharacterCreation(slotNumber);
+            }
+            else if (slotInfo.getStatus() == SaveSlotStatus.VALID){
+                primaryAction = () -> game.loadGame(slotNumber);
+            }
+
+            SaveSlotCard slotCard = new SaveSlotCard(skin, slotInfo, primaryAction, deleteAction);
 
             slotsTable.add(slotCard).width(720f).height(247f).padBottom(slot < 3 ? 8f : 0f);
             if (slot < 3) slotsTable.row();

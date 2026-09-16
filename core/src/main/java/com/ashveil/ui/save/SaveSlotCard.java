@@ -107,7 +107,10 @@ public class SaveSlotCard extends Stack {
     private void buildValidContent(Table content){
         Stack portraitStack = createPortraitFrame();
 
-        Label slotLabel = new Label("Slot " + slotInfo.getSlot(), skin);
+        String displayName = slotInfo.getCharacterName();
+        if (displayName == null || displayName.isBlank()) displayName = "Slot " + slotInfo.getSlot();
+        Label slotLabel = new Label(displayName, skin);
+
         slotLabel.setFontScale(1.3f);
         Label dayLabel = new Label("Day " + slotInfo.getDayCount(), skin);
         Label playTimeLabel = new Label("Playtime: " + formatPlayTime(slotInfo.getPlayTimeSeconds()), skin);

@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 //na jednom mestu pravi privremeni ui izgled
 //kasnije, kad budemo imali teksture i fontove, menjacemo ovu klasu ili iz nje ucitavati pravi skin
@@ -24,6 +26,7 @@ public final class UiSkinFactory {
         addMainMenuStyles(skin);
         addSaveSlotStyles(skin);
         addSolidTexture(skin, "screen-dim", Color.WHITE);
+        addCharacterCreationStyles(skin);
 
         return skin;
     }
@@ -123,5 +126,22 @@ public final class UiSkinFactory {
         addUiTexture(skin, "save-slots-title-divider", "ui/save-slots/save-slots-title-divider.png");
         addUiTexture(skin, "save-slot-empty-icon", "ui/save-slots/slot-card-empty-icon.png");
         addUiTexture(skin, "dialog-box", "ui/save-slots/dialog-box.png");
+    }
+
+    private static void addCharacterCreationStyles(Skin skin){
+        addUiTexture(skin, "character-name-field", "ui/character-creation/character-name-field.png");
+        TextField.TextFieldStyle nameFieldStyle = new TextField.TextFieldStyle();
+
+        nameFieldStyle.font = skin.getFont("default-font");
+        nameFieldStyle.fontColor = Color.WHITE;
+        nameFieldStyle.messageFontColor = new Color(1f, 1f, 1f, 0.45f);
+        Drawable fieldBackground = skin.newDrawable("character-name-field");
+        if (fieldBackground instanceof BaseDrawable baseDrawable) {
+            baseDrawable.setLeftWidth(22f);
+            baseDrawable.setRightWidth(18f);
+        }
+        nameFieldStyle.background = fieldBackground;
+
+        skin.add("character-name", nameFieldStyle, TextField.TextFieldStyle.class);
     }
 }

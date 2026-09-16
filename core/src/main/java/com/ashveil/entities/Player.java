@@ -12,6 +12,7 @@ import com.ashveil.world.TileMap;
 import java.util.List;
 
 public class Player extends Entity{
+    private String characterName;
 
     private final TileMap tileMap;
     private final Inventory inventory;
@@ -26,6 +27,7 @@ public class Player extends Entity{
 
     public Player(float x, float y, TileMap tileMap, CollisionSystem collisionSystem) {
         super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED, MovementType.GROUND);
+        characterName = "Unnamed";
         this.tileMap = tileMap;
         this.collisionSystem = collisionSystem;
         inventory = new Inventory();
@@ -134,29 +136,28 @@ public class Player extends Entity{
         primaryActionCooldown = 0;
     }
 
-    public Facing getFacing() {return facing;}
-    public Inventory getInventory() {return inventory;}
-    public int getSelectedHotbarSlot() {
-        return selectedHotbarSlot;
-    }
-    public int getBrokenHearts(){return brokenHearts;}
-    public Wallet getWallet(){return wallet;}
-
     public void setSelectedHotbarSlot(int selectedHotbarSlot) {
         if (selectedHotbarSlot < 0 ||  selectedHotbarSlot >= Config.HOTBAR_SIZE) return;
         this.selectedHotbarSlot = selectedHotbarSlot;
     }
 
-    public void applyPersistentState(int health, int brokenHearts, int gold, int selectedHotbarSlot, ItemStack[] inventoryContents){
-        if (brokenHearts < 0 || brokenHearts > Config.MAX_BROKEN_HEARTS){
+    public void setCharacterName(String characterName){
+        if (characterName == null || characterName.isBlank()) throw new IllegalArgumentException("Name cannot be emptyl.");
+        this.characterName = characterName;
+    }
+
+    public void applyPersistentState(int health, int brokenHearts, int gold, int selectedHotbarSlot, ItemStack[] inventoryContents) {
+        if (brokenHearts < 0 || brokenHearts > Config.MAX_BROKEN_HEARTS) {
             throw new IllegalArgumentException("Invalid broken hearts count.");
         }
         int restoredMaxHp = Config.PLAYER_HP - brokenHearts * Config.HP_PER_HEART;
 
         if (health < 0 || health > restoredMaxHp) throw new IllegalArgumentException("Invalid player health");
         if (gold < 0) throw new IllegalArgumentException("Gold can't be negative");
-        if (selectedHotbarSlot < 0 || selectedHotbarSlot >= Config.HOTBAR_SIZE) throw new IllegalArgumentException("Invalid hotbar slot.");
-        if (inventoryContents == null || inventoryContents.length != Config.INVENTORY_SIZE) throw new IllegalArgumentException("Invalid inventory contents.");
+        if (selectedHotbarSlot < 0 || selectedHotbarSlot >= Config.HOTBAR_SIZE)
+            throw new IllegalArgumentException("Invalid hotbar slot.");
+        if (inventoryContents == null || inventoryContents.length != Config.INVENTORY_SIZE)
+            throw new IllegalArgumentException("Invalid inventory contents.");
 
         this.brokenHearts = brokenHearts;
         this.maxHp = restoredMaxHp;
@@ -165,4 +166,13 @@ public class Player extends Entity{
         inventory.replaceContents(inventoryContents);
         wallet.addGold(gold);
     }
+
+    public Facing getFacing() {return facing;}
+    public Inventory getInventory() {return inventory;}
+    public int getSelectedHotbarSlot() {
+        return selectedHotbarSlot;
+    }
+    public int getBrokenHearts(){return brokenHearts;}
+    public Wallet getWallet(){return wallet;}
+    public String getCharacterName(){return characterName;}
 }

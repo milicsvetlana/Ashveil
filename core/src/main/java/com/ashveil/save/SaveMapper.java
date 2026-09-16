@@ -75,6 +75,10 @@ public class SaveMapper {
     private void applyPlayerState(Player player, PlayerSaveData playerSaveData){
         player.setPosition(playerSaveData.x, playerSaveData.y);
 
+        if (playerSaveData.characterName != null && !playerSaveData.characterName.isBlank())
+            player.setCharacterName(playerSaveData.characterName);
+
+
         ItemStack[] inventoryContents = createInventoryContents(playerSaveData.inventory, Config.INVENTORY_SIZE);
         player.applyPersistentState(playerSaveData.health, playerSaveData.brokenHearts, playerSaveData.gold,
                                     playerSaveData.selectedHotbarSlot, inventoryContents);
@@ -153,7 +157,7 @@ public class SaveMapper {
     }
 
     private ItemStack[] createInventoryContents(List<ItemStackSaveData> itemDataList, int inventorySize){
-        ItemStack [] contents = new ItemStack[Config.INVENTORY_SIZE];
+        ItemStack [] contents = new ItemStack[inventorySize];
         for (ItemStackSaveData itemData : itemDataList){
             ItemType itemType = ItemType.valueOf(itemData.itemType);
             contents[itemData.slot] = new ItemStack(itemType, itemData.quantity, itemData.durability);
@@ -182,6 +186,7 @@ public class SaveMapper {
 
     public PlayerSaveData createPlayerSaveData(Player player){
         PlayerSaveData playerData = new PlayerSaveData();
+        playerData.characterName = player.getCharacterName();
         playerData.x = player.getX();
         playerData.y = player.getY();
         playerData.health = player.getCurrentHp();

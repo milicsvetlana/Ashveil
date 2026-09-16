@@ -1,15 +1,16 @@
 package com.ashveil;
 
-import com.ashveil.save.SaveService;import com.ashveil.screens.GameScreen;
-import com.ashveil.screens.LoadingScreen;
-import com.ashveil.screens.MainMenuScreen;
-import com.ashveil.screens.SaveSlotScreen;
+import com.ashveil.save.SaveService;
+import com.ashveil.save.data.SaveData;
+import com.ashveil.screens.*;
 import com.ashveil.ui.UiSkinFactory;
 import com.ashveil.world.World;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
+import java.util.concurrent.Future;
 
 public class GameApp extends Game {
     private SaveService saveService;
@@ -23,21 +24,35 @@ public class GameApp extends Game {
         showStartupLoading();
     }
 
-    public void startNewGame(int slot){
-        switchScreen(new GameScreen(this, slot));
+    public void startNewGame(int slot, String characterName){
+        World world = new World();
+        world.getPlayer().setCharacterName(characterName);
+        saveService.requestSave(slot, world);
+        switchScreen(new GameScreen(this, slot, world));
     }
 
-    public boolean loadGame(int slot){
-        World world = saveService.loadWorld(slot);
-        if (world == null) return false;
+    public void loadGame(int slot){
+        Future<SaveData> loadTask = saveService.requestLoad(slot);
+        switchScreen(new LoadingScreen(loadTask::isDone, () -> finishLoadGame(slot, loadTask), uiSkin));
+    }
+
+    private void finishLoadGame(int slot, Future<SaveData> loadTask){
+        World world = saveService.completeLoad(loadTask);
+        if (world == null){
+            showSaveSlots();
+            return;
+        }
         switchScreen(new GameScreen(this, slot, world));
-        return true;
     }
 
     private void switchScreen(Screen newScreen){
         Screen currentScreen = getScreen();
         setScreen(newScreen);
         if (currentScreen != null) currentScreen.dispose();
+    }
+
+    public void showCharacterCreation(int slot){
+        switchScreen(new CharacterCreationScreen(this, slot));
     }
 
     public SaveService getSaveService() {return saveService;}

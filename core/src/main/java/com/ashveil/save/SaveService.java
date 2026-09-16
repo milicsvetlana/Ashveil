@@ -42,17 +42,19 @@ public class SaveService {
         }
     }
 
-    public World loadWorld(int slot){
-        SaveData saveData = loadSaveData(slot);
-        if (saveData == null) return null;
-        return saveMapper.createWorld(saveData);
+    public Future<SaveData> requestLoad(int slot){
+        return ioExecutor.submit(() -> saveManager.load(slot));
+        //submit pozvanu savemanager.load stavlja u red executora
     }
 
-    private SaveData loadSaveData(int slot){
-        Future<SaveData> loadTask = ioExecutor.submit(() -> saveManager.load(slot));
-        //submit pozvanu savemanager.load stavlja u red executora
-        try{
-            return loadTask.get(); //ako je rezultat spreman, vraca ga odmah; u suprotnom - blokira trenutni thread dok load ne zavrsi
+    public World completeLoad(Future<SaveData> loadTask){
+        if (loadTask == null) throw new IllegalArgumentException("Load task cannot be null.");
+        if (!loadTask.isDone()) throw new IllegalStateException("Load task is not finished yet.");
+
+        try {
+            SaveData saveData = loadTask.get();
+            if (saveData == null) return null;
+            return saveMapper.createWorld(saveData);
         }
         catch (InterruptedException exception){
             Thread.currentThread().interrupt();
@@ -61,7 +63,9 @@ public class SaveService {
         catch (ExecutionException exception){
             throw new IllegalStateException("Failed to load game.", exception.getCause());
         }
+
     }
+
 
     public SaveSlotInfo getSlotInfo(int slot){
         Future<SaveSlotInfo> slotInfoTask = ioExecutor.submit(() -> saveManager.getSaveSlotInfo(slot));

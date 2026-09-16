@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import java.util.function.BooleanSupplier;
+
 public class LoadingScreen implements Screen {
     private final Stage stage;
     private final Skin skin;
@@ -29,11 +31,17 @@ public class LoadingScreen implements Screen {
     private final Image logo;
 
     private boolean finished;
+    private final BooleanSupplier ready;
 
     public LoadingScreen(Runnable onFinished, Skin skin){
+        this(() -> true, onFinished, skin);
+    }
+
+    public LoadingScreen(BooleanSupplier ready, Runnable onFinished, Skin skin){
         if (onFinished == null) throw new IllegalArgumentException("Finished action cannot be null.");
         if (skin == null) throw new IllegalArgumentException("Skin cannot be null.");
 
+        this.ready = ready;
         this.onFinished = onFinished;
 
         stage = new Stage(new ScreenViewport());
@@ -95,7 +103,7 @@ public class LoadingScreen implements Screen {
     private void updateWaiting(){
         float fadeOutStartTime = Config.LOADING_MIN_VISIBLE_DURATION - Config.LOADING_FADE_OUT_DURATION;
 
-        if (totalElapsed >= fadeOutStartTime){
+        if (totalElapsed >= fadeOutStartTime && ready.getAsBoolean()){
             state = LoadingState.FADE_OUT;
             stateTimer = 0f;
         }
