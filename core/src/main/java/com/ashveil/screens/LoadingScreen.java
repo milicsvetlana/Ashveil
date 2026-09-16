@@ -30,13 +30,14 @@ public class LoadingScreen implements Screen {
 
     private boolean finished;
 
-    public LoadingScreen(Runnable onFinished){
+    public LoadingScreen(Runnable onFinished, Skin skin){
         if (onFinished == null) throw new IllegalArgumentException("Finished action cannot be null.");
+        if (skin == null) throw new IllegalArgumentException("Skin cannot be null.");
 
         this.onFinished = onFinished;
 
         stage = new Stage(new ScreenViewport());
-        skin = UiSkinFactory.create();
+        this.skin = skin;
 
         logoTexture = new Texture("ui/logo-and-text.png");
         logo = new Image(logoTexture);
@@ -132,7 +133,6 @@ public class LoadingScreen implements Screen {
     @Override public void hide() {}
     @Override public void dispose() {
         stage.dispose();
-        skin.dispose();
         logoTexture.dispose();
     }
 

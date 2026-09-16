@@ -114,17 +114,21 @@ public class SaveManager {
         }
     }
 
-    public SaveSlotStatus getSaveSlotStatus(int slot){
+    public SaveSlotInfo getSaveSlotStatus(int slot){
+        return getSaveSlotInfo(slot);
+    }
+
+    public SaveSlotInfo getSaveSlotInfo(int slot){
         boolean hasPrimary = getSlotFile(slot).exists();
         boolean hasBackup = getBackupFile(slot).exists();
 
-        if (!hasPrimary && !hasBackup) return SaveSlotStatus.EMPTY;
+        if (!hasPrimary && !hasBackup) return SaveSlotInfo.empty(slot);
+
         SaveData saveData = load(slot);
+        if (saveData == null) return SaveSlotInfo.invalid(slot);
 
-        if (saveData != null) return SaveSlotStatus.VALID;
-        return SaveSlotStatus.INVALID;
+        return SaveSlotInfo.valid(slot, saveData.savedAt, saveData.playTimeSeconds, saveData.currentAreaId, saveData.dayNight.dayCount);
     }
-
 }
 
 

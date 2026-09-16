@@ -1,7 +1,6 @@
 package com.ashveil.screens;
 
 import com.ashveil.GameApp;
-import com.ashveil.ui.UiSkinFactory;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
@@ -31,7 +30,7 @@ public class MainMenuScreen implements Screen {
         if (game == null) throw new IllegalArgumentException("Game cannot be null.");
         this.game = game;
         stage = new Stage(new ScreenViewport());
-        skin = UiSkinFactory.create();
+        skin = game.getUiSkin();
         backgroundTexture = new Texture("ui/main-menu/main-menu-background.png");
         buildBackground();
         buildMenu();
@@ -125,7 +124,6 @@ public class MainMenuScreen implements Screen {
 
     public void dispose(){
         stage.dispose();
-        skin.dispose();
         backgroundTexture.dispose();
     }
 

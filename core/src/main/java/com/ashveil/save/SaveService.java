@@ -63,12 +63,13 @@ public class SaveService {
         }
     }
 
-    public SaveSlotStatus getSlotStatus(int slot){
-        Future<SaveSlotStatus> statusTask = ioExecutor.submit(() -> saveManager.getSaveSlotStatus(slot));
+    public SaveSlotInfo getSlotInfo(int slot){
+        Future<SaveSlotInfo> slotInfoTask = ioExecutor.submit(() -> saveManager.getSaveSlotInfo(slot));
+
         try{
-            return statusTask.get();
+            return slotInfoTask.get();
         }
-        catch (InterruptedException exception){
+        catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Save slot inspection was interrupted.", exception);
         }

@@ -12,7 +12,6 @@ import com.ashveil.targeting.TileTargetingSystem;
 import com.ashveil.ui.GameMenuUi;
 import com.ashveil.ui.GameOverlay;
 import com.ashveil.ui.PauseMenuUi;
-import com.ashveil.ui.UiSkinFactory;
 import com.ashveil.ui.chest.ChestUI;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
@@ -61,7 +60,7 @@ public class GameScreen implements Screen {
         worldRenderer = new WorldRenderer(world.getTileMap());
         cameraController = new CameraController();
         hudRenderer = new HudRenderer();
-        uiSkin = UiSkinFactory.create();
+        uiSkin = game.getUiSkin();
         gameMenuUi = new GameMenuUi(uiSkin, world.getAvailableRecipes(), world, world.getPlayer().getInventory());
         activeOverlay = GameOverlay.NONE;
         keyBindings = new KeyBindings();

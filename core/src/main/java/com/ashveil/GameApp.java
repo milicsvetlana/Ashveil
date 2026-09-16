@@ -1,22 +1,25 @@
 package com.ashveil;
 
-import com.ashveil.save.SaveService;
-import com.ashveil.save.SaveSlotStatus;
-import com.ashveil.screens.GameScreen;
+import com.ashveil.save.SaveService;import com.ashveil.screens.GameScreen;
 import com.ashveil.screens.LoadingScreen;
 import com.ashveil.screens.MainMenuScreen;
 import com.ashveil.screens.SaveSlotScreen;
+import com.ashveil.ui.UiSkinFactory;
 import com.ashveil.world.World;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class GameApp extends Game {
     private SaveService saveService;
+    private Skin uiSkin;
 
     @Override
     public void create() {
         saveService = new SaveService();
+        uiSkin = UiSkinFactory.create();
+
         showStartupLoading();
     }
 
@@ -37,18 +40,8 @@ public class GameApp extends Game {
         if (currentScreen != null) currentScreen.dispose();
     }
 
-    public boolean openSlot(int slot){
-        SaveSlotStatus status = saveService.getSlotStatus(slot);
-
-        if (status == SaveSlotStatus.EMPTY){
-            startNewGame(slot);
-            return true;
-        }
-        if (status == SaveSlotStatus.VALID) return loadGame(slot);
-        return false;
-    }
-
     public SaveService getSaveService() {return saveService;}
+    public Skin getUiSkin() {return uiSkin;}
 
     public void showMainMenu(){
         switchScreen(new MainMenuScreen(this));
@@ -59,7 +52,7 @@ public class GameApp extends Game {
     }
 
     public void showStartupLoading(){
-        switchScreen(new LoadingScreen(this::showMainMenu));
+        switchScreen(new LoadingScreen(this::showMainMenu, uiSkin));
     }
 
     public void quit() {
@@ -71,6 +64,7 @@ public class GameApp extends Game {
         if (currentScreen instanceof GameScreen gameScreen) gameScreen.saveGame();
         if (currentScreen != null) currentScreen.dispose();
         saveService.shutdownAndWait();
+        if (uiSkin != null) uiSkin.dispose();
     }
 
 }
