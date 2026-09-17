@@ -27,6 +27,7 @@ public final class UiSkinFactory {
         addSaveSlotStyles(skin);
         addSolidTexture(skin, "screen-dim", Color.WHITE);
         addCharacterCreationStyles(skin);
+        addSettingsStyles(skin);
 
         return skin;
     }
@@ -143,5 +144,79 @@ public final class UiSkinFactory {
         nameFieldStyle.background = fieldBackground;
 
         skin.add("character-name", nameFieldStyle, TextField.TextFieldStyle.class);
+    }
+
+    private static void addSettingsStyles(Skin skin){
+        addUiTexture(skin, "settings-panel-background", "ui/settings-screen/settings-panel-background.png");
+        addUiTexture(skin, "settings-slider-track", "ui/settings-screen/settings-slider-track.png");
+        addUiTexture(skin, "settings-slider-knob", "ui/settings-screen/settings-slider-knob.png");
+        addUiTexture(skin, "settings-toggle-off", "ui/settings-screen/settings-toggle-off.png");
+        addUiTexture(skin, "settings-toggle-on", "ui/settings-screen/settings-toggle-on.png");
+        addUiTexture(skin, "settings-dropdown", "ui/settings-screen/settings-dropdown.png");
+        addUiTexture(skin, "settings-dropdown-popup", "ui/settings-screen/settings-dropdown-popup.png");
+        addUiTexture(skin, "settings-dropdown-selection", "ui/settings-screen/settings-dropdown-selection.png");
+
+        Slider.SliderStyle sliderStyle = new Slider.SliderStyle();
+        sliderStyle.background = sizedDrawable(skin, "settings-slider-track", 380f, 36f);
+        sliderStyle.knob = sizedDrawable(skin, "settings-slider-knob", 40f, 40f);
+        skin.add("settings-slider", sliderStyle, Slider.SliderStyle.class);
+
+        Button.ButtonStyle toggleStyle = new Button.ButtonStyle();
+        toggleStyle.up = sizedDrawable(skin, "settings-toggle-off", 110f, 53f);
+        toggleStyle.checked = sizedDrawable(skin, "settings-toggle-on", 110f, 53f);
+        skin.add("settings-toggle", toggleStyle, Button.ButtonStyle.class);
+
+        BitmapFont font = skin.getFont(DEFAULT_FONT);
+        Drawable dropdownBackground = sizedDrawable(skin, "settings-dropdown", 330f, 59f);
+
+        if (dropdownBackground instanceof BaseDrawable baseDrawable){
+            baseDrawable.setLeftWidth(40f);
+            baseDrawable.setRightWidth(70f);
+            baseDrawable.setTopHeight(8f);
+            baseDrawable.setBottomHeight(8f);
+        }
+
+        Drawable popupBackground = sizedDrawable(skin, "settings-dropdown-popup", 330f, 110f);
+        if (popupBackground instanceof BaseDrawable baseDrawable){
+            baseDrawable.setLeftWidth(16f);
+            baseDrawable.setRightWidth(16f);
+            baseDrawable.setTopHeight(8f);
+            baseDrawable.setBottomHeight(8f);
+        }
+
+        Drawable selection = sizedDrawable(skin, "settings-dropdown-selection", 300f, 48f);
+        if (selection instanceof BaseDrawable baseDrawable){
+            baseDrawable.setLeftWidth(35f);
+            baseDrawable.setRightWidth(15f);
+            baseDrawable.setTopHeight(7f);
+            baseDrawable.setBottomHeight(7f);
+        }
+
+        List.ListStyle listStyle = new List.ListStyle();
+        listStyle.font = font;
+        listStyle.fontColorUnselected = Color.WHITE;
+        listStyle.fontColorSelected = Color.WHITE;
+        listStyle.selection = selection;
+
+        ScrollPane.ScrollPaneStyle scrollStyle = new ScrollPane.ScrollPaneStyle();
+        scrollStyle.background = popupBackground;
+
+        SelectBox.SelectBoxStyle selectBoxStyle = new SelectBox.SelectBoxStyle();
+        selectBoxStyle.font = font;
+        selectBoxStyle.fontColor = Color.WHITE;
+        selectBoxStyle.background = dropdownBackground;
+        selectBoxStyle.listStyle = listStyle;
+        selectBoxStyle.scrollStyle = scrollStyle;
+
+        skin.add("settings-language", selectBoxStyle, SelectBox.SelectBoxStyle.class);
+    }
+
+    private static Drawable sizedDrawable(Skin skin, String name, float width, float height){
+        Drawable drawable = skin.newDrawable(name);
+        if (drawable instanceof BaseDrawable baseDrawable){
+            baseDrawable.setMinWidth(width);
+            baseDrawable.setMinHeight(height);
+        }
+        return drawable;
     }
 }

@@ -123,12 +123,14 @@ public class LoadingScreen implements Screen {
     @Override
     public void render (float delta){
         ScreenUtils.clear(0.02f, 0.02f, 0.03f, 1f);
-        updateLoading(delta);
+        float safeDelta = Math.min(delta, 0.1f);
+        updateLoading(safeDelta);
         if (finished){
             onFinished.run();
             return;
         }
-        stage.act(delta);
+
+        stage.act(safeDelta);
         stage.draw();
     }
 

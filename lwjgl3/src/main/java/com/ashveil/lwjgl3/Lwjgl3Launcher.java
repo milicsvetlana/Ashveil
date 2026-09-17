@@ -1,5 +1,6 @@
 package com.ashveil.lwjgl3;
 
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.ashveil.GameApp;
@@ -20,15 +21,29 @@ public class Lwjgl3Launcher {
         configuration.setTitle("Ashveil");
         //// Vsync limits the frames per second to what your hardware can display, and helps eliminate
         //// screen tearing. This setting doesn't always work on Linux, so the line after is a safeguard.
-        configuration.useVsync(true);
+        configuration.useVsync(false);
         //// Limits FPS to the refresh rate of the currently active monitor, plus 1 to try to match fractional
         //// refresh rates. The Vsync setting above should limit the actual FPS to match the monitor.
-        configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
+        configuration.setForegroundFPS(120);
         //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
 
-        configuration.setWindowedMode(1280, 720);
+        Graphics.Monitor preferredMonitor = null;
+        int highestRefreshRate = 0;
+
+        for (Graphics.Monitor monitor : Lwjgl3ApplicationConfiguration.getMonitors()) {
+            Graphics.DisplayMode mode = Lwjgl3ApplicationConfiguration.getDisplayMode(monitor);
+            if (mode.refreshRate > highestRefreshRate) {
+                highestRefreshRate = mode.refreshRate;
+                preferredMonitor = monitor;
+            }
+        }
+
+        configuration.setWindowedMode(1920, 1080);
+        if (preferredMonitor != null) {
+            configuration.setMaximizedMonitor(preferredMonitor);
+        }
         configuration.setMaximized(true);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .

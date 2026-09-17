@@ -1,6 +1,7 @@
 package com.ashveil.screens;
 
 import com.ashveil.GameApp;
+import com.ashveil.localization.LocalizationService;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,6 +22,7 @@ public class MainMenuScreen implements Screen {
     private final Stage stage;
     private final Skin skin;
     private final Texture backgroundTexture;
+    private final LocalizationService i18n;
 
     float buttonWidth = 400f;
     float buttonHeight = 62f;
@@ -31,6 +33,7 @@ public class MainMenuScreen implements Screen {
         this.game = game;
         stage = new Stage(new ScreenViewport());
         skin = game.getUiSkin();
+        i18n = game.getLocalizationService();
         backgroundTexture = new Texture("ui/main-menu/main-menu-background.png");
         buildBackground();
         buildMenu();
@@ -51,10 +54,10 @@ public class MainMenuScreen implements Screen {
         menuTable.bottom();
         menuTable.padBottom(100f);
 
-        TextButton singlePlayerButton = new TextButton("Singleplayer", skin, "main-menu");
-        TextButton multiPlayerButton = new TextButton("Multiplayer", skin, "main-menu");
-        TextButton optionsButton = new TextButton("Options", skin, "main-menu");
-        TextButton quitGameButton = new TextButton("Quit Game", skin, "main-menu");
+        TextButton singlePlayerButton = new TextButton( i18n.get("menu.singleplayer"), skin, "main-menu");
+        TextButton multiPlayerButton = new TextButton( i18n.get("menu.multiplayer"), skin, "main-menu");
+        TextButton optionsButton = new TextButton(i18n.get("menu.options"), skin, "main-menu");
+        TextButton quitGameButton = new TextButton(i18n.get("menu.quit"), skin, "main-menu");
 
         singlePlayerButton.getLabel().setAlignment(Align.center);
         multiPlayerButton.getLabel().setAlignment(Align.center);
@@ -62,12 +65,17 @@ public class MainMenuScreen implements Screen {
         quitGameButton.getLabel().setAlignment(Align.center);
 
         multiPlayerButton.setDisabled(true);
-        optionsButton.setDisabled(true);
 
         singlePlayerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
                 game.showSaveSlots();
+            }
+        });
+        optionsButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                game.showSettings();
             }
         });
 

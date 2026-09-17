@@ -1,8 +1,10 @@
 package com.ashveil;
 
+import com.ashveil.localization.LocalizationService;
 import com.ashveil.save.SaveService;
 import com.ashveil.save.data.SaveData;
 import com.ashveil.screens.*;
+import com.ashveil.settings.SettingsService;
 import com.ashveil.ui.UiSkinFactory;
 import com.ashveil.world.World;
 import com.badlogic.gdx.Game;
@@ -15,10 +17,17 @@ import java.util.concurrent.Future;
 public class GameApp extends Game {
     private SaveService saveService;
     private Skin uiSkin;
+    private SettingsService settingsService;
+    private LocalizationService localizationService;
 
     @Override
     public void create() {
         saveService = new SaveService();
+        settingsService = new SettingsService();
+
+        localizationService = new LocalizationService(settingsService.getCurrentSettings().getLanguage());
+
+        settingsService.applyCurrentSettings();
         uiSkin = UiSkinFactory.create();
 
         showStartupLoading();
@@ -43,6 +52,10 @@ public class GameApp extends Game {
             return;
         }
         switchScreen(new GameScreen(this, slot, world));
+    }
+
+    public void showSettings(){
+        switchScreen(new SettingsScreen(this));
     }
 
     private void switchScreen(Screen newScreen){
@@ -82,4 +95,6 @@ public class GameApp extends Game {
         if (uiSkin != null) uiSkin.dispose();
     }
 
+    public SettingsService getSettingsService() {return settingsService;}
+    public LocalizationService getLocalizationService() {return localizationService;}
 }
