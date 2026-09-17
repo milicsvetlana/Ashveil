@@ -1,11 +1,11 @@
 {
 "saveVersion": 1,
-"savedAt": 1789600951237,
-"playTimeSeconds": 295.17521181841585,
+"savedAt": 1789679479945,
+"playTimeSeconds": 302.7097454934774,
 "player": {
 	"characterName": "ceccc",
-	"x": 781.46,
-	"y": 1070.2139,
+	"x": 754.96436,
+	"y": 1120.8488,
 	"checkPointX": 355.333,
 	"checkPointY": 1351.333,
 	"health": 7,
@@ -15,19 +15,19 @@
 	"inventory": []
 },
 "dayNight": {
-	"dayCount": 20,
-	"phase": "NIGHT",
-	"phaseTimer": 0.17520848
+	"dayCount": 21,
+	"phase": "DAY",
+	"phaseTimer": 2.709741
 },
 "progressionState": {
 	"firstTreeDropClaimed": false,
 	"wispNightUnlocked": false,
 	"wraithNightUnlocked": false,
 	"unlockedCraftingCategories": [
-		"BUILDING",
-		"TOOLS",
 		"WEAPONS",
-		"FOOD"
+		"FOOD",
+		"BUILDING",
+		"TOOLS"
 	]
 },
 "currentAreaId": "MAIN_ISLAND",
@@ -488,77 +488,12 @@
 				"durability": 0
 			}
 		],
-		"enemies": [
-			{
-				"enemyType": "SHADE",
-				"x": 1084.448,
-				"y": 1244.448,
-				"currentHp": 6
-			},
-			{
-				"enemyType": "SHADE",
-				"x": 1084.448,
-				"y": 1244.448,
-				"currentHp": 6
-			},
-			{
-				"enemyType": "SHADE",
-				"x": 688,
-				"y": 1504,
-				"currentHp": 6
-			},
-			{
-				"enemyType": "SHADE",
-				"x": 688,
-				"y": 1504,
-				"currentHp": 6
-			}
-		],
+		"enemies": [],
 		"projectiles": [],
 		"nightSpawn": {
-			"remainingQueue": [
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE",
-				"SHADE"
-			],
-			"spawnTimer": 0.0046309903,
-			"spawnInterval": 0.085365854
+			"remainingQueue": [],
+			"spawnTimer": 0,
+			"spawnInterval": 0
 		}
 	}
 ]

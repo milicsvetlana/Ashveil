@@ -1,7 +1,7 @@
 {
 "saveVersion": 1,
-"savedAt": 1789588827699,
-"playTimeSeconds": 14.605120378313586,
+"savedAt": 1789642048212,
+"playTimeSeconds": 17.633419485064223,
 "player": {
 	"characterName": "Ceca",
 	"x": 245.08551,
@@ -34,17 +34,17 @@
 	]
 },
 "dayNight": {
-	"dayCount": 1,
-	"phase": "NIGHT",
-	"phaseTimer": 4.6051235
+	"dayCount": 2,
+	"phase": "DAY",
+	"phaseTimer": 2.6334229
 },
 "progressionState": {
 	"firstTreeDropClaimed": false,
 	"wispNightUnlocked": false,
 	"wraithNightUnlocked": false,
 	"unlockedCraftingCategories": [
-		"WEAPONS",
 		"FOOD",
+		"WEAPONS",
 		"BUILDING",
 		"TOOLS"
 	]
@@ -522,49 +522,12 @@
 		],
 		"plants": [],
 		"groundItems": [],
-		"enemies": [
-			{
-				"enemyType": "SHADE",
-				"x": 634.2589,
-				"y": 1184,
-				"currentHp": 6
-			},
-			{
-				"enemyType": "SHADE",
-				"x": 634.2589,
-				"y": 1184,
-				"currentHp": 6
-			},
-			{
-				"enemyType": "SHADE",
-				"x": 432.08463,
-				"y": 1183.9154,
-				"currentHp": 6
-			},
-			{
-				"enemyType": "SHADE",
-				"x": 432.08463,
-				"y": 1183.9154,
-				"currentHp": 6
-			},
-			{
-				"enemyType": "SHADE",
-				"x": 110.663895,
-				"y": 1038.664,
-				"currentHp": 6
-			},
-			{
-				"enemyType": "SHADE",
-				"x": 110.663895,
-				"y": 1038.664,
-				"currentHp": 6
-			}
-		],
+		"enemies": [],
 		"projectiles": [],
 		"nightSpawn": {
 			"remainingQueue": [],
-			"spawnTimer": 0.008855224,
-			"spawnInterval": 1.1666666
+			"spawnTimer": 0,
+			"spawnInterval": 0
 		}
 	}
 ]
