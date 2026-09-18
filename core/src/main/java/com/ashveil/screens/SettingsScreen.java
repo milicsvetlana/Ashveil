@@ -91,7 +91,7 @@ public class SettingsScreen implements Screen {
                 game.getSettingsService().applyAndSave(newSettings);
                 game.getLocalizationService().setLanguage(newSettings.getLanguage());
 
-                Gdx.app.postRunnable(game::showSettings);
+                Gdx.app.postRunnable(SettingsScreen.this::rebuildUi);
             }
         });
 
@@ -120,7 +120,7 @@ public class SettingsScreen implements Screen {
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.showMainMenu();
+                Gdx.app.postRunnable(game::closeSettings);
             }
         });
 
@@ -135,6 +135,12 @@ public class SettingsScreen implements Screen {
         root.add(actions);
 
         stage.addActor(root);
+    }
+
+    public void rebuildUi(){
+        stage.clear();
+        buildBackground();
+        buildUi();
     }
 
     private void addSectionTitle(Table table, String text){
@@ -164,7 +170,7 @@ public class SettingsScreen implements Screen {
     }
     @Override public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
-            game.showMainMenu();
+            game.closeSettings();
             return;
         }
 

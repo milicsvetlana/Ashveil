@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -72,7 +73,7 @@ public class GameScreen implements Screen {
         chestUi = null;
         //prosledjujemo closepause kao runnable callback. ne sluzi za novu nit, vec samo prosledjuje akciju
         //koja pausemenuui moze kasnije pozvati
-        pauseMenuUi = new PauseMenuUi(uiSkin, this::closePause, this::saveGame);
+        pauseMenuUi = new PauseMenuUi(uiSkin, this::closePause, this::openSettingsFromPause, this::exitToMainMenu);
 
     }
 
@@ -162,9 +163,15 @@ public class GameScreen implements Screen {
     private void openPause(){
         if (activeOverlay != GameOverlay.NONE) return;
         overlayStage.clear();
+
+        Image dimOverlay = new Image(uiSkin.getDrawable("screen-dim"));
+        dimOverlay.setFillParent(true);
+        dimOverlay.setColor(0f, 0f, 0f, 0.5f);
+        overlayStage.addActor(dimOverlay);
+
         Table overlayRoot = new Table();
         overlayRoot.setFillParent(true);
-        overlayRoot.add(pauseMenuUi);
+        overlayRoot.add(pauseMenuUi).width(700f).height(500f);
 
         overlayStage.addActor(overlayRoot);
         activeOverlay = GameOverlay.PAUSE;
@@ -179,6 +186,17 @@ public class GameScreen implements Screen {
         overlayStage.clear();
         activeOverlay = GameOverlay.NONE;
         Gdx.input.setInputProcessor(null);
+    }
+
+    private void openSettingsFromPause(){
+        if (activeOverlay != GameOverlay.PAUSE) return;
+        Gdx.app.postRunnable(() -> game.showSettingsFromPause(this));
+    }
+
+    private void exitToMainMenu(){
+        if (activeOverlay != GameOverlay.PAUSE) return;
+        saveGame();
+        Gdx.app.postRunnable(game::showMainMenuLoading);
     }
 
     public void saveGame(){
@@ -372,8 +390,22 @@ public class GameScreen implements Screen {
         overlayStage.dispose();
     }
 
-    @Override public void show(){}
+    @Override public void show(){
+        if (activeOverlay == GameOverlay.PAUSE || activeOverlay == GameOverlay.CHEST){
+            Gdx.input.setInputProcessor(overlayStage);
+        }
+        else if (activeOverlay == GameOverlay.MENU){
+            Gdx.input.setInputProcessor(gameMenuUi.getStage());
+        }
+        else {
+            Gdx.input.setInputProcessor(null);
+        }
+    }
     @Override public void pause() {}
     @Override public void resume() {}
-    @Override public void hide() {}
+    @Override public void hide() {
+        if (Gdx.input.getInputProcessor() == overlayStage || Gdx.input.getInputProcessor() == gameMenuUi.getStage()){
+            Gdx.input.setInputProcessor(null);
+        }
+    }
 }

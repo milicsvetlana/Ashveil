@@ -19,6 +19,7 @@ public class GameApp extends Game {
     private Skin uiSkin;
     private SettingsService settingsService;
     private LocalizationService localizationService;
+    private GameScreen settingsReturnGameScreen;
 
     @Override
     public void create() {
@@ -34,6 +35,10 @@ public class GameApp extends Game {
     }
 
     public void startNewGame(int slot, String characterName){
+        switchScreen(new LoadingScreen(() -> finishStartNewGame(slot, characterName), uiSkin));
+    }
+
+    private void finishStartNewGame(int slot, String characterName){
         World world = new World();
         world.getPlayer().setCharacterName(characterName);
         saveService.requestSave(slot, world);
@@ -68,11 +73,36 @@ public class GameApp extends Game {
         switchScreen(new CharacterCreationScreen(this, slot));
     }
 
+    public void showSettingsFromPause(GameScreen gameScreen){
+        if (gameScreen == null) throw new IllegalArgumentException("Game screen cannot be null.");
+
+        settingsReturnGameScreen = gameScreen;
+        setScreen(new SettingsScreen(this));
+    }
+
+    public void closeSettings(){
+        if (settingsReturnGameScreen == null){
+            showMainMenu();
+            return;
+        }
+
+        Screen settingsScreen = getScreen();
+        GameScreen gameScreen = settingsReturnGameScreen;
+
+        settingsReturnGameScreen = null;
+
+        setScreen(gameScreen);
+        if (settingsScreen != null) settingsScreen.dispose();
+    }
+
     public SaveService getSaveService() {return saveService;}
     public Skin getUiSkin() {return uiSkin;}
 
     public void showMainMenu(){
         switchScreen(new MainMenuScreen(this));
+    }
+    public void showMainMenuLoading(){
+        switchScreen(new LoadingScreen(this::showMainMenu, uiSkin));
     }
 
     public void showSaveSlots(){

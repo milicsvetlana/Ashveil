@@ -1,11 +1,11 @@
 {
 "saveVersion": 1,
-"savedAt": 1789679479945,
-"playTimeSeconds": 302.7097454934774,
+"savedAt": 1789765575284,
+"playTimeSeconds": 319.1357499860969,
 "player": {
 	"characterName": "ceccc",
-	"x": 754.96436,
-	"y": 1120.8488,
+	"x": 733.38434,
+	"y": 1129.3694,
 	"checkPointX": 355.333,
 	"checkPointY": 1351.333,
 	"health": 7,
@@ -15,9 +15,9 @@
 	"inventory": []
 },
 "dayNight": {
-	"dayCount": 21,
+	"dayCount": 22,
 	"phase": "DAY",
-	"phaseTimer": 2.709741
+	"phaseTimer": 4.135746
 },
 "progressionState": {
 	"firstTreeDropClaimed": false,

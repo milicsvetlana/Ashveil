@@ -171,6 +171,5 @@ public class GameMenuUi {
 
     public void dispose(){
         stage.dispose();
-        skin.dispose();
     }
 }
