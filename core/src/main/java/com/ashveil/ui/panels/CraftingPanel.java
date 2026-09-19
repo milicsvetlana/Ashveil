@@ -20,11 +20,13 @@ public class CraftingPanel extends MenuPanel {
     private Recipe selectedRecipe;
     private TextButton selectedRecipeButton;
     private String craftingMessage;
+    private final Runnable onCraftSuccess;
 
-    public CraftingPanel(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess) {
+    public CraftingPanel(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess, Runnable onCraftSuccess) {
         super(skin);
         this.recipes = recipes;
         this.craftingAccess = craftingAccess;
+        this.onCraftSuccess = onCraftSuccess;
 
         recipeListTable = new Table();
         detailsTable = new Table();
@@ -147,6 +149,7 @@ public class CraftingPanel extends MenuPanel {
 
     private void craftSelectedRecipe() {
         CraftingResult result = craftingAccess.tryCraft(selectedRecipe.getId());
+        if (result.isSuccess() && onCraftSuccess != null) onCraftSuccess.run();
 
         if (result.isSuccess()) {
             craftingMessage = "Crafted: " + selectedRecipe.getResultType().getDisplayName();

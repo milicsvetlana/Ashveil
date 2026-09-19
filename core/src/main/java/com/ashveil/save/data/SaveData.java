@@ -1,5 +1,6 @@
 package com.ashveil.save.data;
 
+import com.ashveil.guidance.GuidanceSystem;
 import com.ashveil.progression.ProgressionState;
 
 import java.util.ArrayList;
@@ -16,4 +17,5 @@ public class SaveData {
 
     public String currentAreaId;
     public List<AreaSaveData> areas = new ArrayList<>();
+    public GuidanceSaveData guidance;
 }

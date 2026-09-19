@@ -40,11 +40,11 @@ public class Config {
     public static final int SLOT_MOVE = 1;
 
     /** Day and night cycle */
-    public static final float FIRST_DAY_DURATION = 5f;
+    public static final float FIRST_DAY_DURATION = 60f;
 
     public static final float DAY_DURATION = 5f;
     public static final float DUSK_DURATION = 5f;
-    public static final float NIGHT_DURATION = 5f;
+    public static final float NIGHT_DURATION = 15f;
 
     public static final float DAY_PHASE_RATIO = 0.60f;
     public static final float DUSK_PHASE_RATIO = 0.10f;
@@ -114,4 +114,5 @@ public class Config {
     public static final float LOADING_FADE_OUT_DURATION = 0.25f;
 
 
+    public static final int GUIDANCE_WOOD_TARGET = 5;
 }

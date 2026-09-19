@@ -11,6 +11,7 @@ public class DayNightCycle {
     private int dayCount;
     private boolean justBecameNight;
     private boolean justBecameDay;
+    private boolean justBecameDusk;
 
     public DayNightCycle(){
         this.phaseTimer = 0;
@@ -19,18 +20,21 @@ public class DayNightCycle {
         this.dayPhase = DAY;
         this.justBecameNight = false;
         this.justBecameDay = false;
+        this.justBecameDusk = false;
     }
 
     public void update(float delta){
         phaseTimer += delta;
         justBecameNight = false;
         justBecameDay = false;
+        justBecameDusk = false;
         switch (dayPhase){
             case DAY -> {
                 if (phaseTimer >= currentPhaseDuration){
                     phaseTimer -= currentPhaseDuration;
                     currentPhaseDuration = Config.DUSK_DURATION;
                     dayPhase = DayPhase.DUSK;
+                    justBecameDusk = true;
                 }
             }
             case DUSK -> {
@@ -77,6 +81,7 @@ public class DayNightCycle {
 
         this.justBecameDay = false;
         this.justBecameNight = false;
+        this.justBecameDusk = false;
     }
 
     public float getPhaseProgress(){
@@ -88,4 +93,5 @@ public class DayNightCycle {
     public boolean isNight(){return dayPhase == DayPhase.NIGHT;}
     public DayPhase getDayPhase() {return dayPhase;}
     public boolean justBecameDay() {return justBecameDay;}
+    public boolean justBecameDusk() {return justBecameDusk;}
 }

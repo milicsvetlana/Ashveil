@@ -8,6 +8,8 @@ import com.ashveil.combat.ProjectileSystem;
 import com.ashveil.entities.enemies.*;
 import com.ashveil.entities.Player;
 import com.ashveil.farming.*;
+import com.ashveil.guidance.GuidanceSystem;
+import com.ashveil.guidance.GuideStep;
 import com.ashveil.items.crafting.CraftStatus;
 import com.ashveil.items.crafting.CraftingManager;
 import com.ashveil.items.crafting.CraftingResult;
@@ -60,6 +62,7 @@ public class World implements CraftingAccess {
     private final DestructibleObjectSystem destructibleObjectSystem;
 
     private double totalPlayTimeSeconds;
+    private final GuidanceSystem guidanceSystem;
 
     public World(){
         this(true);
@@ -75,6 +78,7 @@ public class World implements CraftingAccess {
         worldItemSystem = new WorldItemSystem();
         combatSystem = new CombatSystem();
         progressionState = new ProgressionState();
+        guidanceSystem = new GuidanceSystem();
         craftingManager = new CraftingManager(progressionState);
         dayNightCycle = new DayNightCycle();
         targetMode = TargetMode.NONE;
@@ -92,10 +96,17 @@ public class World implements CraftingAccess {
 
     private void initializeNewGameState(){
         destructibleObjectSystem.spawnInitialResources(player);
+        spawnStarterChest();
+    }
 
-        worldItemSystem.add(new WorldItem(player.getX(), player.getY(), ItemType.STONE_HOE, 1));
-        worldItemSystem.add(new WorldItem(player.getX(), player.getY(), ItemType.WHEAT_SEED, 5));
-        worldItemSystem.add(new WorldItem(player.getX(), player.getY(), ItemType.SAPLING, 5));
+    private void spawnStarterChest(){
+        float chestX = player.getX() + Config.TILE_SIZE * 2f;
+        float chestY = player.getY();
+
+        Chest chest = (Chest) destructibleObjectSystem.createAndAdd(chestX, chestY, DestructibleObjectType.CHEST);
+
+        chest.getChestInventory().addItem(ItemType.STONE_HOE, 1);
+        chest.getChestInventory().addItem(ItemType.WHEAT_SEED, 5);
     }
 
     public static World createForLoad(){
@@ -467,6 +478,7 @@ public class World implements CraftingAccess {
     public List<DestructibleObject> getDestructibleObjects(){return destructibleObjectSystem.getObjects();}
     public DestructibleObjectSystem getDestructibleObjectSystem(){return destructibleObjectSystem;}
     public WorldItemSystem getWorldItemSystem(){return worldItemSystem;}
+    public GuidanceSystem getGuidanceSystem(){return guidanceSystem;}
 
     public void dispose(){
         tileMap.dispose();

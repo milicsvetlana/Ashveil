@@ -29,6 +29,12 @@ public final class UiSkinFactory {
         addCharacterCreationStyles(skin);
         addSettingsStyles(skin);
 
+        skin.add("guidance-parchment", new Texture(Gdx.files.internal("ui/guidance/guidance-parchment.png")));
+        Texture cecaPortrait = new Texture(Gdx.files.internal("ui/guidance/ceca-portrait.png"));
+        cecaPortrait.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        skin.add("ceca-portrait", cecaPortrait);
+
         return skin;
     }
 

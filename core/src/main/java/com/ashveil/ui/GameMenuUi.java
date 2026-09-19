@@ -35,8 +35,9 @@ public class GameMenuUi {
     private final TextButton shopButton;
 
     private MenuTab selectedTab;
+    private final Runnable onCraftingOpened;
 
-    public GameMenuUi(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess, Inventory inventory) {
+    public GameMenuUi(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess, Inventory inventory, Runnable onCraftSuccess, Runnable onCraftingOpened) {
         this.skin = skin;
         stage = new Stage(new ScreenViewport());
         rootTable = new Table();
@@ -46,7 +47,7 @@ public class GameMenuUi {
         menuTable.setBackground(skin.getDrawable("menu-background"));
 
         inventoryPanel = new InventoryPanel(skin, inventory);
-        craftingPanel = new CraftingPanel(skin, recipes, craftingAccess);
+        craftingPanel = new CraftingPanel(skin, recipes, craftingAccess, onCraftSuccess);
         shopPanel = new ShopPanel(skin);
 
         inventoryButton = new TextButton("Inventory", skin);
@@ -55,6 +56,8 @@ public class GameMenuUi {
         inventoryButton.setProgrammaticChangeEvents(false);
         craftingButton.setProgrammaticChangeEvents(false);
         shopButton.setProgrammaticChangeEvents(false);
+
+        this.onCraftingOpened = onCraftingOpened;
 
         createLayout();
         createListeners();
@@ -105,18 +108,20 @@ public class GameMenuUi {
     }
 
     private void showPanel(MenuTab menuTab) {
-        if (selectedTab != null && selectedTab != menuTab) {
-            getPanel(selectedTab).onHide();
-        }
+        MenuTab previousTab = selectedTab;
 
-        selectedTab = menuTab;
+        this.selectedTab = menuTab;
         contentTable.clearChildren();
 
-        MenuPanel panel = getPanel(menuTab);
-        panel.onShow();
-
-        updateTabButtons();
-        contentTable.add(panel).grow();
+        switch (menuTab){
+            case INVENTORY -> contentTable.add(inventoryPanel).grow();
+            case CRAFTING -> {
+                craftingPanel.refresh();
+                contentTable.add(craftingPanel).grow();
+                if (previousTab != MenuTab.CRAFTING && onCraftingOpened != null) onCraftingOpened.run();
+            }
+            case SHOP -> contentTable.add(shopPanel).grow();
+        }
     }
 
     private void updateTabButtons(){
@@ -168,6 +173,7 @@ public class GameMenuUi {
     }
 
     public Stage getStage() {return stage;}
+    public MenuTab getSelectedTab(){return selectedTab;}
 
     public void dispose(){
         stage.dispose();

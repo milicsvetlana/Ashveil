@@ -2,6 +2,11 @@ package com.ashveil.screens;
 
 import com.ashveil.Config;
 import com.ashveil.GameApp;
+import com.ashveil.farming.Crop;
+import com.ashveil.guidance.GameEvent;
+import com.ashveil.guidance.GuidanceSystem;
+import com.ashveil.guidance.GuideStep;
+import com.ashveil.items.inventory.ItemType;
 import com.ashveil.rendering.HudRenderer;
 import com.ashveil.rendering.WorldRenderer;
 import com.ashveil.input.PlayerInput;
@@ -9,12 +14,11 @@ import com.ashveil.input.KeyBindings;
 import com.ashveil.save.SaveService;
 import com.ashveil.targeting.TargetMode;
 import com.ashveil.targeting.TileTargetingSystem;
-import com.ashveil.ui.GameMenuUi;
-import com.ashveil.ui.GameOverlay;
-import com.ashveil.ui.PauseMenuUi;
+import com.ashveil.ui.*;
 import com.ashveil.ui.chest.ChestUI;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -47,6 +51,13 @@ public class GameScreen implements Screen {
     private final int saveSlot;
     private Skin uiSkin;
 
+    private Stage guidanceStage;
+    private GuidanceSystem guidanceSystem;
+    private GuidanceUi guidanceUi;
+    private boolean guidanceMessagePending;
+    private float guidanceMessageDelay;
+    private boolean contextualGuidanceVisible;
+
     public GameScreen(GameApp game, int saveSlot){
         this(game, saveSlot, new World());
     }
@@ -62,7 +73,7 @@ public class GameScreen implements Screen {
         cameraController = new CameraController();
         hudRenderer = new HudRenderer();
         uiSkin = game.getUiSkin();
-        gameMenuUi = new GameMenuUi(uiSkin, world.getAvailableRecipes(), world, world.getPlayer().getInventory());
+        gameMenuUi = new GameMenuUi(uiSkin, world.getAvailableRecipes(), world, world.getPlayer().getInventory(), this::handleSuccessfulCraft, this::handleCraftingOpened);
         activeOverlay = GameOverlay.NONE;
         keyBindings = new KeyBindings();
         deathTransitionState = DeathTransitionState.NONE;
@@ -70,11 +81,27 @@ public class GameScreen implements Screen {
         fadeRenderer = new ShapeRenderer();
         tileTargetingSystem = new TileTargetingSystem(cameraController, world.getTileMap());
         overlayStage = new Stage(new ScreenViewport());
+        guidanceStage = new Stage(new ScreenViewport());
+        guidanceSystem = world.getGuidanceSystem();
+        guidanceUi = new GuidanceUi(uiSkin);
+        guidanceMessagePending = false;
+        guidanceMessageDelay = 0f;
+
+        Table guidanceRoot = new Table();
+        guidanceRoot.setFillParent(true);
+        guidanceRoot.top().left();
+
+        guidanceRoot.add(guidanceUi).width(1000f).height(300f).padTop(22f).padLeft(22f);
+
+        guidanceStage.addActor(guidanceRoot);
+
         chestUi = null;
         //prosledjujemo closepause kao runnable callback. ne sluzi za novu nit, vec samo prosledjuje akciju
         //koja pausemenuui moze kasnije pozvati
         pauseMenuUi = new PauseMenuUi(uiSkin, this::closePause, this::openSettingsFromPause, this::exitToMainMenu);
 
+        if (guidanceSystem.shouldShowCurrentMessage()) showCurrentGuidanceMessage();
+        else if (guidanceSystem.getActiveContextualStep() != null) showActiveContextualMessage();
     }
 
     @Override
@@ -82,6 +109,9 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1f);
 
         handleCancelBackInput();
+        handleGuidanceInput();
+        updateGuidanceMessageDelay(delta);
+        updateContextualGuidance();
         tileTargetingSystem.update();
 
         if (Gdx.input.isKeyJustPressed(keyBindings.getToggleOverlayKey())) {
@@ -96,7 +126,33 @@ public class GameScreen implements Screen {
         if (deathTransitionState != DeathTransitionState.NONE) updateDeathTransition(delta);
         else if (activeOverlay == GameOverlay.PAUSE) overlayStage.act(delta);
         else {
+            boolean waitingForMovement = guidanceSystem.getCurrentStep() == GuideStep.MOVEMENT;
+            boolean waitingForWood = guidanceSystem.getCurrentStep() == GuideStep.COLLECT_WOOD;
+
+            float playerXBeforeUpdate = world.getPlayer().getX();
+            float playerYBeforeUpdate = world.getPlayer().getY();
+            int woodBeforeUpdate = waitingForWood ? world.getPlayer().getInventory().getQuantity(ItemType.WOOD) : 0;
+            int healthBeforeUpdate = world.getPlayer().getCurrentHp();
+
             world.update(delta, playerInput);
+
+            if (waitingForMovement){boolean playerMoved = Math.abs(world.getPlayer().getX() - playerXBeforeUpdate) > 0.001f
+                                                          || Math.abs(world.getPlayer().getY() - playerYBeforeUpdate) > 0.001f;
+                if (playerMoved){handleGuidanceEvent(GameEvent.PLAYER_MOVED);}
+            }
+            if (waitingForWood){
+                int woodAfterUpdate = world.getPlayer().getInventory().getQuantity(ItemType.WOOD);
+                if (woodAfterUpdate > woodBeforeUpdate && woodAfterUpdate >= Config.GUIDANCE_WOOD_TARGET)
+                    handleGuidanceEvent(GameEvent.WOOD_COLLECTED);
+            }
+            if (guidanceSystem.getCurrentStep() == GuideStep.DUSK_WARNING && world.getDayNightCycle().justBecameDusk()){
+                handleDuskGuidance();
+            }
+            int healthAfterUpdate = world.getPlayer().getCurrentHp();
+            if (healthAfterUpdate < healthBeforeUpdate && healthAfterUpdate > 0){
+                guidanceSystem.activateContextualStep(GuideStep.HEALING);
+            }
+
             if (world.getDayNightCycle().justBecameDay()) saveService.requestSave(saveSlot, world);
 
             if (world.getPlayer().isDead()) startDeathTransition();
@@ -133,6 +189,10 @@ public class GameScreen implements Screen {
         hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
 
         if (activeOverlay == GameOverlay.MENU) gameMenuUi.draw();
+
+        guidanceStage.act(delta);
+        guidanceStage.draw();
+
         if (activeOverlay == GameOverlay.CHEST || activeOverlay == GameOverlay.PAUSE) overlayStage.draw();
         if (deathTransitionState != DeathTransitionState.NONE) renderDeathFade();
     }
@@ -158,6 +218,8 @@ public class GameScreen implements Screen {
         world.closeChest();
         activeOverlay = GameOverlay.NONE;
         Gdx.input.setInputProcessor(null);
+
+        handleGuidanceEvent(GameEvent.CHEST_CLOSED);
     }
 
     private void openPause(){
@@ -306,13 +368,25 @@ public class GameScreen implements Screen {
     private void handleTargetActionInput(){
         if (!Gdx.input.isButtonJustPressed(keyBindings.getTargetActionButton())) return;
         if (world.getTargetMode() == TargetMode.NONE) return;
+
+        int tileX = tileTargetingSystem.getTileX();
+        int tileY = tileTargetingSystem.getTileY();
+
+        boolean waitingForPlanting = guidanceSystem.getCurrentStep() == GuideStep.PLANTING;
+        boolean hadPlantBefore = world.getFarmingSystem().getPlant(tileX, tileY) != null;
+
         world.handleTargetAction(tileTargetingSystem.getTileX(), tileTargetingSystem.getTileY(), tileTargetingSystem.getWorldX(), tileTargetingSystem.getWorldY());
+
+        if (waitingForPlanting && !hadPlantBefore && world.getFarmingSystem().getPlant(tileX, tileY) instanceof Crop){
+            handleGuidanceEvent(GameEvent.SEED_PLANTED);
+        }
     }
 
     @Override public void resize(int i, int i1) {
         hudRenderer.resize(i, i1);
         gameMenuUi.resize(i, i1);
         overlayStage.getViewport().update(i, i1, true);
+        guidanceStage.getViewport().update(i, i1, true);
     }
 
     private void startDeathTransition(){
@@ -377,6 +451,139 @@ public class GameScreen implements Screen {
         world.cancelTargeting();
     }
 
+    private void showCurrentGuidanceMessage(){
+        GuideStep currentStep = guidanceSystem.getCurrentStep();
+
+        if (currentStep == null) {
+            guidanceUi.hideMessage();
+            return;
+        }
+
+        String message = game.getLocalizationService().get(currentStep.getMessageKey());
+        String controlHint = getGuidanceControlHint(currentStep);
+        guidanceUi.showMessage(message, controlHint);
+    }
+
+    private String getGuidanceControlHint(GuideStep step){
+        return switch (step){
+            case MOVEMENT -> "[WASD] Move";
+            case STARTER_CHEST -> "[E] Interact";
+            case PLANTING -> "[F] Use selected item   |   [Left Click] Choose block";
+            case COLLECT_WOOD -> "[K] Use selected tool   |   [E] Pick up";
+            case OPEN_CRAFTING -> "[TAB] to open menu | [Q] / [E] to switch tabs";
+            default -> "";
+        };
+    }
+
+    private void handleGuidanceInput(){
+        if (!guidanceUi.isMessageVisible()) return;
+        if (!Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) return;
+
+        if (contextualGuidanceVisible){
+            guidanceSystem.acknowledgeActiveContextualStep();
+            contextualGuidanceVisible = false;
+            guidanceUi.hideMessage();
+            return;
+        }
+
+        GuideStep completedStep = guidanceSystem.getCurrentStep();
+
+        boolean stepChanged = guidanceSystem.acknowledgeCurrentMessage();
+        guidanceUi.hideMessage();
+
+        if (stepChanged) scheduleNextGuidanceMessage(completedStep);
+    }
+
+    private void handleGuidanceEvent(GameEvent event){
+        GuideStep completedStep = guidanceSystem.getCurrentStep();
+
+        boolean stepChanged = guidanceSystem.handleEvent(event);
+        if (!stepChanged) return;
+
+        scheduleNextGuidanceMessage(completedStep);
+    }
+
+    private void scheduleNextGuidanceMessage(GuideStep completedStep){
+        if (completedStep == GuideStep.CRAFT_EQUIPMENT) return;
+        float delay = 0.18f;
+
+        if (completedStep == GuideStep.STARTER_CHEST) delay = 1f;
+        if (completedStep == GuideStep.OPEN_CRAFTING) delay = 0f;
+
+        guidanceMessagePending = true;
+        guidanceMessageDelay = delay;
+    }
+
+    private void updateGuidanceMessageDelay(float delta){
+        if (!guidanceMessagePending) return;
+
+        guidanceMessageDelay -= delta;
+
+        if (guidanceMessageDelay > 0f) return;
+        boolean craftingGuidanceInMenu = activeOverlay == GameOverlay.MENU
+                                        && guidanceSystem.getCurrentStep() == GuideStep.CRAFT_EQUIPMENT;
+
+        if (activeOverlay != GameOverlay.NONE && !craftingGuidanceInMenu) return;
+        //ako npr. tad igrac otvori pause ili nesto slicno, da ne iskoci preko toga
+
+        guidanceMessagePending = false;
+        showCurrentGuidanceMessage();
+    }
+
+    private void handleSuccessfulCraft(){
+        if (guidanceSystem.getCurrentStep() != GuideStep.CRAFT_EQUIPMENT) return;
+        handleGuidanceEvent(GameEvent.ITEM_CRAFTED);
+    }
+
+    private void handleDuskGuidance(){
+        guidanceSystem.handleEvent(GameEvent.DUSK_STARTED);
+
+        if (activeOverlay == GameOverlay.NONE){
+            showCurrentGuidanceMessage();
+            return;
+        }
+
+        guidanceMessagePending = true;
+        guidanceMessageDelay = 0f;
+    }
+
+    private void handleCraftingOpened(){
+        if (guidanceSystem.getCurrentStep() != GuideStep.OPEN_CRAFTING) return;
+
+        boolean messageAlreadyVisible = guidanceUi.isMessageVisible();
+
+        GuideStep completedStep = guidanceSystem.getCurrentStep();
+        boolean stepChanged = guidanceSystem.handleEvent(GameEvent.CRAFTING_OPENED);
+
+        if (stepChanged){
+            scheduleNextGuidanceMessage(completedStep);
+            return;
+        }
+        if (!messageAlreadyVisible){
+            guidanceMessagePending = false;
+            stepChanged = guidanceSystem.acknowledgeCurrentMessage();
+            if (stepChanged) scheduleNextGuidanceMessage(completedStep);
+        }
+    }
+
+    private void updateContextualGuidance(){
+        if (contextualGuidanceVisible) return;
+        if (guidanceSystem.getActiveContextualStep() == null) return;
+        if (guidanceUi.isMessageVisible()) return;
+        if (activeOverlay != GameOverlay.NONE) return;
+
+        showActiveContextualMessage();
+    }
+
+    private void showActiveContextualMessage(){
+        GuideStep contextualStep = guidanceSystem.getActiveContextualStep();
+
+        if (contextualStep == null) return;
+
+        String message = game.getLocalizationService().get(contextualStep.getMessageKey());
+        guidanceUi.showMessage(message, "");
+    }
+
     @Override
     public void dispose() {
         worldRenderer.dispose();
@@ -388,6 +595,7 @@ public class GameScreen implements Screen {
         gameMenuUi.dispose();
         fadeRenderer.dispose();
         overlayStage.dispose();
+        guidanceStage.dispose();
     }
 
     @Override public void show(){

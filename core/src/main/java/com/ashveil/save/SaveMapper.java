@@ -8,6 +8,8 @@ import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemySpawnSystem;
 import com.ashveil.entities.enemies.EnemyType;
 import com.ashveil.farming.*;
+import com.ashveil.guidance.GuidanceSystem;
+import com.ashveil.guidance.GuideStep;
 import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
@@ -45,6 +47,7 @@ public class SaveMapper {
         applyEnemyState(world, currentArea);
         applyProjectileState(world.getProjectileSystem(), currentArea);
         applyNightSpawnState(world.getEnemySpawnSystem(), currentArea.nightSpawn);
+        applyGuidanceState(world.getGuidanceSystem(), saveData.guidance);
 
         return world;
     }
@@ -156,6 +159,29 @@ public class SaveMapper {
         enemySpawnSystem.applyPersistentState(remainingQueue, nightSpawnSaveData.spawnTimer, nightSpawnSaveData.spawnInterval);
     }
 
+    private void applyGuidanceState(GuidanceSystem guidanceSystem, GuidanceSaveData guidanceSaveData){
+        if (guidanceSaveData == null) return;
+
+        try{
+            GuideStep currentStep = guidanceSaveData.currentStep == null ? null : GuideStep.valueOf(guidanceSaveData.currentStep);
+            GuideStep activeContextualStep = guidanceSaveData.currentStep == null ? null : GuideStep.valueOf(guidanceSaveData.currentStep);
+            EnumSet<GuideStep> shownContextualSteps = EnumSet.noneOf(GuideStep.class);
+
+            if (guidanceSaveData.shownContextualSteps != null){
+                for (String stepName : guidanceSaveData.shownContextualSteps){
+                    try{
+                        shownContextualSteps.add(GuideStep.valueOf(stepName));
+                    }
+                    catch(IllegalArgumentException ignored){}
+                }
+            }
+
+            guidanceSystem.applyPersistentState(currentStep, guidanceSaveData.triggerSatisfied,
+                guidanceSaveData.messageAcknowledged, shownContextualSteps, activeContextualStep);
+        }
+        catch (IllegalArgumentException ignored){}
+    }
+
     private ItemStack[] createInventoryContents(List<ItemStackSaveData> itemDataList, int inventorySize){
         ItemStack [] contents = new ItemStack[inventorySize];
         for (ItemStackSaveData itemData : itemDataList){
@@ -177,6 +203,7 @@ public class SaveMapper {
         saveData.player.checkPointY = world.getCheckpointY();
         saveData.dayNight = createDayNightSaveData(world.getDayNightCycle());
         saveData.progressionState = createProgressionSaveData(world.getProgressionState());
+        saveData.guidance = createGuidanceSaveData(world.getGuidanceSystem());
 
         saveData.currentAreaId = SaveConstants.MAIN_ISLAND_ID;
         saveData.areas.add(createAreaSaveData(world));
@@ -360,7 +387,23 @@ public class SaveMapper {
         return nightSpawnSaveData;
     }
 
+    private GuidanceSaveData createGuidanceSaveData(GuidanceSystem guidanceSystem){
+        GuidanceSaveData guidanceSaveData = new GuidanceSaveData();
+        GuideStep currentStep = guidanceSystem.getCurrentStep();
+        guidanceSaveData.currentStep = currentStep == null ? null : currentStep.name();
 
+        GuideStep activeContextualStep = guidanceSystem.getActiveContextualStep();
+        guidanceSaveData.activeContextualStep = activeContextualStep == null ? null : activeContextualStep.name();
+
+        guidanceSaveData.triggerSatisfied = guidanceSystem.isCurrentTriggerSatisfied();
+        guidanceSaveData.messageAcknowledged = guidanceSystem.isMessageAcknowledged();
+
+        for (GuideStep step : guidanceSystem.getShownContextualSteps()){
+            guidanceSaveData.shownContextualSteps.add(step.name());
+        }
+
+        return guidanceSaveData;
+    }
 
 }
 
