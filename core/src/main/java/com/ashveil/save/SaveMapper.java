@@ -39,6 +39,7 @@ public class SaveMapper {
         applyWorldState(world, saveData);
         applyPlayerState(world.getPlayer(), saveData.player);
         applyProgressionState(world.getProgressionState(), saveData.progressionState);
+        world.updateBoatVisibility();
         applyDayNightState(world.getDayNightCycle(), saveData.dayNight);
 
         AreaSaveData currentArea = findCurrentArea(saveData);
@@ -96,13 +97,26 @@ public class SaveMapper {
 
     private void applyProgressionState(ProgressionState progressionState, ProgressionSaveData progressionSaveData){
         EnumSet<CraftingCategory> unlockedCategories = EnumSet.noneOf(CraftingCategory.class);
-
         for (String categoryName : progressionSaveData.unlockedCraftingCategories){
             unlockedCategories.add(CraftingCategory.valueOf(categoryName));
         }
 
+        EnumSet<AreaID> unlockedAreas = EnumSet.noneOf(AreaID.class);
+        if (progressionSaveData.unlockedAreas != null){
+            for (String areaName : progressionSaveData.unlockedAreas){
+                unlockedAreas.add(AreaID.valueOf(areaName));
+            }
+        }
+
+        if (unlockedAreas.isEmpty()){
+            unlockedAreas.add(AreaID.MAIN_ISLAND);
+            unlockedAreas.add(AreaID.WINDY_PLAINS);
+        }
+
         progressionState.applyPersistentState(progressionSaveData.firstTreeDropClaimed, progressionSaveData.wispNightUnlocked,
-                                              progressionSaveData.wraithNightUnlocked, unlockedCategories);
+                                              progressionSaveData.wraithNightUnlocked, progressionSaveData.boatKitCrafted,
+                                              progressionSaveData.boatBuilt, progressionSaveData.foundOldJetty,
+                                              unlockedCategories, unlockedAreas);
     }
 
     private void applyFarmingState(FarmingSystem farmingSystem, AreaSaveData areaSaveData){
@@ -256,8 +270,18 @@ public class SaveMapper {
         progressionSaveData.wispNightUnlocked = progressionState.isWispNightUnlocked();
         progressionSaveData.wraithNightUnlocked = progressionState.isWraithNightUnlocked();
 
+        progressionSaveData.boatKitCrafted = progressionState.isBoatKitCrafted();
+        progressionSaveData.boatBuilt  = progressionState.isBoatBuilt();
+        progressionSaveData.foundOldJetty  = progressionState.isOldJettyFound();
+
         for (CraftingCategory category : progressionState.getUnlockedCraftingCategories()){
             progressionSaveData.unlockedCraftingCategories.add(category.name());
+        }
+
+        for (AreaID areaID : AreaID.values()){
+            if (progressionState.isAreaUnlocked(areaID)){
+                progressionSaveData.unlockedAreas.add(areaID.name());
+            }
         }
 
         return progressionSaveData;

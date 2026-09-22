@@ -8,5 +8,10 @@ public class ProgressionSaveData {
     public boolean wispNightUnlocked;
     public boolean wraithNightUnlocked;
 
+    public boolean boatKitCrafted;
+    public boolean boatBuilt;
+    public boolean foundOldJetty;
+
     public List<String> unlockedCraftingCategories = new ArrayList<>();
+    public List<String> unlockedAreas = new ArrayList<>();
 }

@@ -35,14 +35,24 @@ public final class ProgressionState {
     }
 
     public void applyPersistentState(boolean firstTreeDropClaimed, boolean wispNightUnlocked,
-                                     boolean wraithNightUnlocked, Set<CraftingCategory> unlockedCraftingCategories){
+                                     boolean wraithNightUnlocked, boolean boatKitCrafted, boolean boatBuilt,
+                                     boolean foundOldJetty, Set<CraftingCategory> unlockedCraftingCategories,
+                                     Set<AreaID> unlockedAreas){
         if (unlockedCraftingCategories == null) throw new IllegalArgumentException("Unlocked crafting categories can't be null");
+        if (unlockedAreas == null) throw new IllegalArgumentException("Unlocked areas can't be null");
         this.firstTreeDropClaimed = firstTreeDropClaimed;
         this.wispNightUnlocked = wispNightUnlocked;
         this.wraithNightUnlocked = wraithNightUnlocked;
 
+        this.boatKitCrafted = boatKitCrafted;
+        this.boatBuilt = boatBuilt;
+        this.foundOldJetty = foundOldJetty;
+
         this.unlockedCraftingCategories.clear();
         this.unlockedCraftingCategories.addAll(unlockedCraftingCategories);
+
+        this.unlockedAreas.clear();
+        this.unlockedAreas.addAll(unlockedAreas);
     }
 
     public boolean isFirstTreeDropClaimed() {return firstTreeDropClaimed;}
