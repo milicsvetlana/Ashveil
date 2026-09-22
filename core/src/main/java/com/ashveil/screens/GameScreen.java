@@ -16,6 +16,7 @@ import com.ashveil.targeting.TargetMode;
 import com.ashveil.targeting.TileTargetingSystem;
 import com.ashveil.ui.*;
 import com.ashveil.ui.chest.ChestUI;
+import com.ashveil.ui.worldmap.WorldMapUi;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -29,6 +30,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import java.lang.reflect.MalformedParameterizedTypeException;
 
 public class GameScreen implements Screen {
 
@@ -57,6 +60,7 @@ public class GameScreen implements Screen {
     private boolean guidanceMessagePending;
     private float guidanceMessageDelay;
     private boolean contextualGuidanceVisible;
+    private WorldMapUi worldMapUi;
 
     public GameScreen(GameApp game, int saveSlot){
         this(game, saveSlot, new World());
@@ -73,6 +77,7 @@ public class GameScreen implements Screen {
         cameraController = new CameraController();
         hudRenderer = new HudRenderer();
         uiSkin = game.getUiSkin();
+        worldMapUi = new WorldMapUi(uiSkin, world);
         gameMenuUi = new GameMenuUi(uiSkin, world.getAvailableRecipes(), world, world.getPlayer().getInventory(), this::handleSuccessfulCraft, this::handleCraftingOpened);
         activeOverlay = GameOverlay.NONE;
         keyBindings = new KeyBindings();
@@ -136,6 +141,12 @@ public class GameScreen implements Screen {
 
             world.update(delta, playerInput);
 
+            if (activeOverlay == GameOverlay.WORLD_MAP) worldMapUi.act(delta);
+
+            if (world.isWorldMapOpenRequested()){
+                world.clearWorldMapOpenRequest();
+                openWorldMap();
+            }
             if (waitingForMovement){boolean playerMoved = Math.abs(world.getPlayer().getX() - playerXBeforeUpdate) > 0.001f
                                                           || Math.abs(world.getPlayer().getY() - playerYBeforeUpdate) > 0.001f;
                 if (playerMoved){handleGuidanceEvent(GameEvent.PLAYER_MOVED);}
@@ -195,6 +206,8 @@ public class GameScreen implements Screen {
 
         if (activeOverlay == GameOverlay.CHEST || activeOverlay == GameOverlay.PAUSE) overlayStage.draw();
         if (deathTransitionState != DeathTransitionState.NONE) renderDeathFade();
+
+        if (activeOverlay == GameOverlay.WORLD_MAP) worldMapUi.draw();
     }
 
     private void toggleMenu(){
@@ -343,6 +356,11 @@ public class GameScreen implements Screen {
     private void handleCancelBackInput(){
         if (!Gdx.input.isKeyJustPressed(keyBindings.getCancelBackKey())) return;
 
+        if (activeOverlay == GameOverlay.WORLD_MAP){
+            closeWorldMap();
+            return;
+        }
+
         if (activeOverlay == GameOverlay.MENU){
             toggleMenu();
             return;
@@ -387,6 +405,7 @@ public class GameScreen implements Screen {
         gameMenuUi.resize(i, i1);
         overlayStage.getViewport().update(i, i1, true);
         guidanceStage.getViewport().update(i, i1, true);
+        worldMapUi.resize(i, i1);
     }
 
     private void startDeathTransition(){
@@ -579,9 +598,31 @@ public class GameScreen implements Screen {
         GuideStep contextualStep = guidanceSystem.getActiveContextualStep();
 
         if (contextualStep == null) return;
+        contextualGuidanceVisible = true;
 
         String message = game.getLocalizationService().get(contextualStep.getMessageKey());
         guidanceUi.showMessage(message, "");
+    }
+
+    private void syncAreaView(){
+        worldRenderer.setTileMap(world.getTileMap());
+        tileTargetingSystem.setTileMap(world.getTileMap());
+    }
+
+    private void openWorldMap(){
+        if (activeOverlay != GameOverlay.NONE) return;
+
+        activeOverlay = GameOverlay.WORLD_MAP;
+        world.cancelTargeting();
+        worldMapUi.onOpen();
+
+        Gdx.input.setInputProcessor(worldMapUi.getStage());
+    }
+
+    private void closeWorldMap(){
+        if (activeOverlay != GameOverlay.WORLD_MAP) return;
+        activeOverlay = GameOverlay.NONE;
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override
@@ -596,6 +637,7 @@ public class GameScreen implements Screen {
         fadeRenderer.dispose();
         overlayStage.dispose();
         guidanceStage.dispose();
+        worldMapUi.dispose();
     }
 
     @Override public void show(){

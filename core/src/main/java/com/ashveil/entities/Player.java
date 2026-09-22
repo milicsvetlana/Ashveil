@@ -14,9 +14,9 @@ import java.util.List;
 public class Player extends Entity{
     private String characterName;
 
-    private final TileMap tileMap;
+    private TileMap tileMap;
+    private CollisionSystem collisionSystem;
     private final Inventory inventory;
-    private final CollisionSystem collisionSystem;
     private final Wallet wallet;
 
     private float damageCooldown = 0f;
@@ -25,15 +25,22 @@ public class Player extends Entity{
     private int selectedHotbarSlot;
     private int brokenHearts;
 
-    public Player(float x, float y, TileMap tileMap, CollisionSystem collisionSystem) {
+    public Player(float x, float y) {
         super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED, MovementType.GROUND);
+
         characterName = "Unnamed";
-        this.tileMap = tileMap;
-        this.collisionSystem = collisionSystem;
         inventory = new Inventory();
         wallet = new Wallet();
         selectedHotbarSlot = 0;
         brokenHearts = 0;
+    }
+
+    public void setAreaEnvironment(TileMap tileMap, CollisionSystem collisionSystem){
+        if (tileMap == null) throw new IllegalArgumentException("Tile map cannot be null.");
+        if (collisionSystem == null) throw new IllegalArgumentException("Collision system cannot be null.");
+
+        this.tileMap = tileMap;
+        this.collisionSystem = collisionSystem;
     }
 
     @Override

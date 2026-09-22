@@ -2,9 +2,12 @@ package com.ashveil.world;
 
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 public class TileMap {
     private final TiledMap tiledMap;
@@ -16,11 +19,9 @@ public class TileMap {
     private final int tileWidth;
     private final int tileHeight;
 
-    private final float playerSpawnX;
-    private final float playerSpawnY;
-
-    public TileMap(){
-        tiledMap = new TmxMapLoader().load("maps/test_map.tmx");
+    public TileMap(String mapPath){
+        if (mapPath == null || mapPath.isBlank()) throw new IllegalArgumentException("Map Path cannot be null.");
+        tiledMap = new TmxMapLoader().load(mapPath);
 
         //posto getlayers vraca opsti maplayer, mi kastujemo
         collisionLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Collision");
@@ -30,12 +31,6 @@ public class TileMap {
         height = tiledMap.getProperties().get("height", Integer.class);
         tileWidth = tiledMap.getProperties().get("tilewidth", Integer.class);
         tileHeight = tiledMap.getProperties().get("tileheight", Integer.class);
-
-        MapLayer objectsLayer = tiledMap.getLayers().get("Objects");
-        MapObject playerSpawn = objectsLayer.getObjects().get("player_spawn");
-
-        playerSpawnX = playerSpawn.getProperties().get("x", Float.class);
-        playerSpawnY = playerSpawn.getProperties().get("y", Float.class);
     }
 
     public boolean isBlocked(int x, int y){
@@ -92,15 +87,59 @@ public class TileMap {
         return collisionLayer.getCell(x, y) != null;
     }
 
+    public Vector2 getObjectPosition(String layerName, String objectName){
+        MapLayer layer = tiledMap.getLayers().get(layerName);
+        if (layer == null) throw new IllegalArgumentException("Map layer not found: " + layerName);
+
+        MapObject object = layer.getObjects().get(objectName);
+        if (object == null) throw new IllegalArgumentException("Map object not found: " + objectName);
+
+        Float x = object.getProperties().get("x", Float.class);
+        Float y = object.getProperties().get("y", Float.class);
+
+        if (x == null || y == null) throw new IllegalStateException("Map object has no valid position: " + objectName);
+
+        return new Vector2(x, y);
+    }
+
+    public Rectangle getObjectRectangle(String layerName, String objectName){
+        MapLayer layer = tiledMap.getLayers().get(layerName);
+        if (layer == null)  throw new IllegalStateException("Layer not found: " + layerName);
+
+        MapObject object = layer.getObjects().get(objectName);
+        if (!(object instanceof RectangleMapObject rectangleMapObject)) throw new IllegalStateException("Rectangle object not found: " + objectName);
+
+        return new Rectangle(rectangleMapObject.getRectangle());
+    }
+
+    public void setLayerVisible(String layerName, boolean visible){
+        MapLayer layer = tiledMap.getLayers().get(layerName);
+        if (layer == null) throw new IllegalStateException("Layer not found: " + layerName);
+        layer.setVisible(visible);
+    }
+
     public TiledMap getTiledMap() {
         return tiledMap;
     }
     public int getWidth() {return width;}
     public int getHeight() {return height;}
-    public float getPlayerSpawnX() {return playerSpawnX;}
-    public float getPlayerSpawnY() {return playerSpawnY;}
 
     public void dispose() {
         tiledMap.dispose();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

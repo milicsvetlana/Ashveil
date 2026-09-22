@@ -22,6 +22,7 @@ import com.ashveil.world.DayNightCycle;
 import com.ashveil.world.DayPhase;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
+import com.ashveil.world.area.AreaID;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -32,7 +33,8 @@ public class SaveMapper {
     public World createWorld(SaveData saveData){
         if (saveData == null) throw new IllegalArgumentException("SaveData can't be null.");
 
-        World world = World.createForLoad();
+        AreaID currentAreaId = AreaID.valueOf(saveData.currentAreaId);
+        World world = World.createForLoad(currentAreaId, saveData.player.x, saveData.player.y);
 
         applyWorldState(world, saveData);
         applyPlayerState(world.getPlayer(), saveData.player);
@@ -164,7 +166,7 @@ public class SaveMapper {
 
         try{
             GuideStep currentStep = guidanceSaveData.currentStep == null ? null : GuideStep.valueOf(guidanceSaveData.currentStep);
-            GuideStep activeContextualStep = guidanceSaveData.currentStep == null ? null : GuideStep.valueOf(guidanceSaveData.currentStep);
+            GuideStep activeContextualStep = guidanceSaveData.activeContextualStep == null ? null : GuideStep.valueOf(guidanceSaveData.activeContextualStep);
             EnumSet<GuideStep> shownContextualSteps = EnumSet.noneOf(GuideStep.class);
 
             if (guidanceSaveData.shownContextualSteps != null){
@@ -205,7 +207,7 @@ public class SaveMapper {
         saveData.progressionState = createProgressionSaveData(world.getProgressionState());
         saveData.guidance = createGuidanceSaveData(world.getGuidanceSystem());
 
-        saveData.currentAreaId = SaveConstants.MAIN_ISLAND_ID;
+        saveData.currentAreaId = world.getAreaManager().getCurrentAreaId().name();
         saveData.areas.add(createAreaSaveData(world));
 
         return saveData;
@@ -263,7 +265,7 @@ public class SaveMapper {
 
     private AreaSaveData createAreaSaveData(World world){
         AreaSaveData areaSaveData = new AreaSaveData();
-        areaSaveData.areaId = SaveConstants.MAIN_ISLAND_ID;
+        areaSaveData.areaId = world.getAreaManager().getCurrentAreaId().name();
 
         for (DestructibleObject object : world.getDestructibleObjects()){
             areaSaveData.destructibleObjects.add(createDestructibleObjectSaveData(object));

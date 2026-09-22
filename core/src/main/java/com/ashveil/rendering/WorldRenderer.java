@@ -36,13 +36,21 @@ public class WorldRenderer {
 
     public WorldRenderer(TileMap tileMap) {
         shapeRenderer = new ShapeRenderer();
-        tiledMap = tileMap.getTiledMap();
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, Config.SCALE);
+        setTileMap(tileMap);
+
         enemyRenderer = new EnemyRenderer();
 
         spriteBatch = new SpriteBatch();
         setTextures();
         screenProjection = new Matrix4().setToOrtho2D(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
+    }
+
+    public void setTileMap(TileMap tileMap){
+        if (tileMap == null) throw new IllegalArgumentException("Tile map cannot be null");
+        if (tiledMapRenderer != null) tiledMapRenderer.dispose();
+
+        tiledMap = tileMap.getTiledMap();
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, Config.SCALE);
     }
 
     public void setTextures(){

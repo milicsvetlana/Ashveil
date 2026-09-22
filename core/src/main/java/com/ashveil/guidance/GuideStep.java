@@ -8,7 +8,11 @@ public enum GuideStep {
     OPEN_CRAFTING("guidance.openCrafting", new GuideTrigger(GameEvent.CRAFTING_OPENED)),
     CRAFT_EQUIPMENT("guidance.craftEquipment", new GuideTrigger(GameEvent.ITEM_CRAFTED)),
     HEALING("guidance.healing", null),
-    DUSK_WARNING("guidance.dusk", new GuideTrigger(GameEvent.DUSK_STARTED));
+    DUSK_WARNING("guidance.dusk", new GuideTrigger(GameEvent.DUSK_STARTED)),
+    BOAT_KIT_FIND_JETTY("guidance.boatKitFindJetty", null),
+    OLD_JETTY_FOUND("guidance.oldJettyFound", null),
+    BOAT_KIT_RETURN_TO_JETTY("guidance.boatKitReturnToJetty", null),
+    BOAT_BUILT("guidance.boatBuilt", null);
 
     private final String messageKey;
     private final GuideTrigger trigger;

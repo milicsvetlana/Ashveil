@@ -115,4 +115,8 @@ public class Config {
 
 
     public static final int GUIDANCE_WOOD_TARGET = 5;
+
+    /** Travel */
+    public static final int BOAT_TRAVEL_GOLD = 5;
+    public static final float BOAT_TRAVEL_COOLDOWN = 30f;
 }

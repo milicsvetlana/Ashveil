@@ -1,5 +1,7 @@
 package com.ashveil.guidance;
 
+import com.ashveil.progression.ProgressionState;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +47,32 @@ public class GuidanceSystem {
 
         triggerSatisfied = true;
         return tryAdvance();
+    }
+
+    public boolean handleEvent(GameEvent event, ProgressionState progressionState){
+        if (event == null) throw new IllegalArgumentException("Game event cannot be null.");
+        if (progressionState == null) throw new IllegalArgumentException("Progression state cannot be null.");
+
+        if (event == GameEvent.OLD_JETTY_DISCOVERED){
+            if (!progressionState.isBoatKitCrafted()){
+                activateContextualStep(GuideStep.OLD_JETTY_FOUND);
+            }
+            return false;
+        }
+
+        if (event == GameEvent.BOAT_KIT_CRAFTED){
+            if (progressionState.isOldJettyFound()){
+                activateContextualStep(GuideStep.BOAT_KIT_RETURN_TO_JETTY);
+            }
+            else{
+                activateContextualStep(GuideStep.BOAT_KIT_FIND_JETTY);
+            }
+            return false;
+        }
+
+        if (event == GameEvent.BOAT_BUILT) return false;
+
+        return handleEvent(event);
     }
 
     private boolean tryAdvance(){

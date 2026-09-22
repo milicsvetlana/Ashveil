@@ -5,5 +5,6 @@ public enum GameOverlay {
     MENU,
     CHEST,
     SCROLL,
-    PAUSE
+    PAUSE,
+    WORLD_MAP
 }

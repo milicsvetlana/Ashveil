@@ -6,7 +6,7 @@ import com.ashveil.world.TileMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 
-//sluzi samo da kaze o kome se tileu radi
+//sluzi samo da kaze o kom se tileu radi
 public class TileTargetingSystem {
     private int tileX;
     private int tileY;
@@ -14,7 +14,7 @@ public class TileTargetingSystem {
     private float worldY;
 
     private final CameraController cameraController;
-    private final TileMap tileMap;
+    private TileMap tileMap;
 
     public TileTargetingSystem(CameraController cameraController, TileMap tileMap) {
         this.cameraController = cameraController;
@@ -32,6 +32,11 @@ public class TileTargetingSystem {
 
         worldX = tileX * Config.TILE_SIZE;
         worldY = tileY * Config.TILE_SIZE;
+    }
+
+    public void setTileMap(TileMap tileMap){
+        if (tileMap == null) throw new IllegalArgumentException("This map cannot be null.");
+        this.tileMap = tileMap;
     }
 
     public int getTileX() {return tileX;}
