@@ -12,4 +12,6 @@ public class AreaSaveData {
     public List<EnemySaveData> enemies = new ArrayList<>();
     public List<ProjectileSaveData> projectiles = new ArrayList<>();
     public NightSpawnSaveData nightSpawn;
+    public int lastDepartureDayCount = -1;
+    public int ordinaryNighDayCount = -1;
 }

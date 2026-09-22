@@ -23,6 +23,7 @@ import com.ashveil.world.DayPhase;
 import com.ashveil.world.World;
 import com.ashveil.world.WorldItem;
 import com.ashveil.world.area.AreaID;
+import com.ashveil.world.area.AreaRuntime;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -39,33 +40,35 @@ public class SaveMapper {
         applyWorldState(world, saveData);
         applyPlayerState(world.getPlayer(), saveData.player);
         applyProgressionState(world.getProgressionState(), saveData.progressionState);
-        world.updateBoatVisibility();
+
         applyDayNightState(world.getDayNightCycle(), saveData.dayNight);
 
-        AreaSaveData currentArea = findCurrentArea(saveData);
-        applyDestructibleObjectState(world, currentArea);
+        for (AreaSaveData areaSaveData : saveData.areas){
+            AreaID areaID = AreaID.valueOf(areaSaveData.areaId);
+            AreaRuntime runtime = world.getOrCreateAreaRuntimeForLoad(areaID);
+            applyAreaState(runtime, areaSaveData);
+        }
 
-        applyFarmingState(world.getFarmingSystem(), currentArea);
-        applyGroundItemState(world, currentArea);
-        applyEnemyState(world, currentArea);
-        applyProjectileState(world.getProjectileSystem(), currentArea);
-        applyNightSpawnState(world.getEnemySpawnSystem(), currentArea.nightSpawn);
+        world.updateBoatVisibility();
+
         applyGuidanceState(world.getGuidanceSystem(), saveData.guidance);
-
         return world;
     }
 
-    private AreaSaveData findCurrentArea(SaveData saveData){
-        for (AreaSaveData areaSaveData : saveData.areas){
-            if (saveData.currentAreaId.equals(areaSaveData.areaId)) return areaSaveData;
-        }
-        throw new IllegalStateException("Current area not found in save data.");
+    private void applyAreaState(AreaRuntime runtime, AreaSaveData areaSaveData){
+        runtime.applyPersistentState(areaSaveData.lastDepartureDayCount, areaSaveData.ordinaryNighDayCount);
+        applyDestructibleObjectState(runtime, areaSaveData);
+        applyFarmingState(runtime.getFarmingSystem(), areaSaveData);
+        applyGroundItemState(runtime, areaSaveData);
+        applyEnemyState(runtime, areaSaveData);
+        applyProjectileState(runtime.getProjectileSystem(), areaSaveData);
+        applyNightSpawnState(runtime.getEnemySpawnSystem(), areaSaveData.nightSpawn);
     }
 
-    public void applyDestructibleObjectState(World world, AreaSaveData areaSaveData){
+    public void applyDestructibleObjectState(AreaRuntime runtime, AreaSaveData areaSaveData){
         for (DestructibleObjectSaveData objectSaveData : areaSaveData.destructibleObjects){
             DestructibleObjectType type = DestructibleObjectType.valueOf(objectSaveData.objectType);
-            DestructibleObject object = world.getDestructibleObjectSystem().createAndAdd(objectSaveData.x, objectSaveData.y,
+            DestructibleObject object = runtime.getDestructibleObjectSystem().createAndAdd(objectSaveData.x, objectSaveData.y,
                                                                                          type, objectSaveData.currentHp);
             if (object instanceof Chest chest){
                 ItemStack[] chestContents = createInventoryContents(objectSaveData.chestInventory, Config.CHEST_INVENTORY_SIZE);
@@ -138,20 +141,20 @@ public class SaveMapper {
         }
     }
 
-    private void applyGroundItemState(World world, AreaSaveData areaSaveData){
+    private void applyGroundItemState(AreaRuntime runtime, AreaSaveData areaSaveData){
         List<WorldItem> restoredItems = new ArrayList<>();
         for (WorldItemSaveData itemSaveData : areaSaveData.groundItems){
             ItemType itemType = ItemType.valueOf(itemSaveData.itemType);
             ItemStack itemStack = new ItemStack(itemType, itemSaveData.quantity, itemSaveData.durability);
             restoredItems.add(new WorldItem(itemSaveData.x, itemSaveData.y, itemStack));
         }
-        world.getWorldItemSystem().replaceItems(restoredItems);
+        runtime.getWorldItemSystem().replaceItems(restoredItems);
     }
 
-    private void applyEnemyState(World world, AreaSaveData areaSaveData){
+    private void applyEnemyState(AreaRuntime runtime, AreaSaveData areaSaveData){
         for (EnemySaveData enemySaveData : areaSaveData.enemies){
             EnemyType enemyType = EnemyType.valueOf(enemySaveData.enemyType);
-            world.getEnemySpawnSystem().createAndAddEnemy(enemyType, enemySaveData.x, enemySaveData.y, enemySaveData.currentHp);
+            runtime.getEnemySpawnSystem().createAndAddEnemy(enemyType, enemySaveData.x, enemySaveData.y, enemySaveData.currentHp);
         }
     }
 
@@ -222,7 +225,9 @@ public class SaveMapper {
         saveData.guidance = createGuidanceSaveData(world.getGuidanceSystem());
 
         saveData.currentAreaId = world.getAreaManager().getCurrentAreaId().name();
-        saveData.areas.add(createAreaSaveData(world));
+        for (AreaRuntime runtime : world.getInitializedAreaRuntimes()){
+            saveData.areas.add(createAreaSaveData(runtime));
+        }
 
         return saveData;
     }
@@ -287,31 +292,33 @@ public class SaveMapper {
         return progressionSaveData;
     }
 
-    private AreaSaveData createAreaSaveData(World world){
+    private AreaSaveData createAreaSaveData(AreaRuntime runtime){
         AreaSaveData areaSaveData = new AreaSaveData();
-        areaSaveData.areaId = world.getAreaManager().getCurrentAreaId().name();
+        areaSaveData.areaId = runtime.getAreaID().name();
 
-        for (DestructibleObject object : world.getDestructibleObjects()){
+        for (DestructibleObject object : runtime.getDestructibleObjectSystem().getObjects()){
             areaSaveData.destructibleObjects.add(createDestructibleObjectSaveData(object));
         }
 
-        addFarmingSaveData(world, areaSaveData);
+        addFarmingSaveData(runtime.getFarmingSystem(), areaSaveData);
 
-        for (WorldItem groundItem : world.getGroundItems()){
+        for (WorldItem groundItem : runtime.getWorldItemSystem().getItems()){
             areaSaveData.groundItems.add(createWorldItemSaveData(groundItem));
         }
 
-        for (Enemy enemy : world.getEnemies()){
+        for (Enemy enemy : runtime.getEnemies()){
             if (!enemy.isAlive()) continue;
             areaSaveData.enemies.add(createEnemySaveData(enemy));
         }
 
-        for (Projectile projectile : world.getProjectileSystem().getProjectiles()){
+        for (Projectile projectile : runtime.getProjectileSystem().getProjectiles()){
             if (!projectile.isActive()) continue;
             areaSaveData.projectiles.add(createProjectileSaveData(projectile));
         }
 
-        areaSaveData.nightSpawn = createNightSpawnSaveData(world.getEnemySpawnSystem());
+        areaSaveData.nightSpawn = createNightSpawnSaveData(runtime.getEnemySpawnSystem());
+        areaSaveData.lastDepartureDayCount = runtime.getLastDepartureDayCount();
+        areaSaveData.ordinaryNighDayCount = runtime.getOrdinaryNightDayCount();
 
         return areaSaveData;
     }
@@ -352,9 +359,7 @@ public class SaveMapper {
         return plantSaveData;
     }
 
-    private void addFarmingSaveData(World world, AreaSaveData areaSaveData) {
-        FarmingSystem farmingSystem = world.getFarmingSystem();
-
+    private void addFarmingSaveData(FarmingSystem farmingSystem, AreaSaveData areaSaveData) {
         for (int x = 0; x < farmingSystem.getWidth(); x++) {
             for (int y = 0; y < farmingSystem.getHeight(); y++) {
                 if (farmingSystem.isTilled(x, y)) {

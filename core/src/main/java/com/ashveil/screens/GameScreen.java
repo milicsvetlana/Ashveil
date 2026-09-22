@@ -18,6 +18,7 @@ import com.ashveil.ui.*;
 import com.ashveil.ui.chest.ChestUI;
 import com.ashveil.ui.worldmap.WorldMapUi;
 import com.ashveil.world.*;
+import com.ashveil.world.area.AreaID;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -141,7 +142,10 @@ public class GameScreen implements Screen {
 
             world.update(delta, playerInput);
 
-            if (activeOverlay == GameOverlay.WORLD_MAP) worldMapUi.act(delta);
+            if (activeOverlay == GameOverlay.WORLD_MAP){
+                worldMapUi.act(delta);
+                handleWorldMapRequests();
+            }
 
             if (world.isWorldMapOpenRequested()){
                 world.clearWorldMapOpenRequest();
@@ -583,6 +587,26 @@ public class GameScreen implements Screen {
             stepChanged = guidanceSystem.acknowledgeCurrentMessage();
             if (stepChanged) scheduleNextGuidanceMessage(completedStep);
         }
+    }
+
+    private void handleWorldMapRequests(){
+        if (activeOverlay != GameOverlay.WORLD_MAP) return;
+
+        if (worldMapUi.isCloseRequested()){
+            worldMapUi.clearCloseRequest();
+            closeWorldMap();
+            return;
+        }
+
+        AreaID destination = worldMapUi.getTravelRequestedArea();
+        if (destination == null) return;
+
+        worldMapUi.clearTravelRequest();
+        boolean travelled = world.travelToArea(destination);
+        if (!travelled) return;
+
+        syncAreaView();
+        closeWorldMap();
     }
 
     private void updateContextualGuidance(){

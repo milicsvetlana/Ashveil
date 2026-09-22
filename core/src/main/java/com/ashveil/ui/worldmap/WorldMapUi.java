@@ -5,15 +5,19 @@ import com.ashveil.world.area.AreaID;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import javax.swing.*;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -35,6 +39,12 @@ public class WorldMapUi implements Disposable {
 
     private final Map<AreaID, Image> markers;
     private AreaID selectedAreaId;
+
+    private final TextButton closeButton;
+    private final TextButton travelButton;
+
+    private boolean closeRequested;
+    private AreaID travelRequestedArea;
 
     public WorldMapUi(Skin skin, WorldMapAccess worldMapAccess){
         if (skin == null) throw new IllegalArgumentException("Skin cannot be null");
@@ -60,6 +70,16 @@ public class WorldMapUi implements Disposable {
 
         markers = new EnumMap<>(AreaID.class);
         selectedAreaId = null;
+
+        closeButton = new TextButton("CLOSE MAP", skin, "save-slot-action");
+        travelButton = new TextButton("TRAVEL", skin, "save-slot-action");
+
+        closeButton.getLabel().setFontScale(2.5f);
+        travelButton.getLabel().setFontScale(2.5f);
+
+        closeRequested = false;
+        travelRequestedArea = null;
+
         createLayout();
     }
 
@@ -77,7 +97,25 @@ public class WorldMapUi implements Disposable {
         stage.addActor(darkrootIsleMarker);
         stage.addActor(veilscarPassageMarker);
 
-        refreshMarkers();
+        closeButton.setBounds(1320f, 70f, 560f, 150f);
+        travelButton.setBounds(1960f, 70f, 560f, 150f);
+
+        closeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                closeRequested = true;
+            }
+        });
+
+        travelButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                travelRequestedArea = selectedAreaId;
+            }
+        });
+
+        stage.addActor(closeButton);
+        stage.addActor(travelButton);
     }
 
     private Image createMarker(AreaID areaID, Texture texture, float x, float y, float size1, float size2){
@@ -99,6 +137,11 @@ public class WorldMapUi implements Disposable {
         markers.put(areaID, marker);
 
         return marker;
+    }
+
+    public void refresh(){
+        refreshMarkers();
+        refreshButtons();
     }
 
     private WorldMapMarkerState getMarkerState(AreaID areaID){
@@ -127,11 +170,20 @@ public class WorldMapUi implements Disposable {
 
             marker.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
         }
+
+        refreshButtons();
+    }
+
+    private void refreshButtons(){
+        boolean travelAvailable = selectedAreaId != null && worldMapAccess.isBoatTravelReady() && worldMapAccess.canAffordBoatTravel();
+        travelButton.setDisabled(!travelAvailable);
     }
 
     public void onOpen(){
         selectedAreaId = null;
-        refreshMarkers();
+        closeRequested = false;
+        travelRequestedArea = null;
+        refresh();
     }
     public void act(float delta){
         stage.act(delta);
@@ -150,4 +202,9 @@ public class WorldMapUi implements Disposable {
         currentMarkerTexture.dispose();
         selectedMarkerTexture.dispose();
     }
+
+    public boolean isCloseRequested(){return closeRequested;}
+    public void clearCloseRequest(){closeRequested = false;}
+    public AreaID getTravelRequestedArea(){return travelRequestedArea;}
+    public void clearTravelRequest(){travelRequestedArea = null;}
 }

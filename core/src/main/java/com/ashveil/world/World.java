@@ -515,6 +515,7 @@ public class World implements CraftingAccess, WorldMapAccess {
         Vector2 dockArrival = runtime.getTileMap().getObjectPosition("Objects", "dock_arrival");
         checkpointX = dockArrival.x;
         checkpointY = dockArrival.y;
+        player.setPosition(dockArrival.x, dockArrival.y);
 
         activeChest = null;
         cancelTargeting();
@@ -630,6 +631,18 @@ public class World implements CraftingAccess, WorldMapAccess {
     public DestructibleObjectSystem getDestructibleObjectSystem(){return currentAreaRuntime.getDestructibleObjectSystem();}
     public WorldItemSystem getWorldItemSystem(){return currentAreaRuntime.getWorldItemSystem();}
     public GuidanceSystem getGuidanceSystem(){return guidanceSystem;}
+    public List<AreaRuntime> getInitializedAreaRuntimes(){return new ArrayList<>(areaRuntimes.values());}
+
+    public AreaRuntime getOrCreateAreaRuntimeForLoad(AreaID areaID){
+        if (areaID == null) throw new IllegalArgumentException("Area id cannot be null.");
+
+        AreaRuntime runtime = areaRuntimes.get(areaID);
+        if (runtime != null) return runtime;
+
+        runtime = new AreaRuntime(areaManager.getArea(areaID), player, progressionState);
+        areaRuntimes.put(areaID, runtime);
+        return runtime;
+    }
 
     @Override
     public AreaID getCurrentAreaId(){return areaManager.getCurrentAreaId();}

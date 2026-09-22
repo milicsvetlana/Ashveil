@@ -42,8 +42,8 @@ public class Config {
     /** Day and night cycle */
     public static final float FIRST_DAY_DURATION = 60f;
 
-    public static final float DAY_DURATION = 5f;
-    public static final float DUSK_DURATION = 5f;
+    public static final float DAY_DURATION = 15f;
+    public static final float DUSK_DURATION = 15f;
     public static final float NIGHT_DURATION = 15f;
 
     public static final float DAY_PHASE_RATIO = 0.60f;
@@ -117,6 +117,6 @@ public class Config {
     public static final int GUIDANCE_WOOD_TARGET = 5;
 
     /** Travel */
-    public static final int BOAT_TRAVEL_GOLD = 5;
-    public static final float BOAT_TRAVEL_COOLDOWN = 30f;
+    public static final int BOAT_TRAVEL_GOLD = 0;
+    public static final float BOAT_TRAVEL_COOLDOWN = 5f;
 }

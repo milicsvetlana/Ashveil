@@ -67,6 +67,14 @@ public class AreaRuntime implements Disposable {
         ordinaryNightDayCount = dayCount;
     }
 
+    public void applyPersistentState(int lastDepartureDayCount, int ordinaryNightDayCount){
+        if (lastDepartureDayCount < -1) throw new IllegalArgumentException("Last departure day count cannot be less than -1.");
+        if (ordinaryNightDayCount < -1) throw new IllegalArgumentException("Ordinary night day count cannot be less than -1.");
+
+        this.lastDepartureDayCount = lastDepartureDayCount;
+        this.ordinaryNightDayCount = ordinaryNightDayCount;
+    }
+
     public AreaID getAreaID() {return areaID;}
     public TileMap getTileMap() {return tileMap;}
     public CollisionSystem getCollisionSystem() {return collisionSystem;}
