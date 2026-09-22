@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="128" height="136" tilewidth="16" tileheight="16" infinite="0" nextlayerid="16" nextobjectid="34">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="128" height="136" tilewidth="16" tileheight="16" infinite="0" nextlayerid="16" nextobjectid="35">
  <tileset firstgid="1" source="../tilesets/main_terrain.tsx"/>
  <tileset firstgid="121" source="../tilesets/decorations.tsx"/>
  <tileset firstgid="377" source="../tilesets/most.tsx"/>
@@ -1440,6 +1440,7 @@
    <point/>
   </object>
   <object id="33" name="NoNaturalSpawn" x="1000.33" y="117.667" width="48.3333" height="122.333"/>
+  <object id="34" name="NoNaturalSpawn" x="1434.2" y="650.227" width="387.333" height="391.333"/>
  </objectgroup>
  <objectgroup id="11" name="ResourceZones">
   <object id="9" name="western_forest" type="resource_zone" x="176" y="352" width="800" height="1376">

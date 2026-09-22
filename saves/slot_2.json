@@ -1,15 +1,15 @@
 {
 "saveVersion": 1,
-"savedAt": 1790106666247,
-"playTimeSeconds": 135.7170458122273,
+"savedAt": 1790110167979,
+"playTimeSeconds": 214.07849145954242,
 "player": {
 	"characterName": "ddd",
-	"x": 817.91315,
-	"y": 1713.9254,
-	"checkPointX": 1024,
-	"checkPointY": 2006.667,
-	"health": 4,
-	"brokenHearts": 0,
+	"x": 288.1653,
+	"y": 182.75,
+	"checkPointX": 304,
+	"checkPointY": 182.75,
+	"health": 7,
+	"brokenHearts": 1,
 	"gold": 0,
 	"selectedHotbarSlot": 0,
 	"inventory": [
@@ -22,9 +22,9 @@
 	]
 },
 "dayNight": {
-	"dayCount": 3,
-	"phase": "DAY",
-	"phaseTimer": 0.71709144
+	"dayCount": 4,
+	"phase": "NIGHT",
+	"phaseTimer": 4.0785613
 },
 "progressionState": {
 	"firstTreeDropClaimed": true,
@@ -44,7 +44,7 @@
 		"WINDY_PLAINS"
 	]
 },
-"currentAreaId": "MAIN_ISLAND",
+"currentAreaId": "WINDY_PLAINS",
 "areas": [
 	{
 		"areaId": "MAIN_ISLAND",
@@ -403,7 +403,7 @@
 			"spawnTimer": 0,
 			"spawnInterval": 0
 		},
-		"lastDepartureDayCount": 2,
+		"lastDepartureDayCount": 3,
 		"ordinaryNighDayCount": 2
 	},
 	{
@@ -812,15 +812,59 @@
 		"tilledTiles": [],
 		"plants": [],
 		"groundItems": [],
-		"enemies": [],
+		"enemies": [
+			{
+				"enemyType": "SHADE",
+				"x": 290.56262,
+				"y": 434.56262,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 290.56262,
+				"y": 434.56262,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 312.4049,
+				"y": 456.4049,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 312.4049,
+				"y": 456.4049,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 391.6893,
+				"y": 503.6893,
+				"currentHp": 6
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 391.6893,
+				"y": 503.6893,
+				"currentHp": 6
+			}
+		],
 		"projectiles": [],
 		"nightSpawn": {
-			"remainingQueue": [],
-			"spawnTimer": 0,
-			"spawnInterval": 0
+			"remainingQueue": [
+				"SHADE",
+				"SHADE",
+				"SHADE",
+				"SHADE",
+				"SHADE",
+				"SHADE"
+			],
+			"spawnTimer": 0.5825212,
+			"spawnInterval": 1.1666666
 		},
 		"lastDepartureDayCount": 2,
-		"ordinaryNighDayCount": -1
+		"ordinaryNighDayCount": 4
 	}
 ],
 "guidance": {

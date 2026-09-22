@@ -9,6 +9,7 @@ import com.ashveil.objects.DestructibleObjectType;
 import com.ashveil.save.data.*;
 import com.ashveil.world.DayNightCycle;
 import com.ashveil.world.DayPhase;
+import com.ashveil.world.area.AreaID;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -83,6 +84,7 @@ public class SaveValidator {
     private boolean progressionIsValid(ProgressionSaveData progressionSaveData) {
         if (progressionSaveData == null) return false;
         if (progressionSaveData.unlockedCraftingCategories == null) return false;
+        if (progressionSaveData.unlockedAreas == null) return false;
 
         EnumSet<CraftingCategory> unlockedCategories = EnumSet.noneOf(CraftingCategory.class);
         for (String categoryName : progressionSaveData.unlockedCraftingCategories) {
@@ -98,10 +100,31 @@ public class SaveValidator {
             if (!unlockedCategories.add(craftingCategory)) return false;
         }
 
-        return unlockedCategories.contains(CraftingCategory.WEAPONS) &&
-            unlockedCategories.contains(CraftingCategory.TOOLS) &&
-            unlockedCategories.contains(CraftingCategory.FOOD) &&
-            unlockedCategories.contains(CraftingCategory.BUILDING);
+        EnumSet<AreaID> unlockedAreas = EnumSet.noneOf(AreaID.class);
+        for (String areaName : progressionSaveData.unlockedAreas){
+            if (areaName == null) return false;
+
+            AreaID areaID;
+
+            try{
+                areaID = AreaID.valueOf(areaName);
+            }
+            catch (IllegalArgumentException exception){
+                return false;
+            }
+
+            if (!unlockedAreas.add(areaID)) return false;
+        }
+
+        boolean craftingValid = unlockedCategories.contains(CraftingCategory.WEAPONS) &&
+                                unlockedCategories.contains(CraftingCategory.TOOLS) &&
+                                unlockedCategories.contains(CraftingCategory.FOOD) &&
+                                unlockedCategories.contains(CraftingCategory.BUILDING);
+
+        if (!craftingValid) return false;
+        if (unlockedAreas.isEmpty()) return true;
+
+        return unlockedAreas.contains(AreaID.MAIN_ISLAND) && unlockedAreas.contains(AreaID.WINDY_PLAINS);
     }
 
     private boolean dayNightIsValid(DayNightSaveData dayNightSaveData) {
@@ -293,8 +316,6 @@ public class SaveValidator {
                 return false;
             }
         }
-
         return true;
     }
-
 }

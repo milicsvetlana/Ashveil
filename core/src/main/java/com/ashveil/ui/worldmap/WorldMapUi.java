@@ -9,15 +9,16 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
-import javax.swing.*;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -31,6 +32,10 @@ public class WorldMapUi implements Disposable {
 
     private final Texture backgroundTexture;
     private final Image backgroundImage;
+
+    private final Texture statusBarTexture;
+    private final Image statusBarImage;
+    private final Label statusLabel;
 
     private final Texture lockedMarkerTexture;
     private final Texture availableMarkerTexture;
@@ -57,6 +62,15 @@ public class WorldMapUi implements Disposable {
         backgroundTexture = new Texture(Gdx.files.internal("ui/world-map/world-map.png"));
         backgroundTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         backgroundImage = new Image(backgroundTexture);
+
+        statusBarTexture = new Texture(Gdx.files.internal("ui/world-map/world-map-status-bar.png"));
+        statusBarTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        statusBarImage = new Image(statusBarTexture);
+
+        statusLabel = new Label("Good to go.", skin);
+        statusLabel.setAlignment(Align.center);
+        statusLabel.setFontScale(2f);
 
         lockedMarkerTexture = new Texture(Gdx.files.internal("ui/world-map/world-map-marker-locked.png"));
         availableMarkerTexture = new Texture(Gdx.files.internal("ui/world-map/world-map-marker-available.png"));
@@ -97,6 +111,12 @@ public class WorldMapUi implements Disposable {
         stage.addActor(darkrootIsleMarker);
         stage.addActor(veilscarPassageMarker);
 
+        statusBarImage.setBounds(1420f, 175f, 1000f, 280f);
+        statusLabel.setBounds(1420f, 235f, 1000f, 160f);
+
+        stage.addActor(statusBarImage);
+        stage.addActor(statusLabel);
+
         closeButton.setBounds(1320f, 70f, 560f, 150f);
         travelButton.setBounds(1960f, 70f, 560f, 150f);
 
@@ -130,7 +150,7 @@ public class WorldMapUi implements Disposable {
                 if (getMarkerState(areaID) != WorldMapMarkerState.AVAILABLE) return;
 
                 selectedAreaId = areaID;
-                refreshMarkers();
+                refresh();
             }
         });
 
@@ -141,7 +161,7 @@ public class WorldMapUi implements Disposable {
 
     public void refresh(){
         refreshMarkers();
-        refreshButtons();
+        refreshTravelState();
     }
 
     private WorldMapMarkerState getMarkerState(AreaID areaID){
@@ -170,13 +190,33 @@ public class WorldMapUi implements Disposable {
 
             marker.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
         }
-
-        refreshButtons();
     }
 
-    private void refreshButtons(){
+    private void refreshTravelState(){
         boolean travelAvailable = selectedAreaId != null && worldMapAccess.isBoatTravelReady() && worldMapAccess.canAffordBoatTravel();
+
         travelButton.setDisabled(!travelAvailable);
+        statusLabel.setText(createStatusText());
+    }
+
+    private String createStatusText(){
+        int gold = worldMapAccess.getGold();
+        int cost = worldMapAccess.getBoatTravelCost();
+
+        if (!worldMapAccess.isBoatTravelReady()){
+            int seconds = Math.max(1, (int) Math.ceil(worldMapAccess.getBoatTravelCooldownRemaining()));
+            return "Gold: " + gold + " | Travel cooldown: " + seconds + "s | Cost: " + cost;
+        }
+
+        if (selectedAreaId == null){
+            return "Gold: " + gold + "   |   Select a destination   |   Cost: " + cost;
+        }
+
+        if (!worldMapAccess.canAffordBoatTravel()){
+            return "Gold: " + gold + "   |   Not enough gold   |   Cost: " + cost;
+        }
+
+        return "Gold: " + gold + "   |   Ready to travel   |   Cost: " + cost;
     }
 
     public void onOpen(){
@@ -186,6 +226,7 @@ public class WorldMapUi implements Disposable {
         refresh();
     }
     public void act(float delta){
+        refreshTravelState();
         stage.act(delta);
     }
     public void draw(){stage.draw();}
@@ -201,6 +242,7 @@ public class WorldMapUi implements Disposable {
         availableMarkerTexture.dispose();
         currentMarkerTexture.dispose();
         selectedMarkerTexture.dispose();
+        statusBarTexture.dispose();
     }
 
     public boolean isCloseRequested(){return closeRequested;}

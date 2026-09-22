@@ -421,6 +421,9 @@ public class GameScreen implements Screen {
             activeOverlay = GameOverlay.NONE;
             Gdx.input.setInputProcessor(null);
         }
+        else if (activeOverlay == GameOverlay.WORLD_MAP){
+            closeWorldMap();
+        }
         world.cancelTargeting();
     }
 
@@ -671,6 +674,9 @@ public class GameScreen implements Screen {
         else if (activeOverlay == GameOverlay.MENU){
             Gdx.input.setInputProcessor(gameMenuUi.getStage());
         }
+        else if (activeOverlay == GameOverlay.WORLD_MAP){
+            Gdx.input.setInputProcessor(worldMapUi.getStage());
+        }
         else {
             Gdx.input.setInputProcessor(null);
         }
@@ -678,7 +684,9 @@ public class GameScreen implements Screen {
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {
-        if (Gdx.input.getInputProcessor() == overlayStage || Gdx.input.getInputProcessor() == gameMenuUi.getStage()){
+        if (Gdx.input.getInputProcessor() == overlayStage ||
+            Gdx.input.getInputProcessor() == gameMenuUi.getStage() ||
+            Gdx.input.getInputProcessor() == worldMapUi.getStage()){
             Gdx.input.setInputProcessor(null);
         }
     }

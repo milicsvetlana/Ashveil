@@ -145,6 +145,7 @@ public class DestructibleObjectSystem {
 
     private boolean isNaturalSpawnPositionValid(int tileX, int tileY, Player player){
         if (tileMap.isBlocked(tileX, tileY)) return false;
+        if (tileMap.isNaturalSpawnBlocked(tileX, tileY)) return false;
 
         float worldX = tileX * Config.TILE_SIZE;
         float worldY = tileY * Config.TILE_SIZE;

@@ -13,6 +13,7 @@ public class TileMap {
     private final TiledMap tiledMap;
     private final TiledMapTileLayer collisionLayer;
     private final TiledMapTileLayer groundLayer;
+    private final MapLayer noNaturalSpawnLayer;
 
     private final int width;
     private final int height;
@@ -26,6 +27,7 @@ public class TileMap {
         //posto getlayers vraca opsti maplayer, mi kastujemo
         collisionLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Collision");
         groundLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Ground");
+        noNaturalSpawnLayer = tiledMap.getLayers().get("NoNaturalSpawn");
 
         width = tiledMap.getProperties().get("width", Integer.class);
         height = tiledMap.getProperties().get("height", Integer.class);
@@ -35,6 +37,20 @@ public class TileMap {
 
     public boolean isBlocked(int x, int y){
         return isOutOfBounds(x, y) || hasCollisionTile(x, y);
+    }
+
+    public boolean isNaturalSpawnBlocked(int tileX, int tileY){
+        if (isOutOfBounds(tileX, tileY)) return true;
+        if (noNaturalSpawnLayer == null) return false;
+
+        Rectangle tileBounds = new Rectangle(tileToWorldX(tileX), tileToWorldY(tileY), tileWidth, tileHeight);
+
+        for (MapObject object : noNaturalSpawnLayer.getObjects()){
+            if (!(object instanceof RectangleMapObject rectangleMapObject)) continue;
+            if (tileBounds.overlaps(rectangleMapObject.getRectangle())) return true;
+        }
+
+        return false;
     }
 
     public int worldToTileX(float worldX){return (int) Math.floor(worldX / tileWidth);}
