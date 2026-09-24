@@ -25,6 +25,8 @@ public class Player extends Entity{
     private int selectedHotbarSlot;
     private int brokenHearts;
 
+    private float dashCooldown = 0f;
+
     public Player(float x, float y) {
         super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED, MovementType.GROUND);
 
@@ -47,6 +49,7 @@ public class Player extends Entity{
     public void update(float delta) {
         if (damageCooldown > 0) damageCooldown -= delta;
         if (primaryActionCooldown  > 0) primaryActionCooldown  -= delta;
+        if (dashCooldown > 0f) dashCooldown = Math.max(0f, dashCooldown - delta);
     }
 
     public void move(float dx, float dy, float delta) {
@@ -172,6 +175,54 @@ public class Player extends Entity{
         this.selectedHotbarSlot = selectedHotbarSlot;
         inventory.replaceContents(inventoryContents);
         wallet.addGold(gold);
+    }
+
+    public boolean dash(float inputX, float inputY){
+        if (dashCooldown > 0f) return false;
+
+        float dashX = inputX;
+        float dashY = inputY;
+
+        float length = (float) Math.sqrt(dashX * dashX + dashY * dashY);
+
+        if (length > 0f){
+            dashX /= length;
+            dashY /= length;
+        }
+        else {
+            dashX = getFacingX();
+            dashY = getFacingY();
+        }
+
+        float remainingDistance = Config.PLAYER_DASH_DISTANCE;
+        float step = Config.TILE_SIZE / 4f;
+
+        boolean moved = false;
+
+        while (remainingDistance > 0f){
+            float currentStep = Math.min(step, remainingDistance);
+            float nextX = x + dashX * currentStep;
+            float nextY = y + dashY * currentStep;
+            boolean movedThisStep = false;
+
+            if (!isCollidingAt(nextX, y)){
+                x = nextX;
+                movedThisStep = true;
+            }
+
+            if (!isCollidingAt(x, nextY)){
+                y = nextY;
+                movedThisStep = true;
+            }
+
+            if (!movedThisStep) break;
+
+            moved = true;
+            remainingDistance -= currentStep;
+        }
+
+        if (moved) dashCooldown = Config.PLAYER_DASH_COOLDOWN;
+        return moved;
     }
 
     public Facing getFacing() {return facing;}

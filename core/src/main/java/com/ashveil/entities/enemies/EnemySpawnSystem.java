@@ -9,6 +9,7 @@ import com.ashveil.navigation.DistanceField;
 import com.ashveil.navigation.NavigationMode;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.world.TileMap;
+import com.ashveil.world.area.AreaID;
 import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayDeque;
@@ -60,20 +61,18 @@ public class EnemySpawnSystem {
         if (trySpawningEnemy(enemyType)) spawnQueue.remove();
     }
 
-    public void startNight(int dayCount) {
+    public void startNight(int dayCount, AreaID areaID) {
+        if (areaID == null) throw new IllegalArgumentException("Area ID cannot be null");
+
         spawnQueue.clear();
         int remainingBudget = Config.INITIAL_NIGHT_THREAT_BUDGET + (dayCount - 1) * Config.NIGHT_THREAT_BUDGET_INCREASE;
 
-        List<EnemyType> unlockedTypes = new ArrayList<>();
-        unlockedTypes.add(EnemyType.SHADE);
-
-        if (progressionState.isWispNightUnlocked()) unlockedTypes.add(EnemyType.WISP);
-        if (progressionState.isWraithNightUnlocked()) unlockedTypes.add(EnemyType.WRAITH);
+        List<EnemyType> availableTypes = getAvailableEnemyTypes(areaID);
 
         while (remainingBudget > 0) {
             List<EnemyType> affordableTypes = new ArrayList<>();
 
-            for (EnemyType enemyType : unlockedTypes) {
+            for (EnemyType enemyType : availableTypes) {
                 if (enemyType.getThreatCost() <= remainingBudget) affordableTypes.add(enemyType);
             }
             if (affordableTypes.isEmpty()) break;
@@ -86,6 +85,28 @@ public class EnemySpawnSystem {
         spawnTimer = 0;
         //Config.nightduration * 0.7 prakticno predstavlja prostor kad moze da se spawna
         if (!spawnQueue.isEmpty()) spawnInterval = Config.NIGHT_DURATION * 0.7f / spawnQueue.size();
+    }
+
+    private List<EnemyType> getAvailableEnemyTypes(AreaID areaID){
+        List <EnemyType> available = new ArrayList<>();
+        available.add(EnemyType.SHADE);
+
+        switch (areaID) {
+            case MAIN_ISLAND -> {
+                if (progressionState.isWispNightUnlocked()) {available.add(EnemyType.WISP);}
+                if (progressionState.isWraithNightUnlocked()) {available.add(EnemyType.WRAITH);}
+            }
+            case WINDY_PLAINS -> {
+                available.add(EnemyType.WISP);
+                if (progressionState.isWraithNightUnlocked()) {available.add(EnemyType.WRAITH);}
+            }
+
+            case DARKROOT_ISLE, VEILSCAR_PASSAGE -> {
+                available.add(EnemyType.WISP);
+                available.add(EnemyType.WRAITH);
+            }
+        }
+        return available;
     }
 
     private int[] findSpawnTile(EnemyType enemyType){
@@ -150,7 +171,7 @@ public class EnemySpawnSystem {
         float worldX = tileMap.tileToWorldX(spawnTile[0]);
         float worldY = tileMap.tileToWorldY(spawnTile[1]);
 
-        enemies.add(createAndAddEnemy(enemyType, worldX, worldY));
+        createAndAddEnemy(enemyType, worldX, worldY);
         return true;
     }
 
@@ -189,6 +210,51 @@ public class EnemySpawnSystem {
         this.spawnQueue.addAll(remainingQueue);
         this.spawnTimer = spawnTimer;
         this.spawnInterval = spawnInterval;
+    }
+
+    public Enemy spawnEnemyInRegion(EnemyType enemyType, Rectangle region){
+        if (enemyType == null) throw new IllegalArgumentException("Enemy type cannot be null.");
+        if (region == null) throw new IllegalArgumentException("Spawn region cannot be null.");
+
+        for (int attempt = 0; attempt < Config.ENEMY_SPAWN_MAX_ATTEMPTS; attempt++){
+            float randomX = region.x + random.nextFloat() * Math.max(0f, region.width - Config.TILE_SIZE);
+            float randomY = region.y + random.nextFloat() * Math.max(0f, region.height - Config.TILE_SIZE);
+
+            int tileX = tileMap.worldToTileX(randomX);
+            int tileY = tileMap.worldToTileY(randomY);
+            if (tileMap.isOutOfBounds(tileX, tileY)) continue;
+
+            float worldX = tileMap.tileToWorldX(tileX);
+            float worldY = tileMap.tileToWorldY(tileY);
+
+            spawnBounds.set(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE);
+            if (!region.contains(spawnBounds)) continue;
+
+
+            boolean overlapsEnemy = false;
+            for (Enemy enemy : enemies){
+                if (spawnBounds.overlaps(enemy.getCollisionBounds())){
+                    overlapsEnemy = true;
+                    break;
+                }
+            }
+            if (overlapsEnemy) continue;
+
+            if (spawnBounds.overlaps(player.getCollisionBounds())) continue;
+
+            if (enemyType.getMovementType() == MovementType.GROUND){
+                if (collisionSystem.isBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, MovementType.GROUND)) continue;
+                NavigationMode navigationMode = enemyType == EnemyType.SHADE ? NavigationMode.BREAK_FENCES : NavigationMode.NORMAL;
+                if (distanceField.getDistance(tileX, tileY, navigationMode) == DistanceField.UNREACHABLE) continue;
+            }
+            else{
+                if (collisionSystem.getBlockingObject(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE,
+                    MovementType.GROUND) != null) continue;
+            }
+
+            return createAndAddEnemy(enemyType, worldX, worldY);
+        }
+        return null;
     }
 
     //saljemo novi ArrayList zato sto zelimo zabraniti da neko spolja dobije stvarni queue.

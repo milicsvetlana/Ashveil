@@ -4,6 +4,8 @@ import com.ashveil.Config;
 import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
 import com.ashveil.combat.ProjectileSystem;
+import com.ashveil.encounter.GuardianEncounter;
+import com.ashveil.encounter.GuardianEncounterState;
 import com.ashveil.entities.enemies.*;
 import com.ashveil.entities.Player;
 import com.ashveil.farming.*;
@@ -15,10 +17,7 @@ import com.ashveil.items.crafting.CraftingResult;
 import com.ashveil.items.crafting.Recipe;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
-import com.ashveil.objects.Chest;
-import com.ashveil.objects.DestructibleObject;
-import com.ashveil.objects.DestructibleObjectSystem;
-import com.ashveil.objects.DestructibleObjectType;
+import com.ashveil.objects.*;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.items.crafting.CraftingAccess;
@@ -28,7 +27,9 @@ import com.ashveil.world.area.AreaManager;
 import com.ashveil.world.area.AreaRuntime;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.actions.IntAction;
 
+import java.security.Guard;
 import java.util.*;
 
 public class World implements CraftingAccess, WorldMapAccess {
@@ -59,6 +60,9 @@ public class World implements CraftingAccess, WorldMapAccess {
     private double totalPlayTimeSeconds;
     private float boatTravelCooldownRemaining;
     private boolean worldMapRequested;
+    private ItemType scrollReadRequested;
+
+    private GuardianEncounter windyGuardianEncounter;
 
     public World(){
         areaManager = new AreaManager(AreaID.MAIN_ISLAND);
@@ -94,6 +98,10 @@ public class World implements CraftingAccess, WorldMapAccess {
         totalPlayTimeSeconds = 0;
         boatTravelCooldownRemaining = 0;
         worldMapRequested = false;
+
+        scrollReadRequested = null;
+
+        windyGuardianEncounter = null;
     }
 
     private World(AreaID areaId, float playerX, float playerY){
@@ -124,6 +132,8 @@ public class World implements CraftingAccess, WorldMapAccess {
         totalPlayTimeSeconds = 0;
         boatTravelCooldownRemaining = 0;
         worldMapRequested = false;
+
+        scrollReadRequested = null;
     }
 
     private void initializeNewGameState(){
@@ -140,6 +150,8 @@ public class World implements CraftingAccess, WorldMapAccess {
         chest.getChestInventory().addItem(ItemType.STONE_HOE, 1);
         chest.getChestInventory().addItem(ItemType.WHEAT_SEED, 5);
         chest.getChestInventory().addItem(ItemType.BOAT_KIT, 1);
+
+        player.getInventory().addItem(ItemType.STONE_SWORD, 1);
     }
 
     public static World createForLoad(AreaID areaID, float playerX, float playerY){
@@ -154,6 +166,7 @@ public class World implements CraftingAccess, WorldMapAccess {
         }
         player.update(delta);
         player.move(playerInput.getMoveX(), playerInput.getMoveY(), delta);
+        handleDash(playerInput);
 
         currentAreaRuntime.getDistanceField().update(getTileMap().worldToTileX(player.getCenterX()), getTileMap().worldToTileY(player.getCenterY()));
 
@@ -163,12 +176,14 @@ public class World implements CraftingAccess, WorldMapAccess {
         for (Enemy e : getEnemies()) e.update(delta);
         getProjectileSystem().update(delta);
 
-        dayNightCycle.update(delta);
-        if (dayNightCycle.justBecameNight()) startOrdinaryNightForCurrentArea();
-        if (dayNightCycle.isNight()) getEnemySpawnSystem().update(delta);
-        if (dayNightCycle.justBecameDay()){
-            getEnemySpawnSystem().endNight();
-            for (Enemy enemy : getEnemies()) enemy.startFleeing(getTileMap().getWidth() * Config.TILE_SIZE, getTileMap().getHeight() * Config.TILE_SIZE);
+        if (!isGuardianEncounterActive()){
+            dayNightCycle.update(delta);
+            if (dayNightCycle.justBecameNight()) startOrdinaryNightForCurrentArea();
+            if (dayNightCycle.isNight()) getEnemySpawnSystem().update(delta);
+            if (dayNightCycle.justBecameDay()){
+                getEnemySpawnSystem().endNight();
+                for (Enemy enemy : getEnemies()) enemy.startFleeing(getTileMap().getWidth() * Config.TILE_SIZE, getTileMap().getHeight() * Config.TILE_SIZE);
+            }
         }
 
         handleHotbarSelection(playerInput);
@@ -188,12 +203,14 @@ public class World implements CraftingAccess, WorldMapAccess {
             getWorldItemSystem().add(new WorldItem(enemy.getX(), enemy.getY(), ItemType.GOLD, goldDrop));
         }
         getEnemies().removeIf(Enemy::shouldBeRemoved);
+        updateGuardianEncounter();
+        updateScrollProgression();
     }
 
     private void startOrdinaryNightForCurrentArea(){
         int dayCount = dayNightCycle.getDayCount();
 
-        getEnemySpawnSystem().startNight(dayCount);
+        getEnemySpawnSystem().startNight(dayCount, currentAreaRuntime.getAreaID());
         currentAreaRuntime.markOrdinaryNightStarted(dayCount);
     }
 
@@ -226,8 +243,14 @@ public class World implements CraftingAccess, WorldMapAccess {
     }
 
     private boolean tryOpenChest(){
-        Chest nearestChest = getDestructibleObjectSystem().findNearestChest(player.getX(), player.getY(), Config.PLAYER_PICKUP_RANGE);
+        Chest nearestChest = getDestructibleObjectSystem().findNearestChest(player.getCenterX(), player.getCenterY(), Config.PLAYER_PICKUP_RANGE);
         if (nearestChest == null) return false;
+
+        if (nearestChest.getKind() == ChestKind.GUARDIAN && !progressionState.isWindyWardCleared()){
+            startWindyGuardianEncounter();
+            return true;
+        }
+
         activeChest = nearestChest;
         return true;
     }
@@ -325,6 +348,11 @@ public class World implements CraftingAccess, WorldMapAccess {
             targetMode = TargetMode.NONE;
         }
 
+        if (itemType == ItemType.SCROLL_I || itemType == ItemType.SCROLL_II || itemType == ItemType.SCROLL_III){
+            scrollReadRequested = itemType;
+            return;
+        }
+
         if (itemType == ItemType.HEART_REPAIR){
             player.useHeartRepair();
             player.getInventory().removeFromSlot(selectedSlot, 1);
@@ -334,6 +362,13 @@ public class World implements CraftingAccess, WorldMapAccess {
             player.heal(Config.BREAD_HEALING);
             player.getInventory().removeFromSlot(selectedSlot, 1);
         }
+    }
+
+    private void handleDash(PlayerInput playerInput){
+        if (!playerInput.isDashPressed()) return;
+        if (!progressionState.isDashUnlocked()) return;
+
+        player.dash(playerInput.getMoveX(), playerInput.getMoveY());
     }
 
     public boolean isCurrentTargetValid(int tileX, int tileY, float worldX, float worldY){
@@ -424,9 +459,14 @@ public class World implements CraftingAccess, WorldMapAccess {
     }
 
     public void respawnPlayer(){
+        boolean guardianWasActive = isGuardianEncounterActive();
+        if (guardianWasActive) resetActiveGuardianEncounter();
+
         player.addBrokenHeart();
         player.setPosition(checkpointX, checkpointY);
         player.restoreHealth();
+
+        if (guardianWasActive && dayNightCycle.isNight()) startOrdinaryNightForCurrentArea();
     }
 
     public void handleTargetAction(int tileX, int tileY, float worldX, float worldY){
@@ -522,6 +562,7 @@ public class World implements CraftingAccess, WorldMapAccess {
 
         if (firstVisit){
             runtime.getDestructibleObjectSystem().spawnInitialResources(player);
+            initializeAreaSpecificContent(runtime);
         }
     }
 
@@ -552,8 +593,13 @@ public class World implements CraftingAccess, WorldMapAccess {
         if (!canAffordBoatTravel()) return false;
 
         currentAreaRuntime.markDeparture(dayNightCycle.getDayCount());
-
         if (!player.getWallet().spendGold(Config.BOAT_TRAVEL_GOLD)) return false;
+
+        boolean guardianWasActive = isGuardianEncounterActive();
+        if (guardianWasActive){
+            resetActiveGuardianEncounter();
+            if (dayNightCycle.isNight()) startOrdinaryNightForCurrentArea();
+        }
 
         activateAreaAtDock(destination);
         prepareAreaAfterTravel();
@@ -595,6 +641,85 @@ public class World implements CraftingAccess, WorldMapAccess {
 
     public void updateBoatVisibility(){
         getTileMap().setLayerVisible("Boat", progressionState.isBoatBuilt());
+    }
+
+    public void initializeAreaSpecificContent(AreaRuntime runtime){
+        switch (runtime.getAreaID()){
+            case WINDY_PLAINS -> spawnWindyGuardianChest(runtime);
+            case MAIN_ISLAND -> {}
+        }
+    }
+
+    private void spawnWindyGuardianChest(AreaRuntime runtime){
+        Vector2 chestSpawn = runtime.getTileMap().getObjectPosition("Objects", "scroll_chest_spawn");
+        Chest chest = runtime.getDestructibleObjectSystem().createAndAddChest(chestSpawn.x, chestSpawn.y, ChestKind.GUARDIAN);
+
+        ItemStack[] contents = new ItemStack[Config.CHEST_INVENTORY_SIZE];
+        contents[7] = new ItemStack(ItemType.SCROLL_I, 1);
+        chest.getChestInventory().replaceContents(contents);
+    }
+
+    private void startWindyGuardianEncounter(){
+        if (progressionState.isWindyWardCleared()) return;
+        if (windyGuardianEncounter == null){
+            Rectangle arenaBounds = getTileMap().getObjectRectangle("SpecialRegions", "guardian_area_region");
+            windyGuardianEncounter = new GuardianEncounter(AreaID.WINDY_PLAINS, arenaBounds,
+                Map.of(EnemyType.SHADE, 2, EnemyType.WISP, 1), false);
+        }
+        if (!windyGuardianEncounter.start()) return;
+
+        getEnemies().clear();
+        getProjectileSystem().replaceProjectiles(List.of());
+        getEnemySpawnSystem().endNight();
+        spawnGuardianWave(windyGuardianEncounter);
+    }
+
+    private void spawnGuardianWave(GuardianEncounter encounter) {
+        for (Map.Entry<EnemyType, Integer> entry : encounter.getWaveComposition().entrySet()){
+            EnemyType enemyType = entry.getKey();
+            int amount = entry.getValue();
+
+            for (int i=0; i < amount; i++){
+                Enemy spawnedEnemy = getEnemySpawnSystem().spawnEnemyInRegion(enemyType, encounter.getArenaBounds());
+                if (spawnedEnemy == null) throw new IllegalStateException("Could not spawn guardian enemy: " + enemyType);
+            }
+        }
+    }
+
+    public boolean isGuardianEncounterActive(){
+        return windyGuardianEncounter != null && windyGuardianEncounter.isActive();
+    }
+
+    private void updateGuardianEncounter(){
+        if (windyGuardianEncounter == null) return;
+        if (!windyGuardianEncounter.isActive()) return;
+        if (!getEnemies().isEmpty()) return;
+
+        windyGuardianEncounter.complete();
+        progressionState.clearWindyWard();
+        progressionState.unlockDash();
+        getProjectileSystem().replaceProjectiles(List.of());
+    }
+
+    public void updateScrollProgression(){
+        if (progressionState.isWindyWardCleared() && !progressionState.isWispNightUnlocked() &&
+            player.getInventory().getQuantity(ItemType.SCROLL_I) > 0){
+            progressionState.unlockWispNight();
+        }
+
+        if (progressionState.isScrollIRead() && !progressionState.isAreaUnlocked(AreaID.DARKROOT_ISLE)){
+            progressionState.unlockArea(AreaID.DARKROOT_ISLE);
+        }
+    }
+
+    private void resetActiveGuardianEncounter(){
+        if (windyGuardianEncounter == null) return;
+        if (!windyGuardianEncounter.isActive()) return;
+
+        getEnemies().clear();
+        getProjectileSystem().getProjectiles().clear();
+
+        windyGuardianEncounter.reset();
     }
 
     public void applyPersistentState(float checkpointX, float checkpointY, double playTimeSeconds){
@@ -660,6 +785,9 @@ public class World implements CraftingAccess, WorldMapAccess {
     }
     @Override
     public float getBoatTravelCooldownRemaining() {return boatTravelCooldownRemaining;}
+
+    public ItemType getScrollReadRequested() {return scrollReadRequested;}
+    public void clearScrollReadRequests(){scrollReadRequested = null;}
 
     public void dispose(){
         for (AreaRuntime runtime : areaRuntimes.values()){runtime.dispose();}

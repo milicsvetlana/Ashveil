@@ -6,7 +6,7 @@ import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.farming.Crop;
 import com.ashveil.farming.GrowablePlant;
 import com.ashveil.farming.Sapling;
-import com.ashveil.objects.DestructibleObject;
+import com.ashveil.objects.*;
 import com.ashveil.world.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -33,6 +33,12 @@ public class WorldRenderer {
     private TextureRegion[] wheatStages;
     private Texture saplingTexture;
     private TextureRegion[] saplingStages;
+
+    private Texture chestTexture;
+
+    private TextureRegion chestSealedRegion;
+    private TextureRegion chestClosedRegion;
+    private TextureRegion chestOpenedRegion;
 
     public WorldRenderer(TileMap tileMap) {
         shapeRenderer = new ShapeRenderer();
@@ -61,6 +67,14 @@ public class WorldRenderer {
         saplingTexture = new Texture("textures/farming/tree_stages.png");
         regions = TextureRegion.split(saplingTexture, 16, 32);
         saplingStages = regions[0];
+
+        chestTexture = new Texture("textures/objects/chest_states.png");
+        chestTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        TextureRegion[][] chestRegions = TextureRegion.split(chestTexture, 88, 88);
+        chestSealedRegion = chestRegions[0][0];
+        chestClosedRegion = chestRegions[0][1];
+        chestOpenedRegion = chestRegions[0][2];
     }
 
     public void render(World world, CameraController cameraController) {
@@ -76,6 +90,9 @@ public class WorldRenderer {
         for (Projectile projectile : world.getProjectileSystem().getProjectiles()){
             enemyRenderer.renderProjectile(projectile, spriteBatch);
         }
+
+        drawChestTextures(world);
+
         spriteBatch.end();
 
         shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
@@ -91,6 +108,9 @@ public class WorldRenderer {
         );
 
         for (DestructibleObject o : world.getDestructibleObjects()) {
+
+            if (o.getType() == DestructibleObjectType.CHEST) continue;
+
             switch(o.getType()){
                 case TREE -> {
                     shapeRenderer.setColor(Color.GREEN);
@@ -102,10 +122,6 @@ public class WorldRenderer {
                 }
                 case FENCE -> {
                     shapeRenderer.setColor(0.55f, 0.27f, 0.07f, 1f);
-                    break;
-                }
-                case CHEST -> {
-                    shapeRenderer.setColor(0.60f, 0.38f, 0.12f, 1f);
                     break;
                 }
             }
@@ -131,18 +147,24 @@ public class WorldRenderer {
         shapeRenderer.end();
 
         DayPhase dayPhase = world.getDayNightCycle().getDayPhase();
-        if (dayPhase != DayPhase.DAY){
+        boolean guardianNight = world.isGuardianEncounterActive();
+
+        if (guardianNight || dayPhase != DayPhase.DAY){
             shapeRenderer.setProjectionMatrix(screenProjection);
 
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            if (dayPhase == DayPhase.DUSK) {
+            if (guardianNight){
+                shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
+            }
+            else if (dayPhase == DayPhase.DUSK) {
                 float alpha = 0.25f * world.getDayNightCycle().getPhaseProgress();
                 shapeRenderer.setColor(0.76f, 0.32f, 0.10f, alpha);
             }
             else shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
+
             shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
@@ -204,6 +226,45 @@ public class WorldRenderer {
         }
     }
 
+    public void drawChestTextures(World world){
+        for (DestructibleObject object : world.getDestructibleObjects()){
+            if (object.getType() != DestructibleObjectType.CHEST) continue;
+
+            Chest chest = (Chest) object;
+
+            ChestVisualState visualState = getChestVisualState(world, chest);
+            TextureRegion region = getChestTextureRegion(visualState);
+
+            float drawWidth = Config.CHEST_WORLD_SIZE * Config.SCALE;
+            float drawHeight = Config.CHEST_WORLD_SIZE * Config.SCALE;
+
+            float drawX = chest.getX() * Config.SCALE + (Config.TILE_DRAW_SIZE - drawWidth) / 2f;
+            float drawY = chest.getY() * Config.SCALE;
+
+            spriteBatch.draw(region, drawX, drawY, drawWidth, drawHeight);
+        }
+    }
+
+    public ChestVisualState getChestVisualState(World world, Chest chest){
+        if (world.getActiveChest() == chest){
+            return ChestVisualState.OPEN;
+        }
+
+        if (chest.getKind() == ChestKind.GUARDIAN && !world.getProgressionState().isWindyWardCleared()){
+            return ChestVisualState.SEALED;
+        }
+
+        return ChestVisualState.CLOSED;
+    }
+
+    public TextureRegion getChestTextureRegion(ChestVisualState visualState){
+        return switch (visualState){
+            case SEALED -> chestSealedRegion;
+            case CLOSED -> chestClosedRegion;
+            case OPEN -> chestOpenedRegion;
+        };
+    }
+
     public int getMapWidthInTiles() {return tiledMap.getProperties().get("width", Integer.class);}
     public int getMapHeightInTiles() {return tiledMap.getProperties().get("height", Integer.class);}
     public float getMapRenderWidth() {return getMapWidthInTiles() * Config.TILE_DRAW_SIZE;}
@@ -218,5 +279,7 @@ public class WorldRenderer {
         farmTileTexture.dispose();
         wheatTexture.dispose();
         saplingTexture.dispose();
+
+        chestTexture.dispose();
     }
 }

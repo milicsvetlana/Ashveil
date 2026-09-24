@@ -8,5 +8,6 @@ public class DestructibleObjectSaveData {
     public float x;
     public float y;
     public int currentHp;
+    public String chestKind;
     public List<ItemStackSaveData> chestInventory = new ArrayList<>();
 }

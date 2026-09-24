@@ -119,4 +119,9 @@ public class Config {
     /** Travel */
     public static final int BOAT_TRAVEL_GOLD = 0;
     public static final float BOAT_TRAVEL_COOLDOWN = 5f;
+
+    public static final float CHEST_WORLD_SIZE = 35.2f;
+
+    public static final float PLAYER_DASH_DISTANCE = TILE_SIZE * 3f;
+    public static final float PLAYER_DASH_COOLDOWN = 0.75f;
 }

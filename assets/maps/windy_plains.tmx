@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="128" height="136" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="20">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="128" height="136" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="21">
  <tileset firstgid="1" source="../tilesets/main_terrain.tsx"/>
  <tileset firstgid="121" source="../tilesets/windy_texture.tsx"/>
  <tileset firstgid="146" source="../tilesets/windy_decorations.tsx"/>
@@ -1129,16 +1129,10 @@
   <object id="13" name="scroll_chest_spawn" x="1293.52" y="476.97">
    <point/>
   </object>
-  <object id="14" name="arena_chest_region" type="special_region" x="940.667" y="186.667" width="782.667" height="786.667">
-   <properties>
-    <property name="purpose" value="chest_or_fight"/>
-    <property name="regionType" value="arena_chest"/>
-   </properties>
-  </object>
   <object id="17" name="NoNaturalSpawn" x="281.219" y="1896.06" width="48.3333" height="133.083"/>
   <object id="19" name="NoNaturalSpawn" x="1100" y="232" width="380" height="425.333"/>
  </objectgroup>
- <layer id="9" name="Collision" width="128" height="136">
+ <layer id="9" name="Collision" width="128" height="136" visible="0">
   <data encoding="csv">
 90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,
 90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,
@@ -1558,26 +1552,14 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="12" name="SpecialRegions" visible="0">
-  <object id="10" name="chest_region_1" x="304" y="800" width="288" height="288">
-   <properties>
-    <property name="purpose" value="ruin_side_area"/>
-    <property name="regionType" value="chest"/>
-   </properties>
-  </object>
-  <object id="11" name="arena_region_1" x="1312" y="560" width="400" height="336">
-   <properties>
-    <property name="purpose" value="open_combat_space"/>
-    <property name="regionType" value="arena"/>
-   </properties>
-  </object>
-  <object id="12" name="chest_region_2" x="1568" y="1392" width="288" height="272">
-   <properties>
-    <property name="purpose" value="stone_ring_side_area"/>
-    <property name="regionType" value="chest_or_arena"/>
-   </properties>
-  </object>
+ <objectgroup id="12" name="SpecialRegions">
   <object id="16" name="boat_interaction" x="286.125" y="1958.63" width="40.75" height="56.25"/>
+  <object id="20" name="guardian_area_region" type="special_region" x="951.333" y="197.333" width="782.667" height="786.667">
+   <properties>
+    <property name="purpose" value="chest_or_fight"/>
+    <property name="regionType" value="arena_chest"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="13" name="ResourceZones" visible="0"/>
 </map>

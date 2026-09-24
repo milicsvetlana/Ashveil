@@ -1144,7 +1144,7 @@
   <object id="25" name="NoNaturalSpawn" x="1603.33" y="280.667" width="348" height="392"/>
  </objectgroup>
  <objectgroup id="12" name="SpecialRegions">
-  <object id="6" name="arena_chest_region" type="special_region" x="1254.67" y="100.667" width="782.667" height="786.667">
+  <object id="6" name="guardian_arena_region" type="special_region" x="1254.67" y="100.667" width="782.667" height="786.667">
    <properties>
     <property name="purpose" value="chest_or_fight"/>
     <property name="regionType" value="arena_chest"/>

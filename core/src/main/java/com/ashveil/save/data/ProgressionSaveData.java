@@ -12,6 +12,13 @@ public class ProgressionSaveData {
     public boolean boatBuilt;
     public boolean foundOldJetty;
 
+    public boolean scrollIRead;
+    public boolean scrollIIRead;
+    public boolean scrollIIIRead;
+
     public List<String> unlockedCraftingCategories = new ArrayList<>();
     public List<String> unlockedAreas = new ArrayList<>();
+
+    public boolean windyWardCleared;
+    public boolean dashUnlocked;
 }

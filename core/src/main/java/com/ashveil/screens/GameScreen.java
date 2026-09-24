@@ -16,6 +16,7 @@ import com.ashveil.targeting.TargetMode;
 import com.ashveil.targeting.TileTargetingSystem;
 import com.ashveil.ui.*;
 import com.ashveil.ui.chest.ChestUI;
+import com.ashveil.ui.scroll.ScrollUi;
 import com.ashveil.ui.worldmap.WorldMapUi;
 import com.ashveil.world.*;
 import com.ashveil.world.area.AreaID;
@@ -31,7 +32,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import jdk.jshell.spi.ExecutionControl;
 
+import javax.swing.plaf.synth.SynthRootPaneUI;
 import java.lang.reflect.MalformedParameterizedTypeException;
 
 public class GameScreen implements Screen {
@@ -62,6 +65,10 @@ public class GameScreen implements Screen {
     private float guidanceMessageDelay;
     private boolean contextualGuidanceVisible;
     private WorldMapUi worldMapUi;
+
+    private ScrollUi scrollUi;
+    private ItemType openedScroll;
+    private boolean scrollOpenedThisFrame;
 
     public GameScreen(GameApp game, int saveSlot){
         this(game, saveSlot, new World());
@@ -105,6 +112,10 @@ public class GameScreen implements Screen {
         //prosledjujemo closepause kao runnable callback. ne sluzi za novu nit, vec samo prosledjuje akciju
         //koja pausemenuui moze kasnije pozvati
         pauseMenuUi = new PauseMenuUi(uiSkin, this::closePause, this::openSettingsFromPause, this::exitToMainMenu);
+
+        scrollUi = new ScrollUi(uiSkin);
+        openedScroll = null;
+        scrollOpenedThisFrame = false;
 
         if (guidanceSystem.shouldShowCurrentMessage()) showCurrentGuidanceMessage();
         else if (guidanceSystem.getActiveContextualStep() != null) showActiveContextualMessage();
@@ -151,6 +162,13 @@ public class GameScreen implements Screen {
                 world.clearWorldMapOpenRequest();
                 openWorldMap();
             }
+
+            ItemType requestedScroll = world.getScrollReadRequested();
+            if (requestedScroll != null){
+                world.clearScrollReadRequests();
+                openScroll(requestedScroll);
+            }
+
             if (waitingForMovement){boolean playerMoved = Math.abs(world.getPlayer().getX() - playerXBeforeUpdate) > 0.001f
                                                           || Math.abs(world.getPlayer().getY() - playerYBeforeUpdate) > 0.001f;
                 if (playerMoved){handleGuidanceEvent(GameEvent.PLAYER_MOVED);}
@@ -178,6 +196,10 @@ public class GameScreen implements Screen {
                 }
                 else if (activeOverlay == GameOverlay.CHEST) {
                     handleChestInput();
+                    overlayStage.act(delta);
+                }
+                else if (activeOverlay == GameOverlay.SCROLL){
+                    handleScrollInput();
                     overlayStage.act(delta);
                 }
                 else if (activeOverlay == GameOverlay.NONE) {
@@ -208,7 +230,8 @@ public class GameScreen implements Screen {
         guidanceStage.act(delta);
         guidanceStage.draw();
 
-        if (activeOverlay == GameOverlay.CHEST || activeOverlay == GameOverlay.PAUSE) overlayStage.draw();
+        if (activeOverlay == GameOverlay.CHEST || activeOverlay == GameOverlay.PAUSE || activeOverlay == GameOverlay.SCROLL)
+            overlayStage.draw();
         if (deathTransitionState != DeathTransitionState.NONE) renderDeathFade();
 
         if (activeOverlay == GameOverlay.WORLD_MAP) worldMapUi.draw();
@@ -276,6 +299,66 @@ public class GameScreen implements Screen {
         if (activeOverlay != GameOverlay.PAUSE) return;
         saveGame();
         Gdx.app.postRunnable(game::showMainMenuLoading);
+    }
+
+    private void openScroll (ItemType scrollType){
+        if (activeOverlay != GameOverlay.NONE) return;
+
+        openedScroll = scrollType;
+
+        String keyPrefix = getScrollLocalizationPrefix(scrollType);
+        String title = game.getLocalizationService().get(keyPrefix + ".title");
+        String body = game.getLocalizationService().get(keyPrefix + ".body");
+
+        scrollUi.showScroll(title, body);
+
+        markScrollRead(scrollType);
+
+        overlayStage.clear();
+
+        Table root = new Table();
+        root.setFillParent(true);
+        root.add(scrollUi).width(760f).height(900f);
+
+        overlayStage.addActor(root);
+
+        activeOverlay = GameOverlay.SCROLL;
+        scrollOpenedThisFrame = true;
+        world.cancelTargeting();
+        Gdx.input.setInputProcessor(overlayStage);
+    }
+
+    private String getScrollLocalizationPrefix(ItemType scrollType){
+        return switch (scrollType){
+            case SCROLL_I -> "scroll.first";
+            case SCROLL_II -> "scroll.second";
+            case SCROLL_III -> "scroll.third";
+
+            default -> throw new IllegalStateException("Item is not a lore scroll.");
+        };
+    }
+
+    private void markScrollRead(ItemType scrollType){
+        switch (scrollType){
+            case SCROLL_I -> world.getProgressionState().markScrollIRead();
+            case SCROLL_II -> world.getProgressionState().markScrollIIRead();
+            case SCROLL_III -> world.getProgressionState().markScrollIIIRead();
+
+            default -> throw new IllegalArgumentException(
+                "Item is not a lore scroll."
+            );
+        }
+    }
+
+    private void closeScroll(){
+        if (activeOverlay != GameOverlay.SCROLL) return;
+
+        overlayStage.clear();
+        openedScroll = null;
+        scrollOpenedThisFrame = false;
+
+        activeOverlay = GameOverlay.NONE;
+        Gdx.input.setInputProcessor(null);
     }
 
     public void saveGame(){
@@ -380,8 +463,14 @@ public class GameScreen implements Screen {
             return;
         }
 
+        if (activeOverlay == GameOverlay.SCROLL){
+            closeScroll();
+            return;
+        }
+
         if (world.getTargetMode() != TargetMode.NONE){
             world.cancelTargeting();
+            return;
         }
 
         if (activeOverlay == GameOverlay.NONE) openPause();
@@ -423,6 +512,9 @@ public class GameScreen implements Screen {
         }
         else if (activeOverlay == GameOverlay.WORLD_MAP){
             closeWorldMap();
+        }
+        else if (activeOverlay == GameOverlay.SCROLL){
+            closeScroll();
         }
         world.cancelTargeting();
     }
@@ -652,6 +744,19 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(null);
     }
 
+    private void handleScrollInput(){
+        if (activeOverlay != GameOverlay.SCROLL) return;
+
+        if (scrollOpenedThisFrame){
+            scrollOpenedThisFrame = false;
+            return;
+        }
+
+        if (Gdx.input.isKeyJustPressed(keyBindings.getUseItemKey()) || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+            closeScroll();
+        }
+    }
+
     @Override
     public void dispose() {
         worldRenderer.dispose();
@@ -665,10 +770,11 @@ public class GameScreen implements Screen {
         overlayStage.dispose();
         guidanceStage.dispose();
         worldMapUi.dispose();
+        scrollUi.dispose();
     }
 
     @Override public void show(){
-        if (activeOverlay == GameOverlay.PAUSE || activeOverlay == GameOverlay.CHEST){
+        if (activeOverlay == GameOverlay.PAUSE || activeOverlay == GameOverlay.CHEST || activeOverlay == GameOverlay.SCROLL){
             Gdx.input.setInputProcessor(overlayStage);
         }
         else if (activeOverlay == GameOverlay.MENU){

@@ -14,6 +14,7 @@ import com.ashveil.items.crafting.CraftingCategory;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.Chest;
+import com.ashveil.objects.ChestKind;
 import com.ashveil.objects.DestructibleObject;
 import com.ashveil.objects.DestructibleObjectType;
 import com.ashveil.progression.ProgressionState;
@@ -68,8 +69,18 @@ public class SaveMapper {
     public void applyDestructibleObjectState(AreaRuntime runtime, AreaSaveData areaSaveData){
         for (DestructibleObjectSaveData objectSaveData : areaSaveData.destructibleObjects){
             DestructibleObjectType type = DestructibleObjectType.valueOf(objectSaveData.objectType);
-            DestructibleObject object = runtime.getDestructibleObjectSystem().createAndAdd(objectSaveData.x, objectSaveData.y,
-                                                                                         type, objectSaveData.currentHp);
+            DestructibleObject object;
+
+            if (type == DestructibleObjectType.CHEST){
+                ChestKind chestKind = ChestKind.valueOf(objectSaveData.chestKind);
+
+                object = runtime.getDestructibleObjectSystem().createAndAddChest(objectSaveData.x, objectSaveData.y, objectSaveData.currentHp, chestKind);
+            }
+            else {
+                object = runtime.getDestructibleObjectSystem().createAndAdd(objectSaveData.x, objectSaveData.y, type, objectSaveData.currentHp);
+            }
+
+
             if (object instanceof Chest chest){
                 ItemStack[] chestContents = createInventoryContents(objectSaveData.chestInventory, Config.CHEST_INVENTORY_SIZE);
                 chest.getChestInventory().replaceContents(chestContents);
@@ -119,7 +130,9 @@ public class SaveMapper {
         progressionState.applyPersistentState(progressionSaveData.firstTreeDropClaimed, progressionSaveData.wispNightUnlocked,
                                               progressionSaveData.wraithNightUnlocked, progressionSaveData.boatKitCrafted,
                                               progressionSaveData.boatBuilt, progressionSaveData.foundOldJetty,
-                                              unlockedCategories, unlockedAreas);
+                                              progressionSaveData.scrollIRead, progressionSaveData.scrollIIRead,
+                                              progressionSaveData.scrollIIIRead, unlockedCategories, unlockedAreas,
+                                              progressionSaveData.windyWardCleared, progressionSaveData.dashUnlocked);
     }
 
     private void applyFarmingState(FarmingSystem farmingSystem, AreaSaveData areaSaveData){
@@ -279,6 +292,10 @@ public class SaveMapper {
         progressionSaveData.boatBuilt  = progressionState.isBoatBuilt();
         progressionSaveData.foundOldJetty  = progressionState.isOldJettyFound();
 
+        progressionSaveData.scrollIRead = progressionState.isScrollIRead();
+        progressionSaveData.scrollIIRead = progressionState.isScrollIIRead();
+        progressionSaveData.scrollIIIRead = progressionState.isScrollIIIRead();
+
         for (CraftingCategory category : progressionState.getUnlockedCraftingCategories()){
             progressionSaveData.unlockedCraftingCategories.add(category.name());
         }
@@ -288,6 +305,9 @@ public class SaveMapper {
                 progressionSaveData.unlockedAreas.add(areaID.name());
             }
         }
+
+        progressionSaveData.windyWardCleared = progressionState.isWindyWardCleared();
+        progressionSaveData.dashUnlocked = progressionState.isDashUnlocked();
 
         return progressionSaveData;
     }
@@ -331,6 +351,7 @@ public class SaveMapper {
         destructibleObjectSaveData.currentHp = object.getCurrenthp();
 
         if (object instanceof Chest chest){
+            destructibleObjectSaveData.chestKind = chest.getKind().name();
             for (int i=0; i < chest.getChestInventory().getSize(); i++){
                 ItemStack itemStack = chest.getChestInventory().getSlot(i);
                 if (itemStack == null) continue;

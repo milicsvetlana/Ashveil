@@ -16,7 +16,14 @@ public final class ProgressionState {
     private final EnumSet<AreaID> unlockedAreas;
     private boolean foundOldJetty;
 
+    private boolean scrollIRead;
+    private boolean scrollIIRead;
+    private boolean scrollIIIRead;
+
     private final Set<CraftingCategory> unlockedCraftingCategories;
+
+    private boolean windyWardCleared;
+    private boolean dashUnlocked;
 
     public ProgressionState() {
         this.firstTreeDropClaimed = false;
@@ -32,12 +39,16 @@ public final class ProgressionState {
         unlockedCraftingCategories.add(CraftingCategory.TOOLS);
         unlockedCraftingCategories.add(CraftingCategory.FOOD);
         unlockedCraftingCategories.add(CraftingCategory.BUILDING);
+
+        windyWardCleared = false;
+        dashUnlocked = false;
     }
 
     public void applyPersistentState(boolean firstTreeDropClaimed, boolean wispNightUnlocked,
                                      boolean wraithNightUnlocked, boolean boatKitCrafted, boolean boatBuilt,
-                                     boolean foundOldJetty, Set<CraftingCategory> unlockedCraftingCategories,
-                                     Set<AreaID> unlockedAreas){
+                                     boolean foundOldJetty, boolean scrollIRead, boolean scrollIIRead, boolean scrollIIIRead,
+                                     Set<CraftingCategory> unlockedCraftingCategories, Set<AreaID> unlockedAreas,
+                                     boolean windyWardCleared, boolean dashUnlocked){
         if (unlockedCraftingCategories == null) throw new IllegalArgumentException("Unlocked crafting categories can't be null");
         if (unlockedAreas == null) throw new IllegalArgumentException("Unlocked areas can't be null");
         this.firstTreeDropClaimed = firstTreeDropClaimed;
@@ -48,16 +59,24 @@ public final class ProgressionState {
         this.boatBuilt = boatBuilt;
         this.foundOldJetty = foundOldJetty;
 
+        this.scrollIRead = scrollIRead;
+        this.scrollIIRead = scrollIIRead;
+        this.scrollIIIRead = scrollIIIRead;
+
         this.unlockedCraftingCategories.clear();
         this.unlockedCraftingCategories.addAll(unlockedCraftingCategories);
 
         this.unlockedAreas.clear();
         this.unlockedAreas.addAll(unlockedAreas);
+
+        this.windyWardCleared = windyWardCleared;
+        this.dashUnlocked = dashUnlocked;
     }
 
     public boolean isFirstTreeDropClaimed() {return firstTreeDropClaimed;}
     public void claimFirstTreeDrop() {firstTreeDropClaimed = true;}
     public boolean isWispNightUnlocked() {return wispNightUnlocked;}
+    public void unlockWispNight(){wispNightUnlocked = true;}
     public boolean isWraithNightUnlocked() {return wraithNightUnlocked;}
     public void unlockWraithNight() {wraithNightUnlocked = true;}
     public boolean isCraftingCategoryUnlocked(CraftingCategory category) {return unlockedCraftingCategories.contains(category);}
@@ -77,4 +96,16 @@ public final class ProgressionState {
     public void discoverOldJetty(){foundOldJetty = true;}
     public boolean isBoatKitCrafted() {return boatKitCrafted;}
     public void markBoatKitCrafted() {boatKitCrafted = true;}
+
+    public boolean isScrollIRead() {return scrollIRead;}
+    public boolean isScrollIIRead() {return scrollIIRead;}
+    public boolean isScrollIIIRead() {return scrollIIIRead;}
+    public void markScrollIRead() {scrollIRead = true;}
+    public void markScrollIIRead() {scrollIIRead = true;}
+    public void markScrollIIIRead() {scrollIIIRead = true;}
+
+    public boolean isWindyWardCleared(){return windyWardCleared;}
+    public void clearWindyWard(){windyWardCleared = true;}
+    public boolean isDashUnlocked(){return dashUnlocked;}
+    public void unlockDash(){dashUnlocked = true;}
 }

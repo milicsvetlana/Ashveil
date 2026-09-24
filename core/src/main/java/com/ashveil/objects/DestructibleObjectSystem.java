@@ -9,6 +9,7 @@ import com.ashveil.progression.ProgressionState;
 import com.ashveil.world.TileMap;
 import com.ashveil.world.WorldItem;
 import com.ashveil.world.WorldItemSystem;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayList;
@@ -79,6 +80,16 @@ public class DestructibleObjectSystem {
         return object;
     }
 
+    public Chest createAndAddChest(float worldX, float worldY, ChestKind chestKind){
+        return createAndAddChest(worldX, worldY, DestructibleObjectType.CHEST.getHp(), chestKind);
+    }
+
+    public Chest createAndAddChest(float worldX, float worldY, int currentHp, ChestKind kind) {
+        Chest chest = new Chest(worldX, worldY, currentHp, kind);
+        add(chest);
+        return chest;
+    }
+
     public void add(DestructibleObject object){
         if (object == null) throw new IllegalArgumentException("Destructible object cannot be null.");
         if (destructibleObjects.contains(object)) return;
@@ -104,9 +115,15 @@ public class DestructibleObjectSystem {
         for (DestructibleObject object : destructibleObjects){
             if (object.getType() != DestructibleObjectType.CHEST) continue;
 
-            float dimX = object.getX() - x;
-            float dimY = object.getY() - y;
+            Rectangle bounds = object.getCollisionBounds();
+
+            float chestCenterX = bounds.x + bounds.width / 2f;
+            float chestCenterY = bounds.y + bounds.height / 2f;
+
+            float dimX = chestCenterX - x;
+            float dimY = chestCenterY - y;
             double distanceSquared = dimX * dimX + dimY * dimY;
+
             if (distanceSquared > rangeSquared) continue;
 
             if (nearestDistanceSquared == null || distanceSquared < nearestDistanceSquared){

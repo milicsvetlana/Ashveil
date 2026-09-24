@@ -249,9 +249,31 @@ public enum ItemType {
         null
     ),
 
-    LORE_SCROLL(
-        "Lore Scroll",
-        "An ancient scroll containing fragments of forgotten knowledge.",
+    SCROLL_I(
+        "The First Binding",
+        "The first fragment of an ancient ritual document.",
+        1,
+        0,
+        false,
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE,
+        null
+    ),
+
+    SCROLL_II(
+        "The Long Vigil",
+        "The second fragment of an ancient ritual document.",
+        1,
+        0,
+        false,
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE,
+        null
+    ),
+
+    SCROLL_III(
+        "The Broken Oath",
+        "The final fragment of an ancient ritual document.",
         1,
         0,
         false,
