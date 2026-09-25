@@ -171,7 +171,7 @@ public class Shade extends Enemy{
         CollidableObject blockingObject = getCollisionSystem().getBlockingObject(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, MovementType.GROUND);
 
         if (!(blockingObject instanceof DestructibleObject object))return null;
-        if (object.getType() != DestructibleObjectType.FENCE) return null;
+        if (!object.getType().isFence()) return null;
         return object;
     }
 
@@ -185,6 +185,7 @@ public class Shade extends Enemy{
         if (attackCooldown > 0) return;
         targetFence.receiveHit(enemyType.getDamage());
         attackCooldown = Config.ENEMY_ATTACK_COOLDOWN;
+        if (targetFence.getType() == DestructibleObjectType.THORN_FENCE) this.receiveHit(Config.THORN_FENCE_RETALIATION_DAMAGE);
     }
 
     private boolean isTouchingTarget(){

@@ -5,5 +5,6 @@ public enum CraftingCategory {
     TOOLS,
     FOOD,
     BUILDING,
+    BLACKTHORN,
     ANCIENT;
 }

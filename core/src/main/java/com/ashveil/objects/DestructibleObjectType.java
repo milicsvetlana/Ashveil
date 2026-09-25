@@ -2,12 +2,13 @@ package com.ashveil.objects;
 
 import com.ashveil.Config;
 import com.ashveil.combat.HitCategory;
-import com.ashveil.items.inventory.ItemType;
 
 public enum DestructibleObjectType {
     TREE(Config.TREE_HP,1, 3, HitCategory.WOOD, true),
     ROCK(Config.ROCK_HP, 1, 3, HitCategory.STONE, true),
     FENCE(Config.FENCE_HP, 1, 1, HitCategory.WOOD, false),
+    THORN_FENCE(Config.THORN_FENCE_HP, 1, 1, HitCategory.WOOD, false),
+    BRIAR_SNARE(1, 0, 0, HitCategory.WOOD, false),
     CHEST(Config.CHEST_HP, 1, 1, HitCategory.WOOD, false);
 
     private final int hp;
@@ -29,4 +30,7 @@ public enum DestructibleObjectType {
     public int getMaxDrop() {return maxDrop;}
     public HitCategory getHitCategory() {return hitCategory;}
     public boolean spawnsNaturally() {return spawnsNaturally;}
+    public boolean isFence(){
+        return this == FENCE || this == THORN_FENCE;
+    }
 }

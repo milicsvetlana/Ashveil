@@ -8,6 +8,7 @@ import com.ashveil.farming.GrowablePlant;
 import com.ashveil.farming.Sapling;
 import com.ashveil.objects.*;
 import com.ashveil.world.*;
+import com.ashveil.world.area.AreaID;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -35,10 +36,17 @@ public class WorldRenderer {
     private TextureRegion[] saplingStages;
 
     private Texture chestTexture;
+    private Texture fenceTexture;
 
     private TextureRegion chestSealedRegion;
     private TextureRegion chestClosedRegion;
     private TextureRegion chestOpenedRegion;
+
+    private TextureRegion normalFenceRegion;
+    private TextureRegion thornFenceRegion;
+
+    private Texture briarSnareTexture;
+    private TextureRegion briarSnareRegion;
 
     public WorldRenderer(TileMap tileMap) {
         shapeRenderer = new ShapeRenderer();
@@ -75,6 +83,17 @@ public class WorldRenderer {
         chestSealedRegion = chestRegions[0][0];
         chestClosedRegion = chestRegions[0][1];
         chestOpenedRegion = chestRegions[0][2];
+
+        fenceTexture = new Texture("textures/objects/fences.png");
+        fenceTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        TextureRegion[][] fenceRegions = TextureRegion.split(fenceTexture, 32, 32);
+        normalFenceRegion = fenceRegions[0][0];
+        thornFenceRegion = fenceRegions[0][1];
+
+        briarSnareTexture = new Texture("textures/objects/briar_snare.png");
+        briarSnareTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        briarSnareRegion = new TextureRegion(briarSnareTexture);
     }
 
     public void render(World world, CameraController cameraController) {
@@ -91,7 +110,7 @@ public class WorldRenderer {
             enemyRenderer.renderProjectile(projectile, spriteBatch);
         }
 
-        drawChestTextures(world);
+        drawObjectTextures(world);
 
         spriteBatch.end();
 
@@ -109,7 +128,8 @@ public class WorldRenderer {
 
         for (DestructibleObject o : world.getDestructibleObjects()) {
 
-            if (o.getType() == DestructibleObjectType.CHEST) continue;
+            if (o.getType() == DestructibleObjectType.CHEST || o.getType().isFence()
+                || o.getType() == DestructibleObjectType.BRIAR_SNARE) continue;
 
             switch(o.getType()){
                 case TREE -> {
@@ -118,10 +138,6 @@ public class WorldRenderer {
                 }
                 case ROCK -> {
                     shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
-                    break;
-                }
-                case FENCE -> {
-                    shapeRenderer.setColor(0.55f, 0.27f, 0.07f, 1f);
                     break;
                 }
             }
@@ -226,23 +242,17 @@ public class WorldRenderer {
         }
     }
 
-    public void drawChestTextures(World world){
-        for (DestructibleObject object : world.getDestructibleObjects()){
-            if (object.getType() != DestructibleObjectType.CHEST) continue;
+    public void drawChestTexture(World world, Chest chest){
+        ChestVisualState visualState = getChestVisualState(world, chest);
+        TextureRegion region = getChestTextureRegion(visualState);
 
-            Chest chest = (Chest) object;
+        float drawWidth = Config.CHEST_WORLD_SIZE * Config.SCALE;
+        float drawHeight = Config.CHEST_WORLD_SIZE * Config.SCALE;
 
-            ChestVisualState visualState = getChestVisualState(world, chest);
-            TextureRegion region = getChestTextureRegion(visualState);
+        float drawX = chest.getX() * Config.SCALE + (Config.TILE_DRAW_SIZE - drawWidth) / 2f;
+        float drawY = chest.getY() * Config.SCALE;
 
-            float drawWidth = Config.CHEST_WORLD_SIZE * Config.SCALE;
-            float drawHeight = Config.CHEST_WORLD_SIZE * Config.SCALE;
-
-            float drawX = chest.getX() * Config.SCALE + (Config.TILE_DRAW_SIZE - drawWidth) / 2f;
-            float drawY = chest.getY() * Config.SCALE;
-
-            spriteBatch.draw(region, drawX, drawY, drawWidth, drawHeight);
-        }
+        spriteBatch.draw(region, drawX, drawY, drawWidth, drawHeight);
     }
 
     public ChestVisualState getChestVisualState(World world, Chest chest){
@@ -250,7 +260,7 @@ public class WorldRenderer {
             return ChestVisualState.OPEN;
         }
 
-        if (chest.getKind() == ChestKind.GUARDIAN && !world.getProgressionState().isWindyWardCleared()){
+        if (chest.getKind() == ChestKind.GUARDIAN && !world.getProgressionState().isWardCleared(world.getCurrentAreaId())){
             return ChestVisualState.SEALED;
         }
 
@@ -263,6 +273,23 @@ public class WorldRenderer {
             case CLOSED -> chestClosedRegion;
             case OPEN -> chestOpenedRegion;
         };
+    }
+
+    private void drawTileObjectTexture(TextureRegion region, DestructibleObject object){
+        spriteBatch.draw(region, object.getX() * Config.SCALE, object.getY() * Config.SCALE,
+                        Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+    }
+
+    public void drawObjectTextures(World world){
+        for (DestructibleObject object : world.getDestructibleObjects()){
+            switch (object.getType()){
+                case CHEST -> drawChestTexture(world, (Chest) object);
+                case FENCE -> drawTileObjectTexture(normalFenceRegion, object);
+                case THORN_FENCE -> drawTileObjectTexture(thornFenceRegion, object);
+                case BRIAR_SNARE -> drawTileObjectTexture(briarSnareRegion, object);
+                default -> {}
+            }
+        }
     }
 
     public int getMapWidthInTiles() {return tiledMap.getProperties().get("width", Integer.class);}
@@ -281,5 +308,7 @@ public class WorldRenderer {
         saplingTexture.dispose();
 
         chestTexture.dispose();
+        fenceTexture.dispose();
+        briarSnareTexture.dispose();
     }
 }

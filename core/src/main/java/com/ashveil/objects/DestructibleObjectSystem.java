@@ -2,7 +2,9 @@ package com.ashveil.objects;
 
 import com.ashveil.Config;
 import com.ashveil.collision.CollisionSystem;
+import com.ashveil.collision.MovementType;
 import com.ashveil.entities.Player;
+import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.progression.ProgressionState;
@@ -12,6 +14,7 @@ import com.ashveil.world.WorldItemSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.rmi.server.ServerNotActiveException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +49,7 @@ public class DestructibleObjectSystem {
             DestructibleObjectType.TREE, ItemType.WOOD,
             DestructibleObjectType.ROCK, ItemType.STONE,
             DestructibleObjectType.FENCE, ItemType.FENCE,
+            DestructibleObjectType.THORN_FENCE, ItemType.THORN_FENCE,
             DestructibleObjectType.CHEST, ItemType.CHEST
         );
     }
@@ -157,6 +161,7 @@ public class DestructibleObjectSystem {
 
     private DestructibleObject createObject(float worldX, float worldY, DestructibleObjectType type, int currentHp){
         if (type == DestructibleObjectType.CHEST) return new Chest(worldX, worldY, currentHp);
+        if (type == DestructibleObjectType.BRIAR_SNARE) return new BriarSnare(worldX, worldY);
         return new DestructibleObject(worldX, worldY, type, currentHp);
     }
 
@@ -179,8 +184,10 @@ public class DestructibleObjectSystem {
         return distanceFromPlayerX > Config.INITIAL_SPAWN_CLEAR_RADIUS || distanceFromPlayerY > Config.INITIAL_SPAWN_CLEAR_RADIUS;
     }
 
-    private void dropDestroyedObjectItems(
-        DestructibleObject object){
+    private void dropDestroyedObjectItems(DestructibleObject object){
+        ItemType dropType = destructibleObjectDrops.get(object.getType());
+        if (dropType == null) return; //npr. Briar Snare ne dropuje nista
+
         int dropAmount = getDropAmount(object);
 
         worldItemSystem.add(new WorldItem(getRandomDropX(object), getRandomDropY(object), destructibleObjectDrops.get(object.getType()), dropAmount));
@@ -219,6 +226,24 @@ public class DestructibleObjectSystem {
 
     private float getRandomDropY(DestructibleObject object){
         return object.getY() + (random.nextInt(3) - 1) * Config.TILE_SIZE;
+    }
+
+    public void processBriarSnareTrigger(List<Enemy> enemies) {
+        for (DestructibleObject object : destructibleObjects){
+            if (!(object instanceof BriarSnare snare)) continue;
+            if (snare.isDestroyed()) continue;;
+
+            for (Enemy enemy : enemies){
+                if (!enemy.isAlive()) continue;
+                if (enemy.getMovementType() != MovementType.GROUND) continue;
+                if (!snare.getCollisionBounds().overlaps(enemy.getCollisionBounds())) continue;
+
+                enemy.receiveHit(Config.BRIAR_SNARE_DAMAGE);
+                if (enemy.isAlive()) enemy.applyRoot(Config.BRIAR_SNARE_ROOT_TIMER);
+                snare.trigger();
+                break;
+            }
+        }
     }
 
     public List<DestructibleObject> getObjects(){

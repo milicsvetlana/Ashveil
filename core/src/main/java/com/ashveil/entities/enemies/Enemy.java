@@ -21,6 +21,7 @@ public abstract class Enemy extends Entity implements Hittable {
     private float fleeTargetX;
     private float fleeTargetY;
     private boolean fleeFinished;
+    private float rootTimer;
 
     public Enemy(float x, float y, EnemyType enemyType, Player target, CollisionSystem collisionSystem) {
         this(x, y, enemyType, target, collisionSystem, enemyType.getMaxHp());
@@ -36,19 +37,21 @@ public abstract class Enemy extends Entity implements Hittable {
         this.dyingTimer = 0;
         this.collisionSystem = collisionSystem;
         this.fleeFinished = false;
+        this.rootTimer = 0;
     }
 
     public final void update(float delta){ //ova i naredna klasa su bitne jer ovde stavljamo final kako ne bi moglo da se nasledi,
                                            //a imamo odvojenu metodu updateAlive koja ce biti nasledjena
         if (hitFlashTimer > 0) hitFlashTimer -= delta;
         if (hpBarTimer > 0) hpBarTimer -= delta;
+        if (rootTimer > 0) rootTimer -= delta;
 
         if (state == EnemyState.DYING){
             dyingTimer -= delta;
             return;
         }
 
-        if (state == EnemyState.FLEEING){
+        if (state == EnemyState.FLEEING) {
             updateFleeing(delta);
             return;
         }
@@ -90,6 +93,7 @@ public abstract class Enemy extends Entity implements Hittable {
     }
 
     protected void moveInDirection(float dirX, float dirY, float delta, float movementSpeed){
+        if (rootTimer > 0) return;
         float length = (float) Math.sqrt(dirX * dirX + dirY * dirY);
         if (length == 0) return;
         dirX = dirX / length;
@@ -108,6 +112,7 @@ public abstract class Enemy extends Entity implements Hittable {
     protected abstract void updateAiDecision();
 
     protected boolean moveTowardPoint(float targetX, float targetY, float delta) {
+        if (rootTimer > 0) return false;
         float dirX = targetX - x;
         float dirY = targetY - y;
 
@@ -190,6 +195,10 @@ public abstract class Enemy extends Entity implements Hittable {
 
     @Override
     public void receiveHit(int amount) {takeDamage(amount);}
+
+    public void applyRoot(float duration){
+       rootTimer = Math.max(rootTimer,duration);
+    }
 
     private boolean isCollidingAt(float px, float py){
         return collisionSystem.isBlocked(px, py, Config.TILE_SIZE, Config.TILE_SIZE, getMovementType());

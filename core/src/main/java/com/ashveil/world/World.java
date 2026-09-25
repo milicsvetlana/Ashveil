@@ -5,21 +5,18 @@ import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
 import com.ashveil.combat.ProjectileSystem;
 import com.ashveil.encounter.GuardianEncounter;
+import com.ashveil.encounter.GuardianEncounterDefinition;
 import com.ashveil.entities.enemies.*;
 import com.ashveil.entities.Player;
 import com.ashveil.farming.*;
 import com.ashveil.guidance.GameEvent;
 import com.ashveil.guidance.GuidanceSystem;
-import com.ashveil.items.crafting.CraftStatus;
-import com.ashveil.items.crafting.CraftingManager;
-import com.ashveil.items.crafting.CraftingResult;
-import com.ashveil.items.crafting.Recipe;
+import com.ashveil.items.crafting.*;
 import com.ashveil.items.inventory.ItemStack;
 import com.ashveil.items.inventory.ItemType;
 import com.ashveil.objects.*;
 import com.ashveil.input.PlayerInput;
 import com.ashveil.progression.ProgressionState;
-import com.ashveil.items.crafting.CraftingAccess;
 import com.ashveil.targeting.TargetMode;
 import com.ashveil.ui.reward.RewardType;
 import com.ashveil.world.area.AreaID;
@@ -28,6 +25,7 @@ import com.ashveil.world.area.AreaRuntime;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import java.awt.geom.Area;
 import java.util.*;
 
 public class World implements CraftingAccess, WorldMapAccess {
@@ -62,7 +60,7 @@ public class World implements CraftingAccess, WorldMapAccess {
     private ItemType scrollReadRequested;
     private RewardType rewardRequested;
 
-    private GuardianEncounter windyGuardianEncounter;
+    private GuardianEncounter guardianEncounter;
     private boolean windyGuardianStartedRequested;
 
     public World(){
@@ -103,7 +101,7 @@ public class World implements CraftingAccess, WorldMapAccess {
         scrollReadRequested = null;
         rewardRequested = null;
 
-        windyGuardianEncounter = null;
+        guardianEncounter = null;
         windyGuardianStartedRequested = false;
     }
 
@@ -139,7 +137,7 @@ public class World implements CraftingAccess, WorldMapAccess {
         scrollReadRequested = null;
         rewardRequested = null;
 
-        windyGuardianEncounter = null;
+        guardianEncounter = null;
         windyGuardianStartedRequested = false;
     }
 
@@ -159,7 +157,9 @@ public class World implements CraftingAccess, WorldMapAccess {
         chest.getChestInventory().addItem(ItemType.BOAT_KIT, 1);
 
         player.getInventory().addItem(ItemType.STONE_SWORD, 1);
-        player.getInventory().addItem(ItemType.SCROLL_I, 1);
+        player.getInventory().addItem(ItemType.FENCE, 5);
+        player.getInventory().addItem(ItemType.THORN_FENCE, 15);
+        player.getInventory().addItem(ItemType.BRIAR_SNARE, 15);
     }
 
     public static World createForLoad(AreaID areaID, float playerX, float playerY){
@@ -201,6 +201,7 @@ public class World implements CraftingAccess, WorldMapAccess {
         handleInteract(playerInput);
         handleDropItem(playerInput);
         handleUseItem(playerInput);
+        getDestructibleObjectSystem().processBriarSnareTrigger(getEnemies());
         getDestructibleObjectSystem().processDestroyedObjects();
 
         getWorldItemSystem().update(delta);
@@ -256,9 +257,14 @@ public class World implements CraftingAccess, WorldMapAccess {
         Chest nearestChest = getDestructibleObjectSystem().findNearestChest(player.getCenterX(), player.getCenterY(), Config.PLAYER_PICKUP_RANGE);
         if (nearestChest == null) return false;
 
-        if (nearestChest.getKind() == ChestKind.GUARDIAN && !progressionState.isWindyWardCleared()){
-            startWindyGuardianEncounter();
-            return true;
+        if (nearestChest.getKind() == ChestKind.GUARDIAN){
+            AreaID areaID = currentAreaRuntime.getAreaID();
+
+            if (!progressionState.isWardCleared(areaID)){
+                GuardianEncounterDefinition definition = getGuardianDefinition(areaID);
+                startGuardianEncounter(definition);
+                return true;
+            }
         }
 
         activeChest = nearestChest;
@@ -656,37 +662,39 @@ public class World implements CraftingAccess, WorldMapAccess {
     }
 
     public void initializeAreaSpecificContent(AreaRuntime runtime){
-        switch (runtime.getAreaID()){
-            case WINDY_PLAINS -> spawnWindyGuardianChest(runtime);
-            case MAIN_ISLAND -> {}
-        }
+        GuardianEncounterDefinition definition = getGuardianDefinition(runtime.getAreaID());
+        if (definition == null) return;
+        spawnGuardianChest(runtime, definition);
     }
 
-    private void spawnWindyGuardianChest(AreaRuntime runtime){
+    private void spawnGuardianChest(AreaRuntime runtime, GuardianEncounterDefinition definition){
         Vector2 chestSpawn = runtime.getTileMap().getObjectPosition("Objects", "scroll_chest_spawn");
         Chest chest = runtime.getDestructibleObjectSystem().createAndAddChest(chestSpawn.x, chestSpawn.y, ChestKind.GUARDIAN);
 
         ItemStack[] contents = new ItemStack[Config.CHEST_INVENTORY_SIZE];
-        contents[7] = new ItemStack(ItemType.SCROLL_I, 1);
+        contents[7] = new ItemStack(definition.getScrollItem(), 1);
         chest.getChestInventory().replaceContents(contents);
     }
 
-    private void startWindyGuardianEncounter(){
-        if (progressionState.isWindyWardCleared()) return;
-        if (windyGuardianEncounter == null){
-            Rectangle arenaBounds = getTileMap().getObjectRectangle("SpecialRegions", "guardian_area_region");
-            windyGuardianEncounter = new GuardianEncounter(AreaID.WINDY_PLAINS, arenaBounds,
-                Map.of(EnemyType.SHADE, 20, EnemyType.WISP, 10), false);
-        }
-        if (!windyGuardianEncounter.start()) return;
+    private void startGuardianEncounter(GuardianEncounterDefinition definition){
+        if (progressionState.isWardCleared(definition.getAreaID())) return;
 
-        windyGuardianStartedRequested = true;
+        if (guardianEncounter == null){
+            Rectangle arenaBounds = getTileMap().getObjectRectangle("SpecialRegions", "guardian_arena_region");
+            guardianEncounter = new GuardianEncounter(definition.getAreaID(), arenaBounds, definition.getWaveComposition(), false);
+        }
+
+        if (!guardianEncounter.start()) return;
+
+        if (definition.getAreaID() == AreaID.WINDY_PLAINS){
+            windyGuardianStartedRequested = true;
+        }
 
         getEnemies().clear();
         getProjectileSystem().replaceProjectiles(List.of());
         getEnemySpawnSystem().endNight();
 
-        spawnGuardianWave(windyGuardianEncounter);
+        spawnGuardianWave(guardianEncounter);
     }
 
     private void spawnGuardianWave(GuardianEncounter encounter) {
@@ -702,27 +710,50 @@ public class World implements CraftingAccess, WorldMapAccess {
     }
 
     public boolean isGuardianEncounterActive(){
-        return windyGuardianEncounter != null && windyGuardianEncounter.isActive();
+        return guardianEncounter != null && guardianEncounter.isActive();
     }
 
     private void updateGuardianEncounter(){
-        if (windyGuardianEncounter == null) return;
-        if (!windyGuardianEncounter.isActive()) return;
+        if (guardianEncounter == null) return;
+        if (!guardianEncounter.isActive()) return;
         if (!getEnemies().isEmpty()) return;
 
-        windyGuardianEncounter.complete();
-        progressionState.clearWindyWard();
-        progressionState.unlockDash();
+        AreaID areaID = currentAreaRuntime.getAreaID();
 
-        windyGuardianStartedRequested = false;
+        guardianEncounter.complete();
+        progressionState.clearWard(areaID);
 
-        rewardRequested = RewardType.SWIFT_STEP;
-
+        applyGuardianReward(areaID);
         getProjectileSystem().replaceProjectiles(List.of());
+
+        guardianEncounter = null;
+    }
+
+    private void applyGuardianReward(AreaID areaID){
+        switch (areaID){
+            case WINDY_PLAINS -> {
+                progressionState.unlockDash();
+                windyGuardianStartedRequested = false;
+                rewardRequested = RewardType.SWIFT_STEP;
+            }
+            case DARKROOT_ISLE -> {
+                craftingManager.unlockCategory(CraftingCategory.BLACKTHORN);
+            }
+
+            case VEILSCAR_PASSAGE -> {
+                // Bloodthirst reward
+                // implementiramo kasnije
+            }
+
+            case MAIN_ISLAND ->
+                throw new IllegalStateException(
+                    "Main Island has no guardian reward."
+                );
+        }
     }
 
     public void updateScrollProgression(){
-        if (progressionState.isWindyWardCleared() && !progressionState.isWispNightUnlocked() &&
+        if (progressionState.isWardCleared(AreaID.WINDY_PLAINS) && !progressionState.isWispNightUnlocked() &&
             player.getInventory().getQuantity(ItemType.SCROLL_I) > 0){
             progressionState.unlockWispNight();
         }
@@ -733,13 +764,14 @@ public class World implements CraftingAccess, WorldMapAccess {
     }
 
     private void resetActiveGuardianEncounter(){
-        if (windyGuardianEncounter == null) return;
-        if (!windyGuardianEncounter.isActive()) return;
+        if (guardianEncounter == null) return;
+        if (!guardianEncounter.isActive()) return;
 
         getEnemies().clear();
         getProjectileSystem().getProjectiles().clear();
 
-        windyGuardianEncounter.reset();
+        guardianEncounter.reset();
+        guardianEncounter = null;
         windyGuardianStartedRequested = false;
     }
 
@@ -752,6 +784,34 @@ public class World implements CraftingAccess, WorldMapAccess {
 
         if (player.isDead()) return;
         player.setPosition(checkpointX, checkpointY);
+    }
+
+    private GuardianEncounterDefinition getGuardianDefinition(AreaID areaID){
+        return switch (areaID){
+            case WINDY_PLAINS ->
+                new GuardianEncounterDefinition(
+                    AreaID.WINDY_PLAINS,
+                    ItemType.SCROLL_I,
+                    Map.of(
+                        EnemyType.SHADE, 20,
+                        EnemyType.WISP, 10
+                    )
+                );
+
+            case DARKROOT_ISLE ->
+                new GuardianEncounterDefinition(
+                    AreaID.DARKROOT_ISLE,
+                    ItemType.SCROLL_II,
+                    Map.of(
+                        EnemyType.SHADE, 15,
+                        EnemyType.WISP, 15,
+                        EnemyType.WRAITH, 8
+                    )
+                );
+
+            case MAIN_ISLAND, VEILSCAR_PASSAGE ->
+                null;
+        };
     }
 
     public void applyPersistentState(float checkpointX, float checkpointY, double playTimeSeconds){

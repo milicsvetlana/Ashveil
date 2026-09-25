@@ -54,7 +54,7 @@ public class DestructibleObject extends WorldObject implements Hittable, Collida
     @Override
     public boolean blocksNavigation(MovementType movementType, NavigationMode navigationMode) {
         if (movementType != MovementType.GROUND) return false;
-        if (type == DestructibleObjectType.FENCE) return navigationMode == NavigationMode.NORMAL;
+        if (type.isFence()) return navigationMode == NavigationMode.NORMAL;
         return true;
     }
 }

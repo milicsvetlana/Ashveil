@@ -49,7 +49,7 @@ public class ProjectileSystem {
 
         if (object != null) {
             if (object instanceof DestructibleObject destructibleObject){
-                if (destructibleObject.getType() == DestructibleObjectType.FENCE){
+                if (destructibleObject.getType().isFence()){
                     destructibleObject.receiveHit(projectile.getDamage());
                 }
             }

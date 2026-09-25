@@ -43,6 +43,28 @@ public enum ItemType {
         DestructibleObjectType.FENCE
     ),
 
+    THORN_FENCE(
+        "Thorn Fence",
+        "A  reinforced blackthorn barrier that punishes attackers.",
+        20,
+        0,
+        true,
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.PLACE,
+        DestructibleObjectType.THORN_FENCE
+    ),
+
+    BRIAR_SNARE(
+        "Briar Snare",
+        "A single-use blackthorn trap that damages and briefly roots enemies caught in it.",
+        20,
+        0,
+        true,
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.PLACE,
+        DestructibleObjectType.BRIAR_SNARE
+    ),
+
     CHEST(
         "Chest",
         "A sturdy storage container used to keep items safe.",

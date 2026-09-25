@@ -25,6 +25,9 @@ public final class ProgressionState {
     private boolean windyWardCleared;
     private boolean dashUnlocked;
 
+    private boolean darkrootWardCleared;
+    private boolean veilscarWardCleared;
+
     public ProgressionState() {
         this.firstTreeDropClaimed = false;
         this.wispNightUnlocked = false;
@@ -42,13 +45,17 @@ public final class ProgressionState {
 
         windyWardCleared = false;
         dashUnlocked = false;
+
+        darkrootWardCleared = false;
+        veilscarWardCleared = false;
     }
 
     public void applyPersistentState(boolean firstTreeDropClaimed, boolean wispNightUnlocked,
                                      boolean wraithNightUnlocked, boolean boatKitCrafted, boolean boatBuilt,
                                      boolean foundOldJetty, boolean scrollIRead, boolean scrollIIRead, boolean scrollIIIRead,
                                      Set<CraftingCategory> unlockedCraftingCategories, Set<AreaID> unlockedAreas,
-                                     boolean windyWardCleared, boolean dashUnlocked){
+                                     boolean windyWardCleared, boolean dashUnlocked, boolean darkrootWardCleared,
+                                     boolean veilscarWardCleared){
         if (unlockedCraftingCategories == null) throw new IllegalArgumentException("Unlocked crafting categories can't be null");
         if (unlockedAreas == null) throw new IllegalArgumentException("Unlocked areas can't be null");
         this.firstTreeDropClaimed = firstTreeDropClaimed;
@@ -71,6 +78,9 @@ public final class ProgressionState {
 
         this.windyWardCleared = windyWardCleared;
         this.dashUnlocked = dashUnlocked;
+
+        this.darkrootWardCleared = darkrootWardCleared;
+        this.veilscarWardCleared = veilscarWardCleared;
     }
 
     public boolean isFirstTreeDropClaimed() {return firstTreeDropClaimed;}
@@ -104,8 +114,24 @@ public final class ProgressionState {
     public void markScrollIIRead() {scrollIIRead = true;}
     public void markScrollIIIRead() {scrollIIIRead = true;}
 
-    public boolean isWindyWardCleared(){return windyWardCleared;}
-    public void clearWindyWard(){windyWardCleared = true;}
     public boolean isDashUnlocked(){return dashUnlocked;}
     public void unlockDash(){dashUnlocked = true;}
+
+    public boolean isWardCleared(AreaID areaID){
+        return switch (areaID){
+            case MAIN_ISLAND -> false;
+            case WINDY_PLAINS -> windyWardCleared;
+            case DARKROOT_ISLE -> darkrootWardCleared;
+            case VEILSCAR_PASSAGE -> veilscarWardCleared;
+        };
+    }
+
+    public void clearWard(AreaID areaID){
+        switch (areaID){
+            case MAIN_ISLAND -> throw new IllegalStateException("Main Island has no guardian ward");
+            case WINDY_PLAINS -> windyWardCleared = true;
+            case DARKROOT_ISLE -> darkrootWardCleared = true;
+            case VEILSCAR_PASSAGE -> veilscarWardCleared = true;
+        }
+    }
 }

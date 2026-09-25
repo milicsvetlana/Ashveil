@@ -44,9 +44,9 @@ public class Config {
     /** Day and night cycle */
     public static final float FIRST_DAY_DURATION = 60f;
 
-    public static final float DAY_DURATION = 15f;
-    public static final float DUSK_DURATION = 15f;
-    public static final float NIGHT_DURATION = 15f;
+    public static final float DAY_DURATION = 3f;
+    public static final float DUSK_DURATION = 3f;
+    public static final float NIGHT_DURATION = 120f;
 
     public static final float DAY_PHASE_RATIO = 0.60f;
     public static final float DUSK_PHASE_RATIO = 0.10f;
@@ -66,6 +66,8 @@ public class Config {
     public static final int TREE_HP = 3;
     public static final int ROCK_HP = 3;
     public static final int FENCE_HP = 4;
+    public static final int THORN_FENCE_HP = 10;
+    public static final int BRIAR_SNARE_HP = 1;
     public static final int CHEST_HP = 4;
     public static final int FIRST_TREE_DROP_AMOUNT = 2;
 
@@ -126,4 +128,9 @@ public class Config {
 
     public static final float PLAYER_DASH_DISTANCE = TILE_SIZE * 4f;
     public static final float PLAYER_DASH_COOLDOWN = 0.75f;
+
+    public static final int THORN_FENCE_RETALIATION_DAMAGE = 2;
+    public static final float BRIAR_SNARE_ROOT_TIMER = 3f;
+    public static final int BRIAR_SNARE_DAMAGE = 1;
+
 }

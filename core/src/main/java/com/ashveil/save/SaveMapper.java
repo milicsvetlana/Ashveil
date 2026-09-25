@@ -132,7 +132,8 @@ public class SaveMapper {
                                               progressionSaveData.boatBuilt, progressionSaveData.foundOldJetty,
                                               progressionSaveData.scrollIRead, progressionSaveData.scrollIIRead,
                                               progressionSaveData.scrollIIIRead, unlockedCategories, unlockedAreas,
-                                              progressionSaveData.windyWardCleared, progressionSaveData.dashUnlocked);
+                                              progressionSaveData.windyWardCleared, progressionSaveData.dashUnlocked,
+                                              progressionSaveData.darkrootWardCleared, progressionSaveData.veilscarWardCleared);
     }
 
     private void applyFarmingState(FarmingSystem farmingSystem, AreaSaveData areaSaveData){
@@ -306,8 +307,11 @@ public class SaveMapper {
             }
         }
 
-        progressionSaveData.windyWardCleared = progressionState.isWindyWardCleared();
+        progressionSaveData.windyWardCleared = progressionState.isWardCleared(AreaID.WINDY_PLAINS);
         progressionSaveData.dashUnlocked = progressionState.isDashUnlocked();
+
+        progressionSaveData.darkrootWardCleared = progressionState.isWardCleared(AreaID.DARKROOT_ISLE);
+        progressionSaveData.veilscarWardCleared = progressionState.isWardCleared(AreaID.VEILSCAR_PASSAGE);
 
         return progressionSaveData;
     }

@@ -153,7 +153,7 @@ A separate `NoNaturalSpawn` layer is not required.
 The guardian combat area is represented by:
 
 ```text
-guardian_area_region
+guardian_arena_region
 ```
 
 This rectangle determines the region in which guardian enemies are spawned.
@@ -284,7 +284,7 @@ Windy Plains final guardian composition is:
 The enemies are spawned inside:
 
 ```text
-guardian_area_region
+guardian_arena_region
 ```
 
 ---
@@ -993,7 +993,7 @@ Guardian enemies use region-based spawning.
 
 Ground guardian enemies must still obey hazard restrictions.
 
-Therefore a guardian Shade cannot be created inside a hole merely because the hole lies within `guardian_area_region`.
+Therefore a guardian Shade cannot be created inside a hole merely because the hole lies within `guardian_arena_region`.
 
 Wisp may occupy airspace above hazard terrain because its movement type is flying.
 
@@ -1268,7 +1268,7 @@ Map-specific spatial information belongs in map data.
 Java should know the gameplay meaning of:
 
 ```text
-guardian_area_region
+guardian_arena_region
 NoNaturalSpawn
 scroll_chest_spawn
 hazard

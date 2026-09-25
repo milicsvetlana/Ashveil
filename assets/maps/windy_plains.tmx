@@ -1554,7 +1554,7 @@
  </layer>
  <objectgroup id="12" name="SpecialRegions">
   <object id="16" name="boat_interaction" x="286.125" y="1958.63" width="40.75" height="56.25"/>
-  <object id="20" name="guardian_area_region" type="special_region" x="951.333" y="197.333" width="782.667" height="786.667">
+  <object id="20" name="guardian_arena_region" type="special_region" x="951.333" y="197.333" width="782.667" height="786.667">
    <properties>
     <property name="purpose" value="chest_or_fight"/>
     <property name="regionType" value="arena_chest"/>
