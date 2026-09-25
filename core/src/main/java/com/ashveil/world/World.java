@@ -663,8 +663,8 @@ public class World implements CraftingAccess, WorldMapAccess {
 
     public void initializeAreaSpecificContent(AreaRuntime runtime){
         GuardianEncounterDefinition definition = getGuardianDefinition(runtime.getAreaID());
-        if (definition == null) return;
-        spawnGuardianChest(runtime, definition);
+        if (definition != null) spawnGuardianChest(runtime, definition);
+        if (runtime.getAreaID() == AreaID.DARKROOT_ISLE) spawnHollowcaps(runtime);
     }
 
     private void spawnGuardianChest(AreaRuntime runtime, GuardianEncounterDefinition definition){
@@ -761,6 +761,15 @@ public class World implements CraftingAccess, WorldMapAccess {
         if (progressionState.isScrollIRead() && !progressionState.isAreaUnlocked(AreaID.DARKROOT_ISLE)){
             progressionState.unlockArea(AreaID.DARKROOT_ISLE);
         }
+
+        if (progressionState.isWardCleared(AreaID.DARKROOT_ISLE) && !progressionState.isWraithNightUnlocked()
+            && player.getInventory().getQuantity(ItemType.SCROLL_II) > 0){
+            progressionState.unlockWraithNight();
+        }
+
+        if (progressionState.isScrollIIRead() && !progressionState.isAreaUnlocked(AreaID.VEILSCAR_PASSAGE)){
+            progressionState.unlockArea(AreaID.VEILSCAR_PASSAGE);
+        }
     }
 
     private void resetActiveGuardianEncounter(){
@@ -793,8 +802,8 @@ public class World implements CraftingAccess, WorldMapAccess {
                     AreaID.WINDY_PLAINS,
                     ItemType.SCROLL_I,
                     Map.of(
-                        EnemyType.SHADE, 20,
-                        EnemyType.WISP, 10
+                        EnemyType.SHADE, 2,
+                        EnemyType.WISP, 1
                     )
                 );
 
@@ -812,6 +821,13 @@ public class World implements CraftingAccess, WorldMapAccess {
             case MAIN_ISLAND, VEILSCAR_PASSAGE ->
                 null;
         };
+    }
+
+    private void spawnHollowcaps(AreaRuntime runtime){
+        List<Rectangle> hollowcapZones = runtime.getTileMap().getObjectRectangles("ResourceZones", "hollowcap_zone");
+
+        runtime.getDestructibleObjectSystem().spawnObjectsInRegions(DestructibleObjectType.HOLLOWCAP, hollowcapZones,
+                                                                    Config.INITIAL_HOLLOWCAP_AMOUNT, player);
     }
 
     public void applyPersistentState(float checkpointX, float checkpointY, double playTimeSeconds){

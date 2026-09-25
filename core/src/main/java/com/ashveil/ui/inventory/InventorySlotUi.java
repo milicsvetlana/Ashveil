@@ -138,6 +138,7 @@ public class InventorySlotUi extends Stack {
             case FENCE -> new Color(0.5f, 0.3f, 0.12f, 1f);
             case THORN_FENCE -> new Color(Color.PURPLE);
             case BRIAR_SNARE -> new Color(Color.RED);
+            case HOLLOWCAP -> new Color(Color.LIGHT_GRAY);
             case BOAT_KIT -> new Color(0.35f, 0.55f, 0.7f, 1f);
             case SCROLL_I, SCROLL_II, SCROLL_III -> new Color(0.65f, 0.4f, 0.75f, 1f);
             case GOLD -> Color.GOLD;

@@ -18,7 +18,10 @@ public enum GuideStep {
     WINDY_ARRIVAL("guidance.windyArrival", null),
     WINDY_GUARDIAN_STARTED("guidance.windyGuardianStarted", null),
     WINDY_SCROLL_I_READ("guidance.windyScrollIRead", null),
-    WISP_GLOBAL_UNLOCKED("guidance.wispGlobalUnlocked", null);
+    WISP_GLOBAL_UNLOCKED("guidance.wispGlobalUnlocked", null),
+
+    DARKROOT_ARRIVAL("guidance.darkrootArrival", null),
+    DARKROOT_SCROLL_II_READ("guidance.darkrootScrollIIRead", null);
 
     private final String messageKey;
     private final GuideTrigger trigger;

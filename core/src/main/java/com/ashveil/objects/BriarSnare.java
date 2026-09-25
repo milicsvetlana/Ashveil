@@ -5,8 +5,8 @@ import com.ashveil.collision.MovementType;
 import com.ashveil.navigation.NavigationMode;
 
 public class BriarSnare extends DestructibleObject{
-    public BriarSnare(float x, float y){
-        super(x, y, DestructibleObjectType.BRIAR_SNARE, Config.BRIAR_SNARE_HP);
+    public BriarSnare(float x, float y, int currentHp){
+        super(x, y, DestructibleObjectType.BRIAR_SNARE, currentHp);
     }
 
     @Override

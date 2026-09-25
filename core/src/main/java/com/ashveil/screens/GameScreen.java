@@ -724,7 +724,7 @@ public class GameScreen implements Screen {
     }
 
     private void updateContextualGuidance(){
-        activateWindyStateGuidance();
+        activateAreaStateGuidance();
 
         if (contextualGuidanceVisible) return;
         if (guidanceSystem.getActiveContextualStep() == null) return;
@@ -790,7 +790,7 @@ public class GameScreen implements Screen {
         world.clearWindyGuardianStartedRequest();
     }
 
-    public void activateWindyStateGuidance(){
+    public void activateAreaStateGuidance(){
         if (guidanceSystem.getActiveContextualStep() != null) return;
 
         if (world.getCurrentAreaId() == AreaID.WINDY_PLAINS && !guidanceSystem.wasContextualStepShown(GuideStep.WINDY_ARRIVAL)){
@@ -806,6 +806,16 @@ public class GameScreen implements Screen {
         if (world.getCurrentAreaId() == AreaID.MAIN_ISLAND && world.getProgressionState().isWispNightUnlocked()
             && world.getDayNightCycle().isNight() && !guidanceSystem.wasContextualStepShown(GuideStep.WISP_GLOBAL_UNLOCKED)){
             guidanceSystem.activateContextualStep(GuideStep.WISP_GLOBAL_UNLOCKED);
+        }
+
+        if (world.getCurrentAreaId() == AreaID.DARKROOT_ISLE && !guidanceSystem.wasContextualStepShown(GuideStep.DARKROOT_ARRIVAL)){
+            guidanceSystem.activateContextualStep(GuideStep.DARKROOT_ARRIVAL);
+            return;
+        }
+
+        if (world.getProgressionState().isScrollIIRead() && !guidanceSystem.wasContextualStepShown(GuideStep.DARKROOT_SCROLL_II_READ)){
+            guidanceSystem.activateContextualStep(GuideStep.DARKROOT_SCROLL_II_READ);
+            return;
         }
 
     }

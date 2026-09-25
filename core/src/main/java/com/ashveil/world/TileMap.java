@@ -10,6 +10,9 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TileMap {
     private final TiledMap tiledMap;
 
@@ -152,6 +155,23 @@ public class TileMap {
         if (!(object instanceof RectangleMapObject rectangleMapObject)) throw new IllegalStateException("Rectangle object not found: " + objectName);
 
         return new Rectangle(rectangleMapObject.getRectangle());
+    }
+
+    public List<Rectangle> getObjectRectangles(String layerName, String objectName){
+        MapLayer layer = tiledMap.getLayers().get(layerName);
+
+        if (layer == null) throw new IllegalStateException("Layer not found: " + layerName);
+
+        List<Rectangle> rectangles = new ArrayList<>();
+
+        for (MapObject object : layer.getObjects()){
+            if (!objectName.equals(object.getName())) continue;
+            if (!(object instanceof RectangleMapObject rectangleMapObject)) throw new IllegalStateException("Object is not a rectangle: " + objectName);
+            rectangles.add(rectangleMapObject.getRectangle());
+        }
+
+        if (rectangles.isEmpty()) throw new IllegalStateException("Rectangle objects not found: " + objectName);
+        return rectangles;
     }
 
     public void setLayerVisible(String layerName, boolean visible){

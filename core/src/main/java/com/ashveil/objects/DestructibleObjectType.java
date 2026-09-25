@@ -9,7 +9,8 @@ public enum DestructibleObjectType {
     FENCE(Config.FENCE_HP, 1, 1, HitCategory.WOOD, false),
     THORN_FENCE(Config.THORN_FENCE_HP, 1, 1, HitCategory.WOOD, false),
     BRIAR_SNARE(1, 0, 0, HitCategory.WOOD, false),
-    CHEST(Config.CHEST_HP, 1, 1, HitCategory.WOOD, false);
+    CHEST(Config.CHEST_HP, 1, 1, HitCategory.WOOD, false),
+    HOLLOWCAP(Config.HOLLOWCAP_HP, 1, 2, HitCategory.PLANT, false);
 
     private final int hp;
     private final int minDrop;

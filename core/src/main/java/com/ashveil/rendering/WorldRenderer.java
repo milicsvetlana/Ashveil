@@ -48,6 +48,9 @@ public class WorldRenderer {
     private Texture briarSnareTexture;
     private TextureRegion briarSnareRegion;
 
+    private Texture hollowcapTexture;
+    private TextureRegion hollowcapRegion;
+
     public WorldRenderer(TileMap tileMap) {
         shapeRenderer = new ShapeRenderer();
         setTileMap(tileMap);
@@ -94,6 +97,10 @@ public class WorldRenderer {
         briarSnareTexture = new Texture("textures/objects/briar_snare.png");
         briarSnareTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         briarSnareRegion = new TextureRegion(briarSnareTexture);
+
+        hollowcapTexture = new Texture("textures/objects/hollowcap.png");
+        hollowcapTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        hollowcapRegion = new TextureRegion(hollowcapTexture);
     }
 
     public void render(World world, CameraController cameraController) {
@@ -129,7 +136,7 @@ public class WorldRenderer {
         for (DestructibleObject o : world.getDestructibleObjects()) {
 
             if (o.getType() == DestructibleObjectType.CHEST || o.getType().isFence()
-                || o.getType() == DestructibleObjectType.BRIAR_SNARE) continue;
+                || o.getType() == DestructibleObjectType.BRIAR_SNARE || o.getType() == DestructibleObjectType.HOLLOWCAP) continue;
 
             switch(o.getType()){
                 case TREE -> {
@@ -275,21 +282,21 @@ public class WorldRenderer {
         };
     }
 
-    private void drawTileObjectTexture(TextureRegion region, DestructibleObject object){
-        spriteBatch.draw(region, object.getX() * Config.SCALE, object.getY() * Config.SCALE,
-                        Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
-    }
-
     public void drawObjectTextures(World world){
         for (DestructibleObject object : world.getDestructibleObjects()){
             switch (object.getType()){
                 case CHEST -> drawChestTexture(world, (Chest) object);
-                case FENCE -> drawTileObjectTexture(normalFenceRegion, object);
-                case THORN_FENCE -> drawTileObjectTexture(thornFenceRegion, object);
-                case BRIAR_SNARE -> drawTileObjectTexture(briarSnareRegion, object);
+                case FENCE -> drawObjectTexture(normalFenceRegion, object, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+                case THORN_FENCE -> drawObjectTexture(thornFenceRegion, object, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+                case BRIAR_SNARE -> drawObjectTexture(briarSnareRegion,object, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
+                case HOLLOWCAP -> drawObjectTexture(hollowcapRegion, object, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE * 2);
                 default -> {}
             }
         }
+    }
+
+    private void drawObjectTexture(TextureRegion region, DestructibleObject object, float drawWidth, float drawHeight){
+        spriteBatch.draw(region, object.getX() * Config.SCALE, object.getY() * Config.SCALE, drawWidth, drawHeight);
     }
 
     public int getMapWidthInTiles() {return tiledMap.getProperties().get("width", Integer.class);}
@@ -310,5 +317,6 @@ public class WorldRenderer {
         chestTexture.dispose();
         fenceTexture.dispose();
         briarSnareTexture.dispose();
+        hollowcapTexture.dispose();
     }
 }

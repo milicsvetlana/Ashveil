@@ -50,7 +50,8 @@ public class DestructibleObjectSystem {
             DestructibleObjectType.ROCK, ItemType.STONE,
             DestructibleObjectType.FENCE, ItemType.FENCE,
             DestructibleObjectType.THORN_FENCE, ItemType.THORN_FENCE,
-            DestructibleObjectType.CHEST, ItemType.CHEST
+            DestructibleObjectType.CHEST, ItemType.CHEST,
+            DestructibleObjectType.HOLLOWCAP, ItemType.HOLLOWCAP
         );
     }
 
@@ -161,7 +162,8 @@ public class DestructibleObjectSystem {
 
     private DestructibleObject createObject(float worldX, float worldY, DestructibleObjectType type, int currentHp){
         if (type == DestructibleObjectType.CHEST) return new Chest(worldX, worldY, currentHp);
-        if (type == DestructibleObjectType.BRIAR_SNARE) return new BriarSnare(worldX, worldY);
+        if (type == DestructibleObjectType.BRIAR_SNARE) return new BriarSnare(worldX, worldY, currentHp);
+        if (type == DestructibleObjectType.HOLLOWCAP) return new Hollowcap(worldX, worldY, currentHp);
         return new DestructibleObject(worldX, worldY, type, currentHp);
     }
 
@@ -244,6 +246,39 @@ public class DestructibleObjectSystem {
                 break;
             }
         }
+    }
+
+    public void spawnObjectsInRegions(DestructibleObjectType type, List<Rectangle> regions, int amount, Player player){
+        if (type == null) throw new IllegalArgumentException("Destructible object type cannot be null.");
+        if (regions == null || regions.isEmpty()) return;
+
+        int spawned = 0;
+        int attempts = 0;
+        int maxAttempts = amount * 50;
+
+        while (spawned < amount && attempts < maxAttempts){
+            attempts++;
+
+            Rectangle region = regions.get(random.nextInt(regions.size()));
+
+            int minTileX = (int) Math.ceil(region.x / Config.TILE_SIZE);
+            int minTileY = (int) Math.ceil(region.y / Config.TILE_SIZE);
+
+            int maxTileX = (int) Math.floor((region.x + region.width) / Config.TILE_SIZE) - 1;
+            int maxTileY = (int) Math.floor((region.y + region.height) / Config.TILE_SIZE) - 1;
+
+            if (maxTileX < minTileX || maxTileY < minTileY) continue;
+
+            int tileX = minTileX + random.nextInt(maxTileX - minTileX + 1);
+            int tileY = minTileY + random.nextInt(maxTileY - minTileY + 1);
+
+            if (!isNaturalSpawnPositionValid(tileX, tileY, player)) continue;
+
+            createAndAdd(tileX * Config.TILE_SIZE, tileY * Config.TILE_SIZE, type);
+
+            spawned++;
+        }
+
     }
 
     public List<DestructibleObject> getObjects(){

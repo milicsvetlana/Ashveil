@@ -69,6 +69,7 @@ public class Config {
     public static final int THORN_FENCE_HP = 10;
     public static final int BRIAR_SNARE_HP = 1;
     public static final int CHEST_HP = 4;
+    public static final int HOLLOWCAP_HP = 1;
     public static final int FIRST_TREE_DROP_AMOUNT = 2;
 
     /** Enemy lifecycle */
@@ -132,5 +133,5 @@ public class Config {
     public static final int THORN_FENCE_RETALIATION_DAMAGE = 2;
     public static final float BRIAR_SNARE_ROOT_TIMER = 3f;
     public static final int BRIAR_SNARE_DAMAGE = 1;
-
+    public static final int INITIAL_HOLLOWCAP_AMOUNT = 20;
 }

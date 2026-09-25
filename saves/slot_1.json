@@ -1,11 +1,11 @@
 {
 "saveVersion": 1,
-"savedAt": 1790373073770,
-"playTimeSeconds": 183.39331371494336,
+"savedAt": 1790376686190,
+"playTimeSeconds": 200.90403614885872,
 "player": {
 	"characterName": "lll",
-	"x": 693.789,
-	"y": 1152.6768,
+	"x": 824.7162,
+	"y": 1178.6039,
 	"checkPointX": 1024,
 	"checkPointY": 1072,
 	"health": 4,
@@ -35,8 +35,8 @@
 },
 "dayNight": {
 	"dayCount": 2,
-	"phase": "DAY",
-	"phaseTimer": 0.3906875
+	"phase": "NIGHT",
+	"phaseTimer": 11.901404
 },
 "progressionState": {
 	"firstTreeDropClaimed": false,
@@ -50,9 +50,9 @@
 	"scrollIIIRead": false,
 	"unlockedCraftingCategories": [
 		"WEAPONS",
-		"BUILDING",
+		"TOOLS",
 		"FOOD",
-		"TOOLS"
+		"BUILDING"
 	],
 	"unlockedAreas": [
 		"MAIN_ISLAND",
@@ -438,12 +438,18 @@
 		"enemies": [],
 		"projectiles": [],
 		"nightSpawn": {
-			"remainingQueue": [],
-			"spawnTimer": 0,
-			"spawnInterval": 0
+			"remainingQueue": [
+				"SHADE",
+				"SHADE",
+				"SHADE",
+				"SHADE",
+				"SHADE"
+			],
+			"spawnTimer": 11.9053135,
+			"spawnInterval": 16.8
 		},
 		"lastDepartureDayCount": -1,
-		"ordinaryNighDayCount": 1
+		"ordinaryNighDayCount": 2
 	}
 ],
 "guidance": {

@@ -98,6 +98,17 @@ public enum ItemType {
         null
     ),
 
+    HOLLOWCAP(
+        "Hollowcap",
+        "A pale mushroom found in the damp forests of Darkroot Isle.",
+        20,
+        0,
+        true,
+        new DamageProfile(Config.PLAYER_BASE_DAMAGE, Map.of()),
+        TargetMode.NONE,
+        null
+    ),
+
     BREAD(
         "Bread",
         "A simple food made from wheat.",
