@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Rectangle;
@@ -11,9 +12,12 @@ import com.badlogic.gdx.math.Vector2;
 
 public class TileMap {
     private final TiledMap tiledMap;
+
     private final TiledMapTileLayer collisionLayer;
     private final TiledMapTileLayer groundLayer;
-    private final MapLayer noNaturalSpawnLayer;
+    private final TiledMapTileLayer hazardLayer;
+
+    private final MapLayer objectsLayer;
 
     private final int width;
     private final int height;
@@ -27,8 +31,9 @@ public class TileMap {
         //posto getlayers vraca opsti maplayer, mi kastujemo
         collisionLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Collision");
         groundLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Ground");
-        noNaturalSpawnLayer = tiledMap.getLayers().get("NoNaturalSpawn");
+        hazardLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Hazards");
 
+        objectsLayer = tiledMap.getLayers().get("Objects");
         width = tiledMap.getProperties().get("width", Integer.class);
         height = tiledMap.getProperties().get("height", Integer.class);
         tileWidth = tiledMap.getProperties().get("tilewidth", Integer.class);
@@ -41,11 +46,13 @@ public class TileMap {
 
     public boolean isNaturalSpawnBlocked(int tileX, int tileY){
         if (isOutOfBounds(tileX, tileY)) return true;
-        if (noNaturalSpawnLayer == null) return false;
+        if (isHazard(tileX, tileY)) return true;
+        if (objectsLayer == null) return false;
 
         Rectangle tileBounds = new Rectangle(tileToWorldX(tileX), tileToWorldY(tileY), tileWidth, tileHeight);
 
-        for (MapObject object : noNaturalSpawnLayer.getObjects()){
+        for (MapObject object : objectsLayer.getObjects()){
+            if (!"NoNaturalSpawn".equals(objectsLayer.getName())) continue;
             if (!(object instanceof RectangleMapObject rectangleMapObject)) continue;
             if (tileBounds.overlaps(rectangleMapObject.getRectangle())) return true;
         }
@@ -92,6 +99,25 @@ public class TileMap {
             cell.getTile().getProperties().get("treePlantable", Boolean.class);
 
         return treePlantable != null && treePlantable;
+    }
+
+    public boolean isHazard(int tileX, int tileY){
+        if (isOutOfBounds(tileX, tileY)) return false;
+        if (hazardLayer == null) return false;
+
+        TiledMapTileLayer.Cell cell = hazardLayer.getCell(tileX, tileY);
+        if (cell == null) return false;
+        if (cell.getTile() == null) return false;
+
+        Boolean hazard = cell.getTile()
+            .getProperties()
+            .get("hazard", Boolean.class);
+
+        return Boolean.TRUE.equals(hazard);
+    }
+
+    public boolean isHazardAtWorld(float worldX, float worldY){
+        return isHazard(worldToTileX(worldX), worldToTileY(worldY));
     }
 
     public boolean isOutOfBounds(int x, int y) {

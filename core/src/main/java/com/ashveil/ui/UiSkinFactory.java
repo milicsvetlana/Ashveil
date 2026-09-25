@@ -35,6 +35,10 @@ public final class UiSkinFactory {
 
         skin.add("ceca-portrait", cecaPortrait);
 
+        Texture swiftStepReward = new Texture(Gdx.files.internal("ui/rewards/swift-step-unlock.png"));
+        swiftStepReward.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        skin.add("reward-swift-step", swiftStepReward);
+
         return skin;
     }
 

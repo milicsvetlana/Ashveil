@@ -99,6 +99,7 @@ public class DistanceField {
 
     public boolean isNavigationBlocked(int tileX, int tileY, NavigationMode navigationMode){
         if (tileX < 0 || tileX >= tileMap.getWidth() || tileY < 0 || tileY >= tileMap.getHeight()) return true;
+        if (tileMap.isHazard(tileX, tileY)) return true;
         float worldX = tileMap.tileToWorldX(tileX);
         float worldY = tileMap.tileToWorldY(tileY);
         return collisionSystem.isNavigationBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, MovementType.GROUND, navigationMode);

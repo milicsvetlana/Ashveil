@@ -16,6 +16,8 @@ import com.ashveil.targeting.TargetMode;
 import com.ashveil.targeting.TileTargetingSystem;
 import com.ashveil.ui.*;
 import com.ashveil.ui.chest.ChestUI;
+import com.ashveil.ui.reward.RewardCardUi;
+import com.ashveil.ui.reward.RewardType;
 import com.ashveil.ui.scroll.ScrollUi;
 import com.ashveil.ui.worldmap.WorldMapUi;
 import com.ashveil.world.*;
@@ -32,10 +34,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import jdk.jshell.spi.ExecutionControl;
-
-import javax.swing.plaf.synth.SynthRootPaneUI;
-import java.lang.reflect.MalformedParameterizedTypeException;
 
 public class GameScreen implements Screen {
 
@@ -70,6 +68,9 @@ public class GameScreen implements Screen {
     private ItemType openedScroll;
     private boolean scrollOpenedThisFrame;
 
+    private Stage rewardStage;
+    private RewardCardUi rewardCardUi;
+
     public GameScreen(GameApp game, int saveSlot){
         this(game, saveSlot, new World());
     }
@@ -95,6 +96,9 @@ public class GameScreen implements Screen {
         tileTargetingSystem = new TileTargetingSystem(cameraController, world.getTileMap());
         overlayStage = new Stage(new ScreenViewport());
         guidanceStage = new Stage(new ScreenViewport());
+        rewardStage = new Stage(new ScreenViewport());
+        rewardCardUi = new RewardCardUi(uiSkin);
+        rewardStage.addActor(rewardCardUi);
         guidanceSystem = world.getGuidanceSystem();
         guidanceUi = new GuidanceUi(uiSkin);
         guidanceMessagePending = false;
@@ -152,6 +156,9 @@ public class GameScreen implements Screen {
             int healthBeforeUpdate = world.getPlayer().getCurrentHp();
 
             world.update(delta, playerInput);
+
+            handleWindyGuidanceRequest();
+            handleRewardRequest();
 
             if (activeOverlay == GameOverlay.WORLD_MAP){
                 worldMapUi.act(delta);
@@ -235,6 +242,9 @@ public class GameScreen implements Screen {
         if (deathTransitionState != DeathTransitionState.NONE) renderDeathFade();
 
         if (activeOverlay == GameOverlay.WORLD_MAP) worldMapUi.draw();
+
+        rewardStage.act(delta);
+        rewardStage.draw();
     }
 
     private void toggleMenu(){
@@ -493,12 +503,21 @@ public class GameScreen implements Screen {
         }
     }
 
+    private void handleRewardRequest(){
+        RewardType rewardType = world.getRewardRequested();
+        if (rewardType == null) return;
+
+        world.clearRewardRequest();
+        rewardCardUi.showReward(rewardType);
+    }
+
     @Override public void resize(int i, int i1) {
         hudRenderer.resize(i, i1);
         gameMenuUi.resize(i, i1);
         overlayStage.getViewport().update(i, i1, true);
         guidanceStage.getViewport().update(i, i1, true);
         worldMapUi.resize(i, i1);
+        rewardStage.getViewport().update(i, i1, true);
     }
 
     private void startDeathTransition(){
@@ -705,6 +724,8 @@ public class GameScreen implements Screen {
     }
 
     private void updateContextualGuidance(){
+        activateWindyStateGuidance();
+
         if (contextualGuidanceVisible) return;
         if (guidanceSystem.getActiveContextualStep() == null) return;
         if (guidanceUi.isMessageVisible()) return;
@@ -757,6 +778,38 @@ public class GameScreen implements Screen {
         }
     }
 
+    private void handleWindyGuidanceRequest(){
+        if (!world.isWindyGuardianStartedRequested()) return;
+        if (guidanceSystem.wasContextualStepShown(GuideStep.WINDY_GUARDIAN_STARTED)){
+            world.clearWindyGuardianStartedRequest();
+            return;
+        }
+
+        boolean activated = guidanceSystem.activateContextualStep(GuideStep.WINDY_GUARDIAN_STARTED);
+        if (!activated) return;
+        world.clearWindyGuardianStartedRequest();
+    }
+
+    public void activateWindyStateGuidance(){
+        if (guidanceSystem.getActiveContextualStep() != null) return;
+
+        if (world.getCurrentAreaId() == AreaID.WINDY_PLAINS && !guidanceSystem.wasContextualStepShown(GuideStep.WINDY_ARRIVAL)){
+            guidanceSystem.activateContextualStep(GuideStep.WINDY_ARRIVAL);
+            return;
+        }
+
+        if (world.getProgressionState().isScrollIRead() && !guidanceSystem.wasContextualStepShown(GuideStep.WINDY_SCROLL_I_READ)){
+            guidanceSystem.activateContextualStep(GuideStep.WINDY_SCROLL_I_READ);
+            return;
+        }
+
+        if (world.getCurrentAreaId() == AreaID.MAIN_ISLAND && world.getProgressionState().isWispNightUnlocked()
+            && world.getDayNightCycle().isNight() && !guidanceSystem.wasContextualStepShown(GuideStep.WISP_GLOBAL_UNLOCKED)){
+            guidanceSystem.activateContextualStep(GuideStep.WISP_GLOBAL_UNLOCKED);
+        }
+
+    }
+
     @Override
     public void dispose() {
         worldRenderer.dispose();
@@ -771,6 +824,7 @@ public class GameScreen implements Screen {
         guidanceStage.dispose();
         worldMapUi.dispose();
         scrollUi.dispose();
+        rewardStage.dispose();
     }
 
     @Override public void show(){

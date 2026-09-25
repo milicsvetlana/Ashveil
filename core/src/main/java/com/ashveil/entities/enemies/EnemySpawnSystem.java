@@ -140,6 +140,7 @@ public class EnemySpawnSystem {
             if (overlapsEnemy) continue;
 
             if (enemyType.getMovementType() == MovementType.GROUND){
+                if (tileMap.isHazard(tileX, tileY)) continue;
                 if (collisionSystem.isBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, MovementType.GROUND)) continue;
                 NavigationMode navigationMode = enemyType == EnemyType.SHADE ? NavigationMode.BREAK_FENCES : NavigationMode.NORMAL;
                 if (distanceField.getDistance(tileX, tileY, navigationMode) == DistanceField.UNREACHABLE) continue;
@@ -243,6 +244,7 @@ public class EnemySpawnSystem {
             if (spawnBounds.overlaps(player.getCollisionBounds())) continue;
 
             if (enemyType.getMovementType() == MovementType.GROUND){
+                if (tileMap.isHazard(tileX, tileY)) continue;
                 if (collisionSystem.isBlocked(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE, MovementType.GROUND)) continue;
                 NavigationMode navigationMode = enemyType == EnemyType.SHADE ? NavigationMode.BREAK_FENCES : NavigationMode.NORMAL;
                 if (distanceField.getDistance(tileX, tileY, navigationMode) == DistanceField.UNREACHABLE) continue;

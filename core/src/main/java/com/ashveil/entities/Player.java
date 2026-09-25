@@ -95,6 +95,12 @@ public class Player extends Entity{
         super.takeDamage(amount);
     }
 
+    public void takeHazardDamage(int amount){
+        if (amount <= 0)throw new IllegalArgumentException("Hazard damage must be positive.");
+        super.takeDamage(amount);
+        damageCooldown = Config.DAMAGE_COOLDOWN_MAX;
+    }
+
     public float getFacingX() {
         return switch (facing) {
             case LEFT -> -1f;

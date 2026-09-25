@@ -3,9 +3,9 @@ package com.ashveil.entities.enemies;
 import com.ashveil.collision.MovementType;
 
 public enum EnemyType {
-    SHADE(6, 30, 1, MovementType.GROUND, 1),
-    WISP(6, 30, 1, MovementType.FLYING, 2),
-    WRAITH(6, 30, 2, MovementType.GROUND, 3);
+    SHADE(16, 30, 1, MovementType.GROUND, 1),
+    WISP(10, 30, 1, MovementType.FLYING, 2),
+    WRAITH(26, 30, 2, MovementType.GROUND, 3);
 
     private final int maxHp;
     private final float maxSpeed;

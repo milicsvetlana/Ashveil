@@ -5,7 +5,6 @@ import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
 import com.ashveil.combat.ProjectileSystem;
 import com.ashveil.encounter.GuardianEncounter;
-import com.ashveil.encounter.GuardianEncounterState;
 import com.ashveil.entities.enemies.*;
 import com.ashveil.entities.Player;
 import com.ashveil.farming.*;
@@ -22,14 +21,13 @@ import com.ashveil.input.PlayerInput;
 import com.ashveil.progression.ProgressionState;
 import com.ashveil.items.crafting.CraftingAccess;
 import com.ashveil.targeting.TargetMode;
+import com.ashveil.ui.reward.RewardType;
 import com.ashveil.world.area.AreaID;
 import com.ashveil.world.area.AreaManager;
 import com.ashveil.world.area.AreaRuntime;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.actions.IntAction;
 
-import java.security.Guard;
 import java.util.*;
 
 public class World implements CraftingAccess, WorldMapAccess {
@@ -59,10 +57,13 @@ public class World implements CraftingAccess, WorldMapAccess {
 
     private double totalPlayTimeSeconds;
     private float boatTravelCooldownRemaining;
+
     private boolean worldMapRequested;
     private ItemType scrollReadRequested;
+    private RewardType rewardRequested;
 
     private GuardianEncounter windyGuardianEncounter;
+    private boolean windyGuardianStartedRequested;
 
     public World(){
         areaManager = new AreaManager(AreaID.MAIN_ISLAND);
@@ -97,11 +98,13 @@ public class World implements CraftingAccess, WorldMapAccess {
 
         totalPlayTimeSeconds = 0;
         boatTravelCooldownRemaining = 0;
-        worldMapRequested = false;
 
+        worldMapRequested = false;
         scrollReadRequested = null;
+        rewardRequested = null;
 
         windyGuardianEncounter = null;
+        windyGuardianStartedRequested = false;
     }
 
     private World(AreaID areaId, float playerX, float playerY){
@@ -131,9 +134,13 @@ public class World implements CraftingAccess, WorldMapAccess {
 
         totalPlayTimeSeconds = 0;
         boatTravelCooldownRemaining = 0;
-        worldMapRequested = false;
 
+        worldMapRequested = false;
         scrollReadRequested = null;
+        rewardRequested = null;
+
+        windyGuardianEncounter = null;
+        windyGuardianStartedRequested = false;
     }
 
     private void initializeNewGameState(){
@@ -152,6 +159,7 @@ public class World implements CraftingAccess, WorldMapAccess {
         chest.getChestInventory().addItem(ItemType.BOAT_KIT, 1);
 
         player.getInventory().addItem(ItemType.STONE_SWORD, 1);
+        player.getInventory().addItem(ItemType.SCROLL_I, 1);
     }
 
     public static World createForLoad(AreaID areaID, float playerX, float playerY){
@@ -166,7 +174,9 @@ public class World implements CraftingAccess, WorldMapAccess {
         }
         player.update(delta);
         player.move(playerInput.getMoveX(), playerInput.getMoveY(), delta);
+
         handleDash(playerInput);
+        handlePlayerHazard();
 
         currentAreaRuntime.getDistanceField().update(getTileMap().worldToTileX(player.getCenterX()), getTileMap().worldToTileY(player.getCenterY()));
 
@@ -373,6 +383,7 @@ public class World implements CraftingAccess, WorldMapAccess {
 
     public boolean isCurrentTargetValid(int tileX, int tileY, float worldX, float worldY){
         if (tileX < 0 || tileY < 0 || tileX >= getTileMap().getWidth() || tileY >= getTileMap().getHeight()) return false;
+        if (getTileMap().isHazard(tileX, tileY)) return false;
 
         int playerTileX = getTileMap().worldToTileX(player.getCenterX());
         int playerTileY = getTileMap().worldToTileY(player.getCenterY());
@@ -523,6 +534,7 @@ public class World implements CraftingAccess, WorldMapAccess {
     }
 
     private boolean isTreeSpawnPositionValid(int tileX, int tileY){
+        if (getTileMap().isHazard(tileX, tileY)) return false;
         float worldX = getTileMap().tileToWorldX(tileX);
         float worldY = getTileMap().tileToWorldY(tileY);
         Rectangle treeBounds = new Rectangle(worldX, worldY, Config.TILE_SIZE, Config.TILE_SIZE);
@@ -664,13 +676,16 @@ public class World implements CraftingAccess, WorldMapAccess {
         if (windyGuardianEncounter == null){
             Rectangle arenaBounds = getTileMap().getObjectRectangle("SpecialRegions", "guardian_area_region");
             windyGuardianEncounter = new GuardianEncounter(AreaID.WINDY_PLAINS, arenaBounds,
-                Map.of(EnemyType.SHADE, 2, EnemyType.WISP, 1), false);
+                Map.of(EnemyType.SHADE, 20, EnemyType.WISP, 10), false);
         }
         if (!windyGuardianEncounter.start()) return;
+
+        windyGuardianStartedRequested = true;
 
         getEnemies().clear();
         getProjectileSystem().replaceProjectiles(List.of());
         getEnemySpawnSystem().endNight();
+
         spawnGuardianWave(windyGuardianEncounter);
     }
 
@@ -698,6 +713,11 @@ public class World implements CraftingAccess, WorldMapAccess {
         windyGuardianEncounter.complete();
         progressionState.clearWindyWard();
         progressionState.unlockDash();
+
+        windyGuardianStartedRequested = false;
+
+        rewardRequested = RewardType.SWIFT_STEP;
+
         getProjectileSystem().replaceProjectiles(List.of());
     }
 
@@ -720,6 +740,18 @@ public class World implements CraftingAccess, WorldMapAccess {
         getProjectileSystem().getProjectiles().clear();
 
         windyGuardianEncounter.reset();
+        windyGuardianStartedRequested = false;
+    }
+
+    private void handlePlayerHazard(){
+        boolean standingOnHazard = getTileMap().isHazardAtWorld(player.getCenterX(), player.getCenterY());
+        if (!standingOnHazard) return;
+
+        player.takeHazardDamage(Config.PIT_FALL_DAMAGE);
+        cancelTargeting();
+
+        if (player.isDead()) return;
+        player.setPosition(checkpointX, checkpointY);
     }
 
     public void applyPersistentState(float checkpointX, float checkpointY, double playTimeSeconds){
@@ -788,6 +820,12 @@ public class World implements CraftingAccess, WorldMapAccess {
 
     public ItemType getScrollReadRequested() {return scrollReadRequested;}
     public void clearScrollReadRequests(){scrollReadRequested = null;}
+
+    public RewardType getRewardRequested(){return rewardRequested;}
+    public void clearRewardRequest(){rewardRequested = null;}
+
+    public boolean isWindyGuardianStartedRequested(){return windyGuardianStartedRequested;}
+    public void clearWindyGuardianStartedRequest(){windyGuardianStartedRequested = false;}
 
     public void dispose(){
         for (AreaRuntime runtime : areaRuntimes.values()){runtime.dispose();}

@@ -32,6 +32,8 @@ public class Config {
     public static final int BREAD_HEALING = 1;
     public static final float DEATH_FADE_DURATION = 2f;
 
+    public static final int PIT_FALL_DAMAGE = HP_PER_HEART;
+
     /** Inventory */
     public static final int INVENTORY_SIZE = 20;
     public static final int CHEST_INVENTORY_SIZE = 15;
@@ -122,6 +124,6 @@ public class Config {
 
     public static final float CHEST_WORLD_SIZE = 35.2f;
 
-    public static final float PLAYER_DASH_DISTANCE = TILE_SIZE * 3f;
+    public static final float PLAYER_DASH_DISTANCE = TILE_SIZE * 4f;
     public static final float PLAYER_DASH_COOLDOWN = 0.75f;
 }

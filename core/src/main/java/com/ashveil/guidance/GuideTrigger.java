@@ -11,7 +11,4 @@ public class GuideTrigger {
     public boolean matches(GameEvent event){
         return expectedEvent == event;
     }
-
-
-
 }
