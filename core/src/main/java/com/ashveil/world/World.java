@@ -378,6 +378,11 @@ public class World implements CraftingAccess, WorldMapAccess {
             player.heal(Config.BREAD_HEALING);
             player.getInventory().removeFromSlot(selectedSlot, 1);
         }
+
+        if (itemType == ItemType.HOLLOWCAP){
+            player.heal(Config.HOLLOWCAP_HEALING);
+            player.getInventory().removeFromSlot(selectedSlot, 1);
+        }
     }
 
     private void handleDash(PlayerInput playerInput){

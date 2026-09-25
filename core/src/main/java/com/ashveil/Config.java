@@ -30,6 +30,7 @@ public class Config {
     public static final int HP_PER_HEART = 2;
     public static final int MAX_BROKEN_HEARTS = 3;
     public static final int BREAD_HEALING = 1;
+    public static final int HOLLOWCAP_HEALING = 2;
     public static final float DEATH_FADE_DURATION = 2f;
 
     public static final int PIT_FALL_DAMAGE = HP_PER_HEART;

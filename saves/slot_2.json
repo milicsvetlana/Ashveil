@@ -1,17 +1,17 @@
 {
 "saveVersion": 1,
-"savedAt": 1790377142175,
-"playTimeSeconds": 167.90417530937702,
+"savedAt": 1790377712035,
+"playTimeSeconds": 179.33438132648007,
 "player": {
 	"characterName": "da",
-	"x": 512.3606,
-	"y": 865.03094,
+	"x": 577.51276,
+	"y": 677.66986,
 	"checkPointX": 287.818,
 	"checkPointY": 79.55005,
-	"health": 4,
+	"health": 10,
 	"brokenHearts": 0,
 	"gold": 1,
-	"selectedHotbarSlot": 3,
+	"selectedHotbarSlot": 2,
 	"inventory": [
 		{
 			"slot": 0,
@@ -28,7 +28,7 @@
 		{
 			"slot": 2,
 			"itemType": "HOLLOWCAP",
-			"quantity": 3,
+			"quantity": 2,
 			"durability": 0
 		},
 		{
@@ -60,7 +60,7 @@
 "dayNight": {
 	"dayCount": 1,
 	"phase": "NIGHT",
-	"phaseTimer": 91.001915
+	"phaseTimer": 102.43198
 },
 "progressionState": {
 	"firstTreeDropClaimed": true,
@@ -73,10 +73,10 @@
 	"scrollIIRead": false,
 	"scrollIIIRead": false,
 	"unlockedCraftingCategories": [
+		"WEAPONS",
 		"BUILDING",
 		"FOOD",
-		"TOOLS",
-		"WEAPONS"
+		"TOOLS"
 	],
 	"unlockedAreas": [
 		"MAIN_ISLAND",
@@ -1363,14 +1363,6 @@
 				"currentHp": 1,
 				"chestKind": null,
 				"chestInventory": []
-			},
-			{
-				"objectType": "HOLLOWCAP",
-				"x": 496,
-				"y": 768,
-				"currentHp": 1,
-				"chestKind": null,
-				"chestInventory": []
 			}
 		],
 		"tilledTiles": [],
@@ -1387,8 +1379,8 @@
 		"enemies": [
 			{
 				"enemyType": "WISP",
-				"x": 185.90346,
-				"y": 910.6172,
+				"x": 456.23218,
+				"y": 730.6244,
 				"currentHp": 10
 			}
 		],
@@ -1397,7 +1389,7 @@
 			"remainingQueue": [
 				"SHADE"
 			],
-			"spawnTimer": 0.34133556,
+			"spawnTimer": 11.7715435,
 			"spawnInterval": 42
 		},
 		"lastDepartureDayCount": -1,
