@@ -1,8 +1,10 @@
 package com.ashveil.ui;
 
+import com.ashveil.economy.ShopAccess;
 import com.ashveil.items.crafting.CraftingAccess;
 import com.ashveil.items.crafting.Recipe;
 import com.ashveil.items.inventory.Inventory;
+import com.ashveil.localization.LocalizationService;
 import com.ashveil.ui.panels.CraftingPanel;
 import com.ashveil.ui.panels.InventoryPanel;
 import com.ashveil.ui.panels.MenuPanel;
@@ -20,6 +22,8 @@ import java.util.List;
 //glavni kontejner
 
 public class GameMenuUi {
+    private final LocalizationService i18n;
+
     private final Stage stage;
     private final Table rootTable;
     private final Table contentTable;
@@ -37,7 +41,8 @@ public class GameMenuUi {
     private MenuTab selectedTab;
     private final Runnable onCraftingOpened;
 
-    public GameMenuUi(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess, Inventory inventory, Runnable onCraftSuccess, Runnable onCraftingOpened) {
+    public GameMenuUi(Skin skin, List<Recipe> recipes, CraftingAccess craftingAccess, ShopAccess shopAccess, Inventory inventory, LocalizationService i18n, Runnable onCraftSuccess, Runnable onCraftingOpened) {
+        this.i18n = i18n;
         this.skin = skin;
         stage = new Stage(new ScreenViewport());
         rootTable = new Table();
@@ -48,7 +53,7 @@ public class GameMenuUi {
 
         inventoryPanel = new InventoryPanel(skin, inventory);
         craftingPanel = new CraftingPanel(skin, recipes, craftingAccess, onCraftSuccess);
-        shopPanel = new ShopPanel(skin);
+        shopPanel = new ShopPanel(skin, shopAccess, i18n);
 
         inventoryButton = new TextButton("Inventory", skin);
         craftingButton = new TextButton("Crafting", skin);

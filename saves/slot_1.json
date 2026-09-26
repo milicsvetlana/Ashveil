@@ -1,11 +1,11 @@
 {
 "saveVersion": 1,
-"savedAt": 1790376686190,
-"playTimeSeconds": 200.90403614885872,
+"savedAt": 1790465081399,
+"playTimeSeconds": 233.88391332735773,
 "player": {
 	"characterName": "lll",
-	"x": 824.7162,
-	"y": 1178.6039,
+	"x": 528.24915,
+	"y": 901.5931,
 	"checkPointX": 1024,
 	"checkPointY": 1072,
 	"health": 4,
@@ -36,7 +36,7 @@
 "dayNight": {
 	"dayCount": 2,
 	"phase": "NIGHT",
-	"phaseTimer": 11.901404
+	"phaseTimer": 44.881264
 },
 "progressionState": {
 	"firstTreeDropClaimed": false,
@@ -49,10 +49,10 @@
 	"scrollIIRead": false,
 	"scrollIIIRead": false,
 	"unlockedCraftingCategories": [
-		"WEAPONS",
-		"TOOLS",
 		"FOOD",
-		"BUILDING"
+		"WEAPONS",
+		"BUILDING",
+		"TOOLS"
 	],
 	"unlockedAreas": [
 		"MAIN_ISLAND",
@@ -435,17 +435,28 @@
 		"tilledTiles": [],
 		"plants": [],
 		"groundItems": [],
-		"enemies": [],
+		"enemies": [
+			{
+				"enemyType": "SHADE",
+				"x": 590.0006,
+				"y": 896,
+				"currentHp": 16
+			},
+			{
+				"enemyType": "SHADE",
+				"x": 576.9745,
+				"y": 863.0255,
+				"currentHp": 16
+			}
+		],
 		"projectiles": [],
 		"nightSpawn": {
 			"remainingQueue": [
 				"SHADE",
 				"SHADE",
-				"SHADE",
-				"SHADE",
 				"SHADE"
 			],
-			"spawnTimer": 11.9053135,
+			"spawnTimer": 11.285181,
 			"spawnInterval": 16.8
 		},
 		"lastDepartureDayCount": -1,

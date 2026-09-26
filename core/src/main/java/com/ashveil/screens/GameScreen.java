@@ -87,7 +87,7 @@ public class GameScreen implements Screen {
         hudRenderer = new HudRenderer();
         uiSkin = game.getUiSkin();
         worldMapUi = new WorldMapUi(uiSkin, world);
-        gameMenuUi = new GameMenuUi(uiSkin, world.getAvailableRecipes(), world, world.getPlayer().getInventory(), this::handleSuccessfulCraft, this::handleCraftingOpened);
+        gameMenuUi = new GameMenuUi(uiSkin, world.getAvailableRecipes(), world, world, world.getPlayer().getInventory(), game.getLocalizationService(), this::handleSuccessfulCraft, this::handleCraftingOpened);
         activeOverlay = GameOverlay.NONE;
         keyBindings = new KeyBindings();
         deathTransitionState = DeathTransitionState.NONE;

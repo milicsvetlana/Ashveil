@@ -4,6 +4,8 @@ import com.ashveil.Config;
 import com.ashveil.combat.CombatSystem;
 import com.ashveil.combat.Hittable;
 import com.ashveil.combat.ProjectileSystem;
+import com.ashveil.economy.ShopAccess;
+import com.ashveil.economy.ShopItem;
 import com.ashveil.encounter.GuardianEncounter;
 import com.ashveil.encounter.GuardianEncounterDefinition;
 import com.ashveil.entities.enemies.*;
@@ -27,7 +29,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.*;
 
-public class World implements CraftingAccess, WorldMapAccess {
+public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
 
     private final Random random = new Random();
 
@@ -935,6 +937,23 @@ public class World implements CraftingAccess, WorldMapAccess {
 
     public boolean isWindyGuardianStartedRequested(){return windyGuardianStartedRequested;}
     public void clearWindyGuardianStartedRequest(){windyGuardianStartedRequested = false;}
+
+    @Override
+    public boolean canAfford(ShopItem shopItem){
+        if (shopItem == null) throw new IllegalArgumentException("Shop item cannot be null");
+        return player.getWallet().canAfford(shopItem.getPrice());
+    }
+
+    @Override
+    public boolean buyShopItem(ShopItem shopItem){
+        if (shopItem == null) throw new IllegalArgumentException("Shop item cannot be null");
+        if (!canAfford(shopItem)) return false;
+
+        int overflow = player.getInventory().addItem(shopItem.getItemType(), 1);
+        if (overflow > 0) return false;
+        player.getWallet().spendGold(shopItem.getPrice());
+        return true;
+    }
 
     public void dispose(){
         for (AreaRuntime runtime : areaRuntimes.values()){runtime.dispose();}

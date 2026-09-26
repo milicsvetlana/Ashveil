@@ -66,7 +66,7 @@ public class InventoryPanel extends MenuPanel {
         detailsTable.top().left();
         detailsTable.add(new Label("Empty slot.", skin));
         add(inventorySection).grow();
-        add(detailsTable).width(260).growY().padLeft(30);
+        add(detailsTable).width(320).growY().padLeft(15);
     }
 
     private void registerSelectionListeners() {
@@ -99,9 +99,13 @@ public class InventoryPanel extends MenuPanel {
             detailsTable.add(new Label("Empty slot.", getSkin()));
             return;
         }
-        detailsTable.add(new Label("Name: " + item.getType().getDisplayName(), getSkin())).left();
+        Label nameLabel = new Label("Name: " + item.getType().getDisplayName(), getSkin());
+        detailsTable.add(nameLabel).width(300).left();
         detailsTable.row();
-        detailsTable.add(new Label("Description: " + item.getType().getDescription(), getSkin())).padTop(20).left();
+
+        Label descriptionLabel = new Label("Description: " + item.getType().getDescription(), getSkin());
+        descriptionLabel.setWrap(true);
+        detailsTable.add(descriptionLabel).width(300).padTop(20).left().top();
         detailsTable.row();
         if (item.getType().usesDurability()) detailsTable.add(new Label("Durability: " + item.getDurability() + " / " + item.getType().getMaxDurability(), getSkin())).left();
         detailsTable.row();
