@@ -1,7 +1,7 @@
 {
 "saveVersion": 1,
-"savedAt": 1790387436950,
-"playTimeSeconds": 331.5592561464,
+"savedAt": 1790432576755,
+"playTimeSeconds": 333.4661559352826,
 "player": {
 	"characterName": "da",
 	"x": 1159.5239,
@@ -72,7 +72,7 @@
 "dayNight": {
 	"dayCount": 2,
 	"phase": "NIGHT",
-	"phaseTimer": 115.96577
+	"phaseTimer": 117.872665
 },
 "progressionState": {
 	"firstTreeDropClaimed": true,
@@ -86,10 +86,10 @@
 	"scrollIIIRead": true,
 	"unlockedCraftingCategories": [
 		"BLACKTHORN",
-		"FOOD",
-		"WEAPONS",
+		"BUILDING",
 		"TOOLS",
-		"BUILDING"
+		"WEAPONS",
+		"FOOD"
 	],
 	"unlockedAreas": [
 		"MAIN_ISLAND",
@@ -1864,6 +1864,6 @@
 		"DARKROOT_ARRIVAL",
 		"DARKROOT_SCROLL_II_READ"
 	],
-	"activeContextualStep": null
+	"activeContextualStep": "VEILSCAR_ARRIVAL"
 }
 }

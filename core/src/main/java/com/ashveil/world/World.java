@@ -157,8 +157,6 @@ public class World implements CraftingAccess, WorldMapAccess {
 
         player.getInventory().addItem(ItemType.STONE_SWORD, 1);
         player.getInventory().addItem(ItemType.FENCE, 5);
-        player.getInventory().addItem(ItemType.THORN_FENCE, 15);
-        player.getInventory().addItem(ItemType.BRIAR_SNARE, 15);
     }
 
     public static World createForLoad(AreaID areaID, float playerX, float playerY){

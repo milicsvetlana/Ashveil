@@ -508,7 +508,7 @@ public class GameScreen implements Screen {
         if (rewardType == null) return;
 
         world.clearRewardRequest();
-        rewardCardUi.showReward(rewardType);
+        rewardCardUi.showReward(rewardType, game.getLocalizationService().get(rewardType.getDescriptionKey()));
     }
 
     @Override public void resize(int i, int i1) {
