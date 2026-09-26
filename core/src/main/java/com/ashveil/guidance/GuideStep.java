@@ -21,7 +21,10 @@ public enum GuideStep {
     WISP_GLOBAL_UNLOCKED("guidance.wispGlobalUnlocked", null),
 
     DARKROOT_ARRIVAL("guidance.darkrootArrival", null),
-    DARKROOT_SCROLL_II_READ("guidance.darkrootScrollIIRead", null);
+    DARKROOT_SCROLL_II_READ("guidance.darkrootScrollIIRead", null),
+
+    VEILSCAR_ARRIVAL("guidance.veilscarArrival", null),
+    VEILSCAR_SCROLL_III_READ("guidance.veilscarScrollIIIRead", null);
 
     private final String messageKey;
     private final GuideTrigger trigger;

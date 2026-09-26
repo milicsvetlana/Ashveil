@@ -36,7 +36,7 @@ public class CombatSystem {
 
             int damage;
 
-            if (usesDurability){
+            if (activeItem != null){
                 damage = activeItem.getType().getDamageProfile().getDamage(target.getHitCategory());
             }
             else{

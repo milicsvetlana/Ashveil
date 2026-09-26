@@ -93,12 +93,13 @@ public class EnemySpawnSystem {
 
         switch (areaID) {
             case MAIN_ISLAND -> {
-                if (progressionState.isWispNightUnlocked()) {available.add(EnemyType.WISP);}
-                if (progressionState.isWraithNightUnlocked()) {available.add(EnemyType.WRAITH);}
+                if (progressionState.isWispNightUnlocked()) available.add(EnemyType.WISP);
+                if (progressionState.isWraithNightUnlocked()) available.add(EnemyType.WRAITH);
             }
+
             case WINDY_PLAINS -> {
                 available.add(EnemyType.WISP);
-                if (progressionState.isWraithNightUnlocked()) {available.add(EnemyType.WRAITH);}
+                if (progressionState.isWraithNightUnlocked()) available.add(EnemyType.WRAITH);
             }
 
             case DARKROOT_ISLE, VEILSCAR_PASSAGE -> {

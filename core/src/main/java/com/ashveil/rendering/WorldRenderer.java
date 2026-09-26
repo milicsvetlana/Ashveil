@@ -20,6 +20,8 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 
+import java.lang.constant.DynamicCallSiteDesc;
+
 public class WorldRenderer {
 
     private final EnemyRenderer enemyRenderer;
@@ -169,29 +171,7 @@ public class WorldRenderer {
 
         shapeRenderer.end();
 
-        DayPhase dayPhase = world.getDayNightCycle().getDayPhase();
-        boolean guardianNight = world.isGuardianEncounterActive();
-
-        if (guardianNight || dayPhase != DayPhase.DAY){
-            shapeRenderer.setProjectionMatrix(screenProjection);
-
-            Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            if (guardianNight){
-                shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
-            }
-            else if (dayPhase == DayPhase.DUSK) {
-                float alpha = 0.25f * world.getDayNightCycle().getPhaseProgress();
-                shapeRenderer.setColor(0.76f, 0.32f, 0.10f, alpha);
-            }
-            else shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
-
-            shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
-            shapeRenderer.end();
-            Gdx.gl.glDisable(GL20.GL_BLEND);
-        }
+        drawEnvironmentOverlay(world);
     }
 
     public void renderTargetPreview(CameraController cameraController, float worldX, float worldY, boolean valid){
@@ -297,6 +277,41 @@ public class WorldRenderer {
 
     private void drawObjectTexture(TextureRegion region, DestructibleObject object, float drawWidth, float drawHeight){
         spriteBatch.draw(region, object.getX() * Config.SCALE, object.getY() * Config.SCALE, drawWidth, drawHeight);
+    }
+
+    private void drawEnvironmentOverlay(World world){
+        DayPhase dayPhase = world.getDayNightCycle().getDayPhase();
+
+        boolean veilscar = world.getCurrentAreaId() == AreaID.VEILSCAR_PASSAGE;
+        boolean guardianNight = world.isGuardianEncounterActive();
+
+        if (!veilscar && !guardianNight && dayPhase == DayPhase.DAY) return;
+
+        shapeRenderer.setProjectionMatrix(screenProjection);
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(
+            GL20.GL_SRC_ALPHA,
+            GL20.GL_ONE_MINUS_SRC_ALPHA
+        );
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        if (veilscar) {
+            shapeRenderer.setColor(0.45f, 0.02f, 0.03f, 0.08f);
+            shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
+        }
+        else if (guardianNight) shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
+        else if (dayPhase == DayPhase.DUSK){
+            float alpha = 0.25f * world.getDayNightCycle().getPhaseProgress();
+            shapeRenderer.setColor(0.76f, 0.32f, 0.10f, alpha);
+        }
+        else shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
+
+        shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
+        shapeRenderer.end();
+
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
     public int getMapWidthInTiles() {return tiledMap.getProperties().get("width", Integer.class);}

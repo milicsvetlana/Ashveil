@@ -25,7 +25,6 @@ import com.ashveil.world.area.AreaRuntime;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-import java.awt.geom.Area;
 import java.util.*;
 
 public class World implements CraftingAccess, WorldMapAccess {
@@ -142,7 +141,7 @@ public class World implements CraftingAccess, WorldMapAccess {
     }
 
     private void initializeNewGameState(){
-        currentAreaRuntime.getDestructibleObjectSystem().spawnInitialResources(player);
+        currentAreaRuntime.getDestructibleObjectSystem().spawnInitialResources(player, getNaturalResourceTypes(AreaID.MAIN_ISLAND));
         spawnStarterChest();
     }
 
@@ -584,7 +583,7 @@ public class World implements CraftingAccess, WorldMapAccess {
         cancelTargeting();
 
         if (firstVisit){
-            runtime.getDestructibleObjectSystem().spawnInitialResources(player);
+            runtime.getDestructibleObjectSystem().spawnInitialResources(player, getNaturalResourceTypes(areaID));
             initializeAreaSpecificContent(runtime);
         }
     }
@@ -684,7 +683,7 @@ public class World implements CraftingAccess, WorldMapAccess {
     private void startGuardianEncounter(GuardianEncounterDefinition definition){
         if (progressionState.isWardCleared(definition.getAreaID())) return;
 
-        if (guardianEncounter == null){
+        if (guardianEncounter == null || guardianEncounter.getAreaID() != definition.getAreaID()){
             Rectangle arenaBounds = getTileMap().getObjectRectangle("SpecialRegions", "guardian_arena_region");
             guardianEncounter = new GuardianEncounter(definition.getAreaID(), arenaBounds, definition.getWaveComposition(), false);
         }
@@ -743,11 +742,12 @@ public class World implements CraftingAccess, WorldMapAccess {
             }
             case DARKROOT_ISLE -> {
                 craftingManager.unlockCategory(CraftingCategory.BLACKTHORN);
+                rewardRequested = RewardType.BLACKTHORN_CRAFT;
             }
 
             case VEILSCAR_PASSAGE -> {
-                // Bloodthirst reward
-                // implementiramo kasnije
+                upgradeToBloodthirst();
+                rewardRequested = RewardType.BLOODTHIRST;
             }
 
             case MAIN_ISLAND ->
@@ -823,8 +823,18 @@ public class World implements CraftingAccess, WorldMapAccess {
                     )
                 );
 
-            case MAIN_ISLAND, VEILSCAR_PASSAGE ->
-                null;
+            case VEILSCAR_PASSAGE ->
+                new GuardianEncounterDefinition(
+                    AreaID.VEILSCAR_PASSAGE,
+                    ItemType.SCROLL_III,
+                    Map.of(
+                        EnemyType.SHADE, 1,
+                        EnemyType.WISP, 1,
+                        EnemyType.WRAITH, 1
+                    )
+                );
+
+            case MAIN_ISLAND -> null;
         };
     }
 
@@ -841,6 +851,26 @@ public class World implements CraftingAccess, WorldMapAccess {
         this.checkpointX = checkpointX;
         this.checkpointY = checkpointY;
         this.totalPlayTimeSeconds = playTimeSeconds;
+    }
+
+    private Set<DestructibleObjectType> getNaturalResourceTypes(AreaID areaID){
+        return switch (areaID){
+            case MAIN_ISLAND,
+                 WINDY_PLAINS,
+                 DARKROOT_ISLE ->
+                EnumSet.of(DestructibleObjectType.TREE, DestructibleObjectType.ROCK);
+
+            case VEILSCAR_PASSAGE ->
+                EnumSet.of(DestructibleObjectType.ROCK);
+        };
+    }
+
+    private void upgradeToBloodthirst(){
+        if (player.getInventory().getQuantity(ItemType.BLOODTHIRST_SWORD) > 0) return;
+        if (player.getInventory().getQuantity(ItemType.STONE_SWORD) > 0){
+            player.getInventory().removeItem(ItemType.STONE_SWORD, 1);
+        }
+        player.getInventory().addItem(ItemType.BLOODTHIRST_SWORD, 1);
     }
 
     public void setTargetMode(TargetMode targetMode){this.targetMode = targetMode;}

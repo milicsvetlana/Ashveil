@@ -15,10 +15,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 import java.rmi.server.ServerNotActiveException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class DestructibleObjectSystem {
     private final TileMap tileMap;
@@ -56,10 +53,17 @@ public class DestructibleObjectSystem {
     }
 
     public void spawnInitialResources(Player player){
+        spawnInitialResources(player, EnumSet.allOf(DestructibleObjectType.class));
+    }
+
+    public void spawnInitialResources(Player player, Set<DestructibleObjectType> allowedTypes){
+        if (player == null) throw new IllegalArgumentException("Player cannot be null.");
+        if (allowedTypes == null || allowedTypes.isEmpty()) return;
+
         List<DestructibleObjectType> naturalTypes = new ArrayList<>();
 
         for (DestructibleObjectType type : DestructibleObjectType.values()) {
-            if (type.spawnsNaturally()) naturalTypes.add(type);
+            if (type.spawnsNaturally() && allowedTypes.contains(type)) naturalTypes.add(type);
         }
 
         for (DestructibleObjectType type : naturalTypes) {

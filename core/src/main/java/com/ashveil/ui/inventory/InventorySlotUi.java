@@ -145,6 +145,7 @@ public class InventorySlotUi extends Stack {
             case HEART_REPAIR -> Color.BLACK;
             case CHEST -> new Color(0.60f, 0.38f, 0.12f, 1f);
             case SAPLING -> new Color(Color.GREEN);
+            case BLOODTHIRST_SWORD -> new Color(Color.RED);
         };
     }
 

@@ -49,10 +49,9 @@ public class RewardCardUi extends Table {
         if (rewardType == null) throw new IllegalArgumentException("Reward type cannot be null.");
 
         switch (rewardType){
-            case SWIFT_STEP ->
-                cardImage.setDrawable(
-                    skin.getDrawable("reward-swift-step")
-                );
+            case SWIFT_STEP -> cardImage.setDrawable(skin.getDrawable("reward-swift-step"));
+            case BLACKTHORN_CRAFT -> cardImage.setDrawable(skin.getDrawable("reward-blackthorn-craft"));
+            case BLOODTHIRST -> cardImage.setDrawable(skin.getDrawable("reward-bloodthirst"));
         }
 
         startAnimation();

@@ -258,12 +258,29 @@ public enum ItemType {
         "Stone Sword",
         "A durable stone weapon that deals increased damage to hostile entities.",
         1,
-        60,
+        80,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
             Map.of(
                 HitCategory.ENTITY, 5,
+                HitCategory.STONE, 0
+            )
+        ),
+        TargetMode.NONE,
+        null
+    ),
+
+    BLOODTHIRST_SWORD(
+        "Bloodthirst",
+        "A cursed blade awakened by blood. It never dulls while there is life left to take.",
+        1,
+        0,
+        false,
+        new DamageProfile(
+            Config.PLAYER_BASE_DAMAGE,
+            Map.of(
+                HitCategory.ENTITY, 9,
                 HitCategory.STONE, 0
             )
         ),

@@ -64,6 +64,7 @@ public class GuardianEncounter {
         return state == GuardianEncounterState.CLEARED;
     }
 
+    public AreaID getAreaID(){return areaID;}
     public Rectangle getArenaBounds(){return new Rectangle(arenaBounds);}
     public Map<EnemyType, Integer> getWaveComposition(){return waveComposition;}
     public GuardianEncounterState getState(){return state;}

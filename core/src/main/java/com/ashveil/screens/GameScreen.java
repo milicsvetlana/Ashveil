@@ -818,6 +818,16 @@ public class GameScreen implements Screen {
             return;
         }
 
+        if (world.getCurrentAreaId() == AreaID.VEILSCAR_PASSAGE && !guidanceSystem.wasContextualStepShown(GuideStep.VEILSCAR_ARRIVAL)){
+            guidanceSystem.activateContextualStep(GuideStep.VEILSCAR_ARRIVAL);
+            return;
+        }
+
+        if (world.getProgressionState().isScrollIIIRead() && !guidanceSystem.wasContextualStepShown(GuideStep.VEILSCAR_SCROLL_III_READ)){
+            guidanceSystem.activateContextualStep(GuideStep.VEILSCAR_SCROLL_III_READ);
+            return;
+        }
+
     }
 
     @Override

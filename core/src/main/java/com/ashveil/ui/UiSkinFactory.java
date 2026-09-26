@@ -39,6 +39,14 @@ public final class UiSkinFactory {
         swiftStepReward.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         skin.add("reward-swift-step", swiftStepReward);
 
+        Texture blackthornReward = new Texture(Gdx.files.internal("ui/rewards/blackthorn-craft-unlocked.png"));
+        swiftStepReward.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        skin.add("reward-blackthorn-craft", blackthornReward);
+
+        Texture bloodthirstReward = new Texture(Gdx.files.internal("ui/rewards/weapon-awakened-bloodthirst.png"));
+        swiftStepReward.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        skin.add("reward-bloodthirst", bloodthirstReward);
+
         return skin;
     }
 
