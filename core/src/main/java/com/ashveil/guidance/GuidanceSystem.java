@@ -72,6 +72,10 @@ public class GuidanceSystem {
 
         if (event == GameEvent.BOAT_BUILT) return false;
 
+        if (event == GameEvent.CRIMSON_VEIL_WARNING){
+            activateContextualStep(GuideStep.CRIMSON_VEIL_WARNING);
+        }
+
         return handleEvent(event);
     }
 

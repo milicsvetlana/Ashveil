@@ -1,6 +1,7 @@
 package com.ashveil.save;
 
 import com.ashveil.Config;
+import com.ashveil.encounter.CrimsonVeilState;
 import com.ashveil.entities.enemies.EnemyType;
 import com.ashveil.farming.CropType;
 import com.ashveil.items.crafting.CraftingCategory;
@@ -24,6 +25,7 @@ public class SaveValidator {
         if (!playerIsValid(saveData.player)) return false;
         if (!progressionIsValid(saveData.progressionState)) return false;
         if (!dayNightIsValid(saveData.dayNight)) return false;
+        if (!crimsonVeilIsValid(saveData.crimsonVeil)) return false;
         if (saveData.currentAreaId == null) return false;
         if (saveData.areas == null) return false;
 
@@ -316,6 +318,35 @@ public class SaveValidator {
                 return false;
             }
         }
+        return true;
+    }
+
+    private boolean crimsonVeilIsValid(CrimsonVeilSaveData data){
+        if (data == null) return true;
+        if (data.state == null) return false;
+        if (data.nextVeilDay < 1) return false;
+        if (data.completedVeils < 0) return false;
+        if (data.currentWave < 0 || data.currentWave > Config.CRIMSON_VEIL_WAVE_COUNT) return false;
+        if (data.totalThreatBudget < 0) return false;
+
+        if (Float.isNaN(data.waveTimer) || Float.isInfinite(data.waveTimer) || data.waveTimer < 0f) return false;
+        if (Float.isNaN(data.clearGraceTimer) || Float.isInfinite(data.clearGraceTimer) || data.clearGraceTimer < 0f) return false;
+        if (Float.isNaN(data.recoveryTimer) || Float.isInfinite(data.recoveryTimer) || data.recoveryTimer < 0f) return false;
+
+        CrimsonVeilState state;
+
+        try{
+            state = CrimsonVeilState.valueOf(data.state);
+        }
+        catch (IllegalArgumentException exception){
+            return false;
+        }
+
+        if (state == CrimsonVeilState.ACTIVE && data.currentWave == 0) return false;
+        if (state == CrimsonVeilState.WARNING && data.currentWave != 0) return false;
+        if (state == CrimsonVeilState.INACTIVE && data.currentWave != 0) return false;
+        if (state == CrimsonVeilState.RECOVERY && data.currentWave != Config.CRIMSON_VEIL_WAVE_COUNT) return false;
+
         return true;
     }
 }

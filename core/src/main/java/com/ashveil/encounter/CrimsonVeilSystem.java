@@ -53,7 +53,7 @@ public class CrimsonVeilSystem {
         int ordinaryNightBudget = Config.INITIAL_NIGHT_THREAT_BUDGET + (dayCount - 1) * Config.NIGHT_THREAT_BUDGET_INCREASE;
 
         totalThreatBudget = ordinaryNightBudget + Config.CRIMSON_VEIL_BASE_BONUS_BUDGET
-                            + completedVeils + Config.CRIMSON_VEIL_BASE_BONUS_BUDGET;
+                            + completedVeils * Config.CRIMSON_VEIL_COMPLETED_BONUS_BUDGET;
 
         return true;
     }
@@ -99,6 +99,15 @@ public class CrimsonVeilSystem {
         clearGraceTimer = 0f;
     }
 
+    public void restartActiveVeil(){
+        if (state != CrimsonVeilState.ACTIVE) return;
+
+        currentWave = 1;
+        waveTimer = 0f;
+        clearGraceTimer = 0f;
+        recoveryTimer = 0f;
+    }
+
     public void completeVeil(int dayCount){
         if (state != CrimsonVeilState.ACTIVE) return;
 
@@ -132,6 +141,26 @@ public class CrimsonVeilSystem {
         return min + random.nextInt(max - min + 1);
     }
 
+    public void applyPersistentState(CrimsonVeilState state, int nextVeilDay, int completedVeils, int currentWave,
+                                     int totalThreatBudget, float waveTimer, float clearGraceTimer, float recoveryTimer){
+        if (state == null) throw new IllegalArgumentException("Crimson Veil state cannot be null");
+        if (nextVeilDay < 1) throw new IllegalArgumentException("Next Veil day must be positive");
+        if (completedVeils < 0) throw new IllegalArgumentException("Completed Veils cannot be negative");
+        if (currentWave < 0 || currentWave > Config.CRIMSON_VEIL_WAVE_COUNT) throw new IllegalArgumentException("Invalid Crimson Veil wave");
+        if (totalThreatBudget < 0) throw new IllegalArgumentException("Threat budget cannot be negative");
+        if (waveTimer < 0f || clearGraceTimer < 0f || recoveryTimer < 0f)
+            throw new IllegalArgumentException("Crimson Veil timers cannot be negative");
+
+        this.state = state;
+        this.nextVeilDay = nextVeilDay;
+        this.completedVeils = completedVeils;
+        this.currentWave = currentWave;
+        this.totalThreatBudget = totalThreatBudget;
+        this.waveTimer = waveTimer;
+        this.clearGraceTimer = clearGraceTimer;
+        this.recoveryTimer = recoveryTimer;
+    }
+
     public CrimsonVeilState getState() {return state;}
     public int getNextVeilDay() {return nextVeilDay;}
     public int getCompletedVeils() {return completedVeils;}
@@ -139,4 +168,8 @@ public class CrimsonVeilSystem {
     public boolean isActive() {return state == CrimsonVeilState.ACTIVE;}
     public boolean isRecovery() {return state == CrimsonVeilState.RECOVERY;}
     public int getCurrentWave() {return currentWave;}
+    public int getTotalThreatBudget(){return totalThreatBudget;}
+    public float getWaveTimer(){return waveTimer;}
+    public float getClearGraceTimer(){return clearGraceTimer;}
+    public float getRecoveryTimer(){return recoveryTimer;}
 }

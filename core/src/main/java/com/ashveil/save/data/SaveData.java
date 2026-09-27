@@ -1,5 +1,6 @@
 package com.ashveil.save.data;
 
+import com.ashveil.encounter.CrimsonVeilState;
 import com.ashveil.guidance.GuidanceSystem;
 import com.ashveil.progression.ProgressionState;
 
@@ -14,6 +15,7 @@ public class SaveData {
     public PlayerSaveData player;
     public DayNightSaveData dayNight;
     public ProgressionSaveData progressionState;
+    public CrimsonVeilSaveData crimsonVeil;
 
     public String currentAreaId;
     public List<AreaSaveData> areas = new ArrayList<>();

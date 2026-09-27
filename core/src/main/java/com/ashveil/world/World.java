@@ -196,7 +196,10 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
             else dayNightCycle.update(delta);
 
             if (dayNightCycle.justBecameDusk()){
-                crimsonVeilSystem.handleDuskStarted(dayNightCycle.getDayCount());
+                guidanceSystem.handleEvent(GameEvent.DUSK_STARTED);
+
+                boolean crimsonWarningStarted = crimsonVeilSystem.handleDuskStarted(dayNightCycle.getDayCount());
+                if (crimsonWarningStarted) guidanceSystem.handleEvent(GameEvent.CRIMSON_VEIL_WARNING, progressionState);
             }
 
             if (dayNightCycle.justBecameNight()){
@@ -551,11 +554,24 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
 
     public void respawnPlayer(){
         boolean guardianWasActive = isGuardianEncounterActive();
+        boolean crimsonWasActive = isCrimsonVeilActive();
+
         if (guardianWasActive) resetActiveGuardianEncounter();
+        if (crimsonWasActive) {
+            getEnemies().clear();
+            getProjectileSystem().replaceProjectiles(List.of());
+            getEnemySpawnSystem().endNight();
+        }
 
         player.addBrokenHeart();
         player.setPosition(checkpointX, checkpointY);
         player.restoreHealth();
+
+        if (crimsonWasActive){
+            crimsonVeilSystem.restartActiveVeil();
+            startCrimsonVeilWave();
+            return;
+        }
 
         if (guardianWasActive && dayNightCycle.isNight()) startOrdinaryNightForCurrentArea();
     }

@@ -3,6 +3,8 @@ package com.ashveil.save;
 import com.ashveil.Config;
 import com.ashveil.combat.Projectile;
 import com.ashveil.combat.ProjectileSystem;
+import com.ashveil.encounter.CrimsonVeilState;
+import com.ashveil.encounter.CrimsonVeilSystem;
 import com.ashveil.entities.Player;
 import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.entities.enemies.EnemySpawnSystem;
@@ -43,6 +45,7 @@ public class SaveMapper {
         applyProgressionState(world.getProgressionState(), saveData.progressionState);
 
         applyDayNightState(world.getDayNightCycle(), saveData.dayNight);
+        applyCrimsonVeilState(world.getCrimsonVeilSystem(), saveData.crimsonVeil);
 
         for (AreaSaveData areaSaveData : saveData.areas){
             AreaID areaID = AreaID.valueOf(areaSaveData.areaId);
@@ -107,6 +110,12 @@ public class SaveMapper {
     private void applyDayNightState(DayNightCycle dayNightCycle, DayNightSaveData dayNightSaveData){
         DayPhase phase = DayPhase.valueOf(dayNightSaveData.phase);
         dayNightCycle.applyPersistentState(dayNightSaveData.dayCount, phase, dayNightSaveData.phaseTimer);
+    }
+
+    private void applyCrimsonVeilState(CrimsonVeilSystem crimsonVeilSystem, CrimsonVeilSaveData data){
+        CrimsonVeilState state = CrimsonVeilState.valueOf(data.state);
+        crimsonVeilSystem.applyPersistentState(state, data.nextVeilDay, data.completedVeils, data.currentWave,
+                                    data.totalThreatBudget, data.waveTimer, data.clearGraceTimer, data.recoveryTimer);
     }
 
     private void applyProgressionState(ProgressionState progressionState, ProgressionSaveData progressionSaveData){
@@ -236,6 +245,7 @@ public class SaveMapper {
         saveData.player.checkPointY = world.getCheckpointY();
         saveData.dayNight = createDayNightSaveData(world.getDayNightCycle());
         saveData.progressionState = createProgressionSaveData(world.getProgressionState());
+        saveData.crimsonVeil = createCrimsonVeilSaveData(world.getCrimsonVeilSystem());
         saveData.guidance = createGuidanceSaveData(world.getGuidanceSystem());
 
         saveData.currentAreaId = world.getAreaManager().getCurrentAreaId().name();
@@ -314,6 +324,21 @@ public class SaveMapper {
         progressionSaveData.veilscarWardCleared = progressionState.isWardCleared(AreaID.VEILSCAR_PASSAGE);
 
         return progressionSaveData;
+    }
+
+    private CrimsonVeilSaveData createCrimsonVeilSaveData(CrimsonVeilSystem crimsonVeilSystem){
+        CrimsonVeilSaveData data = new CrimsonVeilSaveData();
+
+        data.state = crimsonVeilSystem.getState().name();
+        data.nextVeilDay = crimsonVeilSystem.getNextVeilDay();
+        data.completedVeils = crimsonVeilSystem.getCompletedVeils();
+        data.currentWave = crimsonVeilSystem.getCurrentWave();
+        data.totalThreatBudget = crimsonVeilSystem.getTotalThreatBudget();
+        data.waveTimer = crimsonVeilSystem.getWaveTimer();
+        data.clearGraceTimer = crimsonVeilSystem.getClearGraceTimer();
+        data.recoveryTimer = crimsonVeilSystem.getRecoveryTimer();
+
+        return data;
     }
 
     private AreaSaveData createAreaSaveData(AreaRuntime runtime){

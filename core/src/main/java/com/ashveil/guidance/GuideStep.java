@@ -24,7 +24,9 @@ public enum GuideStep {
     DARKROOT_SCROLL_II_READ("guidance.darkrootScrollIIRead", null),
 
     VEILSCAR_ARRIVAL("guidance.veilscarArrival", null),
-    VEILSCAR_SCROLL_III_READ("guidance.veilscarScrollIIIRead", null);
+    VEILSCAR_SCROLL_III_READ("guidance.veilscarScrollIIIRead", null),
+
+    CRIMSON_VEIL_WARNING("guidance.crimsonVeilWarning", null);
 
     private final String messageKey;
     private final GuideTrigger trigger;
