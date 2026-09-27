@@ -1,7 +1,7 @@
 {
 "saveVersion": 1,
-"savedAt": 1790432576755,
-"playTimeSeconds": 333.4661559352826,
+"savedAt": 1790472998876,
+"playTimeSeconds": 377.8433653654938,
 "player": {
 	"characterName": "da",
 	"x": 1159.5239,
@@ -70,9 +70,9 @@
 	]
 },
 "dayNight": {
-	"dayCount": 2,
+	"dayCount": 3,
 	"phase": "NIGHT",
-	"phaseTimer": 117.872665
+	"phaseTimer": 36.249874
 },
 "progressionState": {
 	"firstTreeDropClaimed": true,
@@ -85,10 +85,10 @@
 	"scrollIIRead": true,
 	"scrollIIIRead": true,
 	"unlockedCraftingCategories": [
-		"BLACKTHORN",
 		"BUILDING",
-		"TOOLS",
+		"BLACKTHORN",
 		"WEAPONS",
+		"TOOLS",
 		"FOOD"
 	],
 	"unlockedAreas": [
@@ -1840,15 +1840,25 @@
 				"durability": 0
 			}
 		],
-		"enemies": [],
+		"enemies": [
+			{
+				"enemyType": "SHADE",
+				"x": 1251.712,
+				"y": 940.28784,
+				"currentHp": 16
+			}
+		],
 		"projectiles": [],
 		"nightSpawn": {
-			"remainingQueue": [],
-			"spawnTimer": 0,
-			"spawnInterval": 0
+			"remainingQueue": [
+				"WRAITH",
+				"WRAITH"
+			],
+			"spawnTimer": 8.263563,
+			"spawnInterval": 28
 		},
 		"lastDepartureDayCount": -1,
-		"ordinaryNighDayCount": 2
+		"ordinaryNighDayCount": 3
 	}
 ],
 "guidance": {

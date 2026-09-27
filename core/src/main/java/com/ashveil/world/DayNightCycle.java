@@ -3,6 +3,7 @@ package com.ashveil.world;
 import com.ashveil.Config;
 
 import static com.ashveil.world.DayPhase.DAY;
+import static com.ashveil.world.DayPhase.NIGHT;
 
 public class DayNightCycle {
     private float phaseTimer;
@@ -82,6 +83,20 @@ public class DayNightCycle {
         this.justBecameDay = false;
         this.justBecameNight = false;
         this.justBecameDusk = false;
+    }
+
+    public void forceDay(){
+        if (dayPhase != NIGHT) return;
+
+        dayCount++;
+
+        dayPhase = DAY;
+        phaseTimer = 0f;
+        currentPhaseDuration = Config.DAY_DURATION;
+
+        justBecameNight = false;
+        justBecameDusk = false;
+        justBecameDay = true;
     }
 
     public float getPhaseProgress(){

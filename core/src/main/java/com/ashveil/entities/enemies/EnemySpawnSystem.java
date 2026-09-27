@@ -64,8 +64,17 @@ public class EnemySpawnSystem {
     public void startNight(int dayCount, AreaID areaID) {
         if (areaID == null) throw new IllegalArgumentException("Area ID cannot be null");
 
+        int budget = Config.INITIAL_NIGHT_THREAT_BUDGET + (dayCount - 1) * Config.NIGHT_THREAT_BUDGET_INCREASE;
+        startThreatWave(budget, areaID, Config.NIGHT_DURATION * 0.7f);
+    }
+
+    public void startThreatWave(int threatBudget, AreaID areaID, float spawnDuration){
+        if (threatBudget < 0) throw new IllegalArgumentException("Threat budget cannot be negative");
+        if (areaID == null) throw new IllegalArgumentException("Area ID cannot be null");
+        if (spawnDuration <= 0f) throw new IllegalArgumentException("Spawn duration must be positive");
+
         spawnQueue.clear();
-        int remainingBudget = Config.INITIAL_NIGHT_THREAT_BUDGET + (dayCount - 1) * Config.NIGHT_THREAT_BUDGET_INCREASE;
+        int remainingBudget = threatBudget;
 
         List<EnemyType> availableTypes = getAvailableEnemyTypes(areaID);
 
@@ -84,7 +93,8 @@ public class EnemySpawnSystem {
 
         spawnTimer = 0;
         //Config.nightduration * 0.7 prakticno predstavlja prostor kad moze da se spawna
-        if (!spawnQueue.isEmpty()) spawnInterval = Config.NIGHT_DURATION * 0.7f / spawnQueue.size();
+        if (spawnQueue.isEmpty()) spawnInterval = 0f;
+        else spawnInterval = spawnDuration / spawnQueue.size();
     }
 
     private List<EnemyType> getAvailableEnemyTypes(AreaID areaID){
@@ -264,4 +274,5 @@ public class EnemySpawnSystem {
     public List<EnemyType> getRemainingSpawnQueue(){return new ArrayList<>(spawnQueue);}
     public float getSpawnTimer(){return spawnTimer;}
     public float getSpawnInterval(){return spawnInterval;}
+    public boolean hasPendingSpawns(){return !spawnQueue.isEmpty();}
 }

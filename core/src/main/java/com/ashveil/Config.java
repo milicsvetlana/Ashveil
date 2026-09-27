@@ -43,7 +43,7 @@ public class Config {
     public static final int SLOT_MOVE = 1;
 
     /** Day and night cycle */
-    public static final float FIRST_DAY_DURATION = 60f;
+    public static final float FIRST_DAY_DURATION = 5f;
 
     public static final float DAY_DURATION = 3f;
     public static final float DUSK_DURATION = 3f;
@@ -135,4 +135,25 @@ public class Config {
     public static final float BRIAR_SNARE_ROOT_TIMER = 3f;
     public static final int BRIAR_SNARE_DAMAGE = 1;
     public static final int INITIAL_HOLLOWCAP_AMOUNT = 20;
+
+    /** Crimson Veil */
+    public static final int CRIMSON_VEIL_FIRST_DAY_MIN = 1;
+    public static final int CRIMSON_VEIL_FIRST_DAY_MAX = 1;
+
+    public static final int CRIMSON_VEIL_INTERVAL_MIN = 4;
+    public static final int CRIMSON_VEIL_INTERVAL_MAX = 6;
+
+    public static final int CRIMSON_VEIL_WAVE_COUNT = 3;
+
+    public static final int CRIMSON_VEIL_BASE_BONUS_BUDGET = 3;
+    public static final int CRIMSON_VEIL_COMPLETED_BONUS_BUDGET = 1;
+
+    public static final float CRIMSON_VEIL_WAVE_1_SHARE = 0.25f;
+    public static final float CRIMSON_VEIL_WAVE_2_SHARE = 0.35f;
+
+    public static final float CRIMSON_VEIL_WAVE_MAX_DURATION = 8f;
+    public static final float CRIMSON_VEIL_CLEAR_GRACE_DURATION = 1f;
+
+    public static final float CRIMSON_VEIL_WAVE_SPAWN_DURATION = 2f;
+    public static final float CRIMSON_VEIL_RECOVERY_DURATION = 2f;
 }

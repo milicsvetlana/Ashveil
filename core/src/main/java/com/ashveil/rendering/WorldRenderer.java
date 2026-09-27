@@ -284,33 +284,49 @@ public class WorldRenderer {
 
         boolean veilscar = world.getCurrentAreaId() == AreaID.VEILSCAR_PASSAGE;
         boolean guardianNight = world.isGuardianEncounterActive();
+        boolean crimsonWarning = world.isCrimsonVeilWarning();
+        boolean crimsonActive = world.isCrimsonVeilActive();
+        boolean crimsonRecovery = world.isCrimsonVeilRecovery();
 
-        if (!veilscar && !guardianNight && dayPhase == DayPhase.DAY) return;
+        if (!veilscar && !guardianNight && !crimsonWarning && !crimsonActive && !crimsonRecovery && dayPhase == DayPhase.DAY) return;
 
         shapeRenderer.setProjectionMatrix(screenProjection);
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(
-            GL20.GL_SRC_ALPHA,
-            GL20.GL_ONE_MINUS_SRC_ALPHA
-        );
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        if (veilscar) {
+        if (guardianNight){
+            shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
+        }
+        else if (crimsonActive){
+            shapeRenderer.setColor(0.28f, 0.035f, 0.16f, 0.52f);
+        }
+        else if (crimsonRecovery){
+            shapeRenderer.setColor(0.18f, 0.04f, 0.18f, 0.48f);
+        }
+        else if (dayPhase == DayPhase.DUSK){
+            float alpha = 0.25f * world.getDayNightCycle().getPhaseProgress();
+
+            if (crimsonWarning) shapeRenderer.setColor(0.68f, 0.20f, 0.12f, alpha);
+            else shapeRenderer.setColor(0.76f, 0.32f, 0.10f, alpha);
+        }
+        else if (dayPhase == DayPhase.NIGHT){
+            shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
+        }
+        else{
+            shapeRenderer.setColor(0f, 0f, 0f, 0f);
+        }
+
+        shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
+
+        if (veilscar){
             shapeRenderer.setColor(0.45f, 0.02f, 0.03f, 0.08f);
             shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
         }
-        else if (guardianNight) shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
-        else if (dayPhase == DayPhase.DUSK){
-            float alpha = 0.25f * world.getDayNightCycle().getPhaseProgress();
-            shapeRenderer.setColor(0.76f, 0.32f, 0.10f, alpha);
-        }
-        else shapeRenderer.setColor(0.04f, 0.06f, 0.22f, 0.50f);
 
-        shapeRenderer.rect(0, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT);
         shapeRenderer.end();
-
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 

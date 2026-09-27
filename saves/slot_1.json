@@ -1,42 +1,36 @@
 {
 "saveVersion": 1,
-"savedAt": 1790465081399,
-"playTimeSeconds": 233.88391332735773,
+"savedAt": 1790475242010,
+"playTimeSeconds": 12.237515487766359,
 "player": {
-	"characterName": "lll",
-	"x": 528.24915,
-	"y": 901.5931,
+	"characterName": "da",
+	"x": 1002.31067,
+	"y": 1509.1915,
 	"checkPointX": 1024,
 	"checkPointY": 1072,
-	"health": 4,
-	"brokenHearts": 3,
+	"health": 10,
+	"brokenHearts": 0,
 	"gold": 0,
-	"selectedHotbarSlot": 3,
+	"selectedHotbarSlot": 0,
 	"inventory": [
 		{
 			"slot": 0,
 			"itemType": "STONE_SWORD",
 			"quantity": 1,
-			"durability": 60
+			"durability": 80
 		},
 		{
 			"slot": 1,
 			"itemType": "FENCE",
 			"quantity": 5,
 			"durability": 0
-		},
-		{
-			"slot": 2,
-			"itemType": "THORN_FENCE",
-			"quantity": 15,
-			"durability": 0
 		}
 	]
 },
 "dayNight": {
-	"dayCount": 2,
+	"dayCount": 1,
 	"phase": "NIGHT",
-	"phaseTimer": 44.881264
+	"phaseTimer": 0.004180193
 },
 "progressionState": {
 	"firstTreeDropClaimed": false,
@@ -49,10 +43,10 @@
 	"scrollIIRead": false,
 	"scrollIIIRead": false,
 	"unlockedCraftingCategories": [
-		"FOOD",
 		"WEAPONS",
-		"BUILDING",
-		"TOOLS"
+		"TOOLS",
+		"FOOD",
+		"BUILDING"
 	],
 	"unlockedAreas": [
 		"MAIN_ISLAND",
@@ -70,200 +64,8 @@
 		"destructibleObjects": [
 			{
 				"objectType": "TREE",
-				"x": 1120,
-				"y": 1696,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 672,
-				"y": 864,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1168,
-				"y": 768,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1984,
-				"y": 1232,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1664,
-				"y": 896,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1024,
-				"y": 1504,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 688,
-				"y": 1536,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1616,
-				"y": 1584,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 736,
-				"y": 1104,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1344,
-				"y": 1584,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 672,
-				"y": 1616,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 960,
-				"y": 832,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1744,
-				"y": 1536,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1408,
-				"y": 576,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 720,
-				"y": 1664,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 864,
-				"y": 704,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 640,
-				"y": 336,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 640,
-				"y": 1616,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1200,
-				"y": 512,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1008,
-				"y": 1440,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1072,
-				"y": 1568,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1696,
-				"y": 560,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1600,
-				"y": 1216,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 656,
-				"y": 656,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1152,
-				"y": 1280,
+				"x": 512,
+				"y": 1600,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
@@ -271,86 +73,206 @@
 			{
 				"objectType": "TREE",
 				"x": 1424,
-				"y": 368,
+				"y": 416,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 672,
+				"x": 864,
+				"y": 624,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1056,
+				"y": 784,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1568,
+				"y": 864,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1824,
+				"y": 992,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 640,
+				"y": 880,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1040,
+				"y": 832,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 480,
 				"y": 768,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
-				"objectType": "ROCK",
-				"x": 752,
-				"y": 496,
+				"objectType": "TREE",
+				"x": 784,
+				"y": 1392,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 1216,
+				"x": 976,
 				"y": 224,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
-				"objectType": "TREE",
-				"x": 1632,
-				"y": 800,
+				"objectType": "ROCK",
+				"x": 1104,
+				"y": 1184,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 1456,
-				"y": 976,
+				"x": 544,
+				"y": 1040,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 816,
-				"y": 208,
+				"x": 1376,
+				"y": 656,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 256,
-				"y": 944,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 384,
-				"y": 1440,
+				"x": 1280,
+				"y": 880,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 1296,
-				"y": 1552,
+				"x": 1920,
+				"y": 1200,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
-				"objectType": "TREE",
+				"objectType": "ROCK",
+				"x": 960,
+				"y": 1776,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1408,
+				"y": 1184,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
 				"x": 1328,
+				"y": 1264,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1344,
+				"y": 544,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 576,
+				"y": 880,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1072,
+				"y": 1920,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1536,
+				"y": 1312,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1344,
+				"y": 1216,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1136,
+				"y": 1616,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 976,
+				"y": 336,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 432,
 				"y": 768,
 				"currentHp": 3,
 				"chestKind": null,
@@ -358,8 +280,24 @@
 			},
 			{
 				"objectType": "TREE",
-				"x": 1872,
-				"y": 1456,
+				"x": 832,
+				"y": 704,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 320,
+				"y": 512,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1136,
+				"y": 320,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
@@ -367,39 +305,263 @@
 			{
 				"objectType": "TREE",
 				"x": 720,
-				"y": 1376,
+				"y": 384,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 1392,
-				"y": 1136,
+				"x": 224,
+				"y": 1360,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 1296,
-				"y": 848,
+				"x": 1184,
+				"y": 336,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "TREE",
-				"x": 1296,
-				"y": 1744,
+				"x": 1280,
+				"y": 1504,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
 			},
 			{
 				"objectType": "ROCK",
-				"x": 464,
-				"y": 496,
+				"x": 1712,
+				"y": 1088,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 304,
+				"y": 976,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1648,
+				"y": 1024,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 864,
+				"y": 1136,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1664,
+				"y": 608,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 832,
+				"y": 1056,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 960,
+				"y": 1040,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1824,
+				"y": 1216,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1136,
+				"y": 640,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 848,
+				"y": 1232,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1024,
+				"y": 2000,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 384,
+				"y": 384,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 448,
+				"y": 1456,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 496,
+				"y": 800,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1248,
+				"y": 912,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1072,
+				"y": 1184,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1104,
+				"y": 416,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1488,
+				"y": 1568,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 816,
+				"y": 656,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1840,
+				"y": 1472,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1712,
+				"y": 720,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 880,
+				"y": 1168,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1008,
+				"y": 112,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1424,
+				"y": 1824,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 672,
+				"y": 1712,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 1904,
+				"y": 1248,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "TREE",
+				"x": 784,
+				"y": 1920,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 1712,
+				"y": 688,
+				"currentHp": 3,
+				"chestKind": null,
+				"chestInventory": []
+			},
+			{
+				"objectType": "ROCK",
+				"x": 352,
+				"y": 1568,
 				"currentHp": 3,
 				"chestKind": null,
 				"chestInventory": []
@@ -438,38 +600,32 @@
 		"enemies": [
 			{
 				"enemyType": "SHADE",
-				"x": 590.0006,
-				"y": 896,
+				"x": 772.4195,
+				"y": 1595.5806,
 				"currentHp": 16
 			},
 			{
 				"enemyType": "SHADE",
-				"x": 576.9745,
-				"y": 863.0255,
+				"x": 1376.6202,
+				"y": 1600.6202,
 				"currentHp": 16
 			}
 		],
 		"projectiles": [],
 		"nightSpawn": {
-			"remainingQueue": [
-				"SHADE",
-				"SHADE",
-				"SHADE"
-			],
-			"spawnTimer": 11.285181,
-			"spawnInterval": 16.8
+			"remainingQueue": [],
+			"spawnTimer": 6.198883E-6,
+			"spawnInterval": 1
 		},
 		"lastDepartureDayCount": -1,
-		"ordinaryNighDayCount": 2
+		"ordinaryNighDayCount": -1
 	}
 ],
 "guidance": {
 	"currentStep": "STARTER_CHEST",
 	"triggerSatisfied": false,
 	"messageAcknowledged": true,
-	"shownContextualSteps": [
-		"HEALING"
-	],
+	"shownContextualSteps": [],
 	"activeContextualStep": null
 }
 }

@@ -6,6 +6,7 @@ import com.ashveil.combat.Hittable;
 import com.ashveil.combat.ProjectileSystem;
 import com.ashveil.economy.ShopAccess;
 import com.ashveil.economy.ShopItem;
+import com.ashveil.encounter.CrimsonVeilSystem;
 import com.ashveil.encounter.GuardianEncounter;
 import com.ashveil.encounter.GuardianEncounterDefinition;
 import com.ashveil.entities.enemies.*;
@@ -64,6 +65,8 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     private GuardianEncounter guardianEncounter;
     private boolean windyGuardianStartedRequested;
 
+    private final CrimsonVeilSystem crimsonVeilSystem;
+
     public World(){
         areaManager = new AreaManager(AreaID.MAIN_ISLAND);
 
@@ -72,6 +75,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         combatSystem = new CombatSystem();
         craftingManager = new CraftingManager(progressionState);
         dayNightCycle = new DayNightCycle();
+        crimsonVeilSystem = new CrimsonVeilSystem();
 
         player = new Player(0f, 0f);
 
@@ -113,6 +117,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         combatSystem = new CombatSystem();
         craftingManager = new CraftingManager(progressionState);
         dayNightCycle = new DayNightCycle();
+        crimsonVeilSystem = new CrimsonVeilSystem();
 
         player = new Player(playerX, playerY);
 
@@ -186,12 +191,31 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         getProjectileSystem().update(delta);
 
         if (!isGuardianEncounterActive()){
-            dayNightCycle.update(delta);
-            if (dayNightCycle.justBecameNight()) startOrdinaryNightForCurrentArea();
-            if (dayNightCycle.isNight()) getEnemySpawnSystem().update(delta);
-            if (dayNightCycle.justBecameDay()){
-                getEnemySpawnSystem().endNight();
-                for (Enemy enemy : getEnemies()) enemy.startFleeing(getTileMap().getWidth() * Config.TILE_SIZE, getTileMap().getHeight() * Config.TILE_SIZE);
+
+            if (crimsonVeilSystem.isActive() || crimsonVeilSystem.isRecovery()) dayNightCycle.update(0f);
+            else dayNightCycle.update(delta);
+
+            if (dayNightCycle.justBecameDusk()){
+                crimsonVeilSystem.handleDuskStarted(dayNightCycle.getDayCount());
+            }
+
+            if (dayNightCycle.justBecameNight()){
+                boolean crimsonStarted = crimsonVeilSystem.handleNightStarted(dayNightCycle.getDayCount());
+                if (crimsonStarted){
+                    getEnemySpawnSystem().endNight();
+                    getEnemies().clear();
+                    getProjectileSystem().replaceProjectiles(List.of());
+
+                    startCrimsonVeilWave();
+                }
+                else startOrdinaryNightForCurrentArea();
+            }
+
+            if (dayNightCycle.isNight() && !crimsonVeilSystem.isActive() && !crimsonVeilSystem.isRecovery())
+                getEnemySpawnSystem().update(delta);
+
+            if (crimsonVeilSystem.isActive()){
+                getEnemySpawnSystem().update(delta);
             }
         }
 
@@ -213,8 +237,37 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
             getWorldItemSystem().add(new WorldItem(enemy.getX(), enemy.getY(), ItemType.GOLD, goldDrop));
         }
         getEnemies().removeIf(Enemy::shouldBeRemoved);
+
+        updateCrimsonVeil(delta);
+        if (dayNightCycle.justBecameDay()) handleDayStarted();
         updateGuardianEncounter();
         updateScrollProgression();
+    }
+
+    private void updateCrimsonVeil(float delta){
+        if (crimsonVeilSystem.isActive()){
+            boolean shouldAdvance = crimsonVeilSystem.shouldAdvanceWave(delta, !getEnemies().isEmpty(), getEnemySpawnSystem().hasPendingSpawns());
+
+            if (!shouldAdvance) return;
+
+            if (crimsonVeilSystem.hasNextWave()){
+                crimsonVeilSystem.advanceWave();
+                startCrimsonVeilWave();
+                return;
+            }
+
+            crimsonVeilSystem.completeVeil(dayNightCycle.getDayCount());
+
+            getEnemySpawnSystem().endNight();
+        }
+
+        if (crimsonVeilSystem.isRecovery()){
+            boolean recoveryFinished = crimsonVeilSystem.updateRecovery(delta);
+            if (!recoveryFinished) return;
+
+            crimsonVeilSystem.finishRecovery();
+            dayNightCycle.forceDay();
+        }
     }
 
     private void startOrdinaryNightForCurrentArea(){
@@ -222,6 +275,23 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
 
         getEnemySpawnSystem().startNight(dayCount, currentAreaRuntime.getAreaID());
         currentAreaRuntime.markOrdinaryNightStarted(dayCount);
+    }
+
+    private void startCrimsonVeilWave(){
+        getEnemySpawnSystem().startThreatWave(crimsonVeilSystem.getCurrentWaveBudget(),
+                                              currentAreaRuntime.getAreaID(), Config.CRIMSON_VEIL_WAVE_SPAWN_DURATION);
+
+
+    }
+
+    private void handleDayStarted(){
+        getEnemySpawnSystem().endNight();
+
+        for (Enemy enemy : getEnemies()){
+            enemy.startFleeing(getTileMap().getWidth() * Config.TILE_SIZE,
+                               getTileMap().getHeight() * Config.TILE_SIZE
+            );
+        }
     }
 
     private void handlePrimaryAction(PlayerInput playerInput){
@@ -606,6 +676,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     @Override
     public boolean travelToArea(AreaID destination){
         if (destination == null) throw new IllegalArgumentException("Destination cannot be null");
+        if (crimsonVeilSystem.isActive() || crimsonVeilSystem.isRecovery()) return false;
 
         if (!progressionState.isBoatBuilt()) return false;
         if (!progressionState.isAreaUnlocked(destination)) return false;
@@ -656,6 +727,8 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
             guidanceSystem.handleEvent(GameEvent.BOAT_BUILT, progressionState);
             return true;
         }
+
+        if (crimsonVeilSystem.isActive() || crimsonVeilSystem.isRecovery()) return true;
 
         worldMapRequested = true;
         return true;
@@ -900,6 +973,10 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     public WorldItemSystem getWorldItemSystem(){return currentAreaRuntime.getWorldItemSystem();}
     public GuidanceSystem getGuidanceSystem(){return guidanceSystem;}
     public List<AreaRuntime> getInitializedAreaRuntimes(){return new ArrayList<>(areaRuntimes.values());}
+    public boolean isCrimsonVeilWarning(){return crimsonVeilSystem.isWarning();}
+    public boolean isCrimsonVeilActive(){return crimsonVeilSystem.isActive();}
+    public boolean isCrimsonVeilRecovery(){return crimsonVeilSystem.isRecovery();}
+    public CrimsonVeilSystem getCrimsonVeilSystem(){return crimsonVeilSystem;}
 
     public AreaRuntime getOrCreateAreaRuntimeForLoad(AreaID areaID){
         if (areaID == null) throw new IllegalArgumentException("Area id cannot be null.");

@@ -90,10 +90,13 @@ public class ShopPanel extends MenuPanel {
             return;
         }
 
-        detailsTable.add(new Label(i18n.get(selectedItem.getNameKey()), getSkin())).padTop(25).left();
+        String name = i18n.get(selectedItem.getNameKey());
+        String description = i18n.get(selectedItem.getDescriptionKey());
+
+        detailsTable.add(new Label(name, getSkin())).padTop(25).left();
         detailsTable.row();
 
-        Label descriptionLabel = new Label(i18n.get(selectedItem.getDescriptionKey()), getSkin());
+        Label descriptionLabel = new Label(description, getSkin());
         descriptionLabel.setWrap(true);
 
         detailsTable.add(descriptionLabel).width(350).padTop(20).left().top();
@@ -113,9 +116,6 @@ public class ShopPanel extends MenuPanel {
                 buySelectedItem();
             }
         });
-
-        String name = i18n.get(selectedItem.getNameKey());
-        String description = i18n.get(selectedItem.getDescriptionKey());
     }
 
     private void buySelectedItem(){
