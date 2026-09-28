@@ -3,6 +3,8 @@ package com.ashveil.save;
 import com.ashveil.Config;
 import com.ashveil.combat.Projectile;
 import com.ashveil.combat.ProjectileSystem;
+import com.ashveil.encounter.AshenRiteState;
+import com.ashveil.encounter.AshenRiteSystem;
 import com.ashveil.encounter.CrimsonVeilState;
 import com.ashveil.encounter.CrimsonVeilSystem;
 import com.ashveil.entities.Player;
@@ -46,6 +48,7 @@ public class SaveMapper {
 
         applyDayNightState(world.getDayNightCycle(), saveData.dayNight);
         applyCrimsonVeilState(world.getCrimsonVeilSystem(), saveData.crimsonVeil);
+        applyAshenRiteState(world.getAshenRiteSystem(), saveData.ashenRite);
 
         for (AreaSaveData areaSaveData : saveData.areas){
             AreaID areaID = AreaID.valueOf(areaSaveData.areaId);
@@ -53,7 +56,10 @@ public class SaveMapper {
             applyAreaState(runtime, areaSaveData);
         }
 
+        prepareAshenRiteAfterLoad(world);
+
         world.updateBoatVisibility();
+        world.updateRitualVisibility();
 
         applyGuidanceState(world.getGuidanceSystem(), saveData.guidance);
         return world;
@@ -113,9 +119,27 @@ public class SaveMapper {
     }
 
     private void applyCrimsonVeilState(CrimsonVeilSystem crimsonVeilSystem, CrimsonVeilSaveData data){
+        if (data == null) return;
         CrimsonVeilState state = CrimsonVeilState.valueOf(data.state);
         crimsonVeilSystem.applyPersistentState(state, data.nextVeilDay, data.completedVeils, data.currentWave,
                                     data.totalThreatBudget, data.waveTimer, data.clearGraceTimer, data.recoveryTimer);
+    }
+
+    private void applyAshenRiteState(AshenRiteSystem ashenRiteSystem, AshenRiteSaveData data){
+        if (data == null) return;
+        AshenRiteState state = AshenRiteState.valueOf(data.state);
+        ashenRiteSystem.applyPersistentState(state, data.scrollIPlaced, data.scrollIIPlaced, data.scrollIIIPlaced);
+    }
+
+    private void prepareAshenRiteAfterLoad(World world){
+        AshenRiteState state = world.getAshenRiteSystem().getState();
+
+        if (state != AshenRiteState.REVEAL && state != AshenRiteState.LAST_VEIL_READY && state != AshenRiteState.AFTERMATH
+            && state != AshenRiteState.COMPLETED) return;
+
+        world.getEnemies().clear();;
+        world.getProjectileSystem().replaceProjectiles(List.of());
+        world.getEnemySpawnSystem().endNight();
     }
 
     private void applyProgressionState(ProgressionState progressionState, ProgressionSaveData progressionSaveData){
@@ -246,6 +270,7 @@ public class SaveMapper {
         saveData.dayNight = createDayNightSaveData(world.getDayNightCycle());
         saveData.progressionState = createProgressionSaveData(world.getProgressionState());
         saveData.crimsonVeil = createCrimsonVeilSaveData(world.getCrimsonVeilSystem());
+        saveData.ashenRite = createAshenRiteSaveData(world.getAshenRiteSystem());
         saveData.guidance = createGuidanceSaveData(world.getGuidanceSystem());
 
         saveData.currentAreaId = world.getAreaManager().getCurrentAreaId().name();
@@ -337,6 +362,17 @@ public class SaveMapper {
         data.waveTimer = crimsonVeilSystem.getWaveTimer();
         data.clearGraceTimer = crimsonVeilSystem.getClearGraceTimer();
         data.recoveryTimer = crimsonVeilSystem.getRecoveryTimer();
+
+        return data;
+    }
+
+    private AshenRiteSaveData createAshenRiteSaveData(AshenRiteSystem ashenRiteSystem){
+        AshenRiteSaveData data = new AshenRiteSaveData();
+
+        data.state = ashenRiteSystem.getPersistentState().name();
+        data.scrollIPlaced = ashenRiteSystem.isScrollIPlaced();
+        data.scrollIIPlaced = ashenRiteSystem.isScrollIIPlaced();
+        data.scrollIIIPlaced = ashenRiteSystem.isScrollIIIPlaced();
 
         return data;
     }

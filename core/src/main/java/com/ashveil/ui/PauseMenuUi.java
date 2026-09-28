@@ -9,8 +9,7 @@ public class PauseMenuUi extends Window {
     public PauseMenuUi(Skin skin, Runnable onContinue, Runnable onOptions, Runnable onMainMenu){
         super("", skin);
 
-        Label titleLabel = new Label("PAUSED", skin);
-        titleLabel.setFontScale(1.5f);
+        Label titleLabel = new Label("PAUSED", skin, "title");
 
         Image titleDivider = new Image(skin.getDrawable("save-slots-title-divider"));
         titleDivider.setScaling(Scaling.fill);

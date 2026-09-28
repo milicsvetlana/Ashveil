@@ -43,15 +43,17 @@ public class Config {
     public static final int SLOT_MOVE = 1;
 
     /** Day and night cycle */
-    public static final float FIRST_DAY_DURATION = 5f;
+    public static final float FIRST_DAY_DURATION = 180f;
 
-    public static final float DAY_DURATION = 3f;
-    public static final float DUSK_DURATION = 3f;
-    public static final float NIGHT_DURATION = 120f;
+    public static final float DAY_NIGHT_CYCLE_DURATION = 210f;
 
     public static final float DAY_PHASE_RATIO = 0.60f;
     public static final float DUSK_PHASE_RATIO = 0.10f;
     public static final float NIGHT_PHASE_RATIO = 0.30f;
+
+    public static final float DAY_DURATION = DAY_NIGHT_CYCLE_DURATION * DAY_PHASE_RATIO;
+    public static final float DUSK_DURATION = DAY_NIGHT_CYCLE_DURATION * DUSK_PHASE_RATIO;
+    public static final float NIGHT_DURATION = DAY_NIGHT_CYCLE_DURATION * NIGHT_PHASE_RATIO;
 
     /** Ground items */
     public static final float WORLD_ITEM_MERGE_RANGE = TILE_SIZE * 2;
@@ -64,8 +66,8 @@ public class Config {
     public static final int INITIAL_SPAWN_CLEAR_RADIUS = 2;
 
     /** Resource stats and drops */
-    public static final int TREE_HP = 3;
-    public static final int ROCK_HP = 3;
+    public static final int TREE_HP = 5;
+    public static final int ROCK_HP = 7;
     public static final int FENCE_HP = 4;
     public static final int THORN_FENCE_HP = 10;
     public static final int BRIAR_SNARE_HP = 1;
@@ -92,8 +94,8 @@ public class Config {
     public static final float WRAITH_PROJECTILE_LIFETIME = 4f;
 
     /** Gold drops */
-    public static final int DOUBLE_GOLD_DROP_CHANCE = 5;
-    public static final int SINGLE_GOLD_DROP_CHANCE = 30;
+    public static final int DOUBLE_GOLD_DROP_CHANCE = 20;
+    public static final int SINGLE_GOLD_DROP_CHANCE = 60;
 
     public static final int SAPLING_DROP_CHANCE = 40; // npr 40% šanse
 
@@ -123,8 +125,8 @@ public class Config {
     public static final int GUIDANCE_WOOD_TARGET = 5;
 
     /** Travel */
-    public static final int BOAT_TRAVEL_GOLD = 0;
-    public static final float BOAT_TRAVEL_COOLDOWN = 5f;
+    public static final int BOAT_TRAVEL_GOLD = 5;
+    public static final float BOAT_TRAVEL_COOLDOWN = 20f;
 
     public static final float CHEST_WORLD_SIZE = 35.2f;
 
@@ -155,4 +157,17 @@ public class Config {
     public static final float CRIMSON_VEIL_CLEAR_GRACE_DURATION = 5f;
     public static final float CRIMSON_VEIL_WAVE_SPAWN_DURATION = 8f;
     public static final float CRIMSON_VEIL_RECOVERY_DURATION = 3f;
+
+    /** Ashen Rite, Last Veil */
+
+    public static final int LAST_VEIL_WAVE_COUNT = 5;
+
+    public static final int LAST_VEIL_WAVE_1_BUDGET = 8;
+    public static final int LAST_VEIL_WAVE_2_BUDGET = 12;
+    public static final int LAST_VEIL_WAVE_3_BUDGET = 15;
+    public static final int LAST_VEIL_WAVE_4_BUDGET = 24;
+    public static final int LAST_VEIL_WAVE_5_BUDGET = 32;
+
+    public static final float LAST_VEIL_WAVE_SPAWN_DURATION = 6f;
+    public static final float LAST_VEIL_WAVE_BREAK_DURATION = 8f;
 }

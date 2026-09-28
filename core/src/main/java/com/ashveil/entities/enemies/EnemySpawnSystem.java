@@ -69,21 +69,28 @@ public class EnemySpawnSystem {
     }
 
     public void startThreatWave(int threatBudget, AreaID areaID, float spawnDuration){
-        if (threatBudget < 0) throw new IllegalArgumentException("Threat budget cannot be negative");
         if (areaID == null) throw new IllegalArgumentException("Area ID cannot be null");
+
+        startThreatWave(threatBudget, getAvailableEnemyTypes(areaID), spawnDuration);
+    }
+
+    public void startThreatWave(int threatBudget, List<EnemyType> availableTypes, float spawnDuration){
+        if (threatBudget < 0) throw new IllegalArgumentException("Threat budget cannot be negative");
+        if (availableTypes == null || availableTypes.isEmpty()) throw new IllegalArgumentException("Available enemy types cannot be empty");
         if (spawnDuration <= 0f) throw new IllegalArgumentException("Spawn duration must be positive");
 
         spawnQueue.clear();
         int remainingBudget = threatBudget;
 
-        List<EnemyType> availableTypes = getAvailableEnemyTypes(areaID);
-
-        while (remainingBudget > 0) {
+        while (remainingBudget > 0){
             List<EnemyType> affordableTypes = new ArrayList<>();
 
-            for (EnemyType enemyType : availableTypes) {
-                if (enemyType.getThreatCost() <= remainingBudget) affordableTypes.add(enemyType);
+            for (EnemyType enemyType : availableTypes){
+                if (enemyType.getThreatCost() <= remainingBudget){
+                    affordableTypes.add(enemyType);
+                }
             }
+
             if (affordableTypes.isEmpty()) break;
 
             EnemyType selectedType = affordableTypes.get(random.nextInt(affordableTypes.size()));
@@ -91,8 +98,8 @@ public class EnemySpawnSystem {
             remainingBudget -= selectedType.getThreatCost();
         }
 
-        spawnTimer = 0;
-        //Config.nightduration * 0.7 prakticno predstavlja prostor kad moze da se spawna
+        spawnTimer = 0f;
+
         if (spawnQueue.isEmpty()) spawnInterval = 0f;
         else spawnInterval = spawnDuration / spawnQueue.size();
     }

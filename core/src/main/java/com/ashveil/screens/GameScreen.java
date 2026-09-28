@@ -82,10 +82,10 @@ public class GameScreen implements Screen {
         this.saveSlot = saveSlot;
         this.world = world;
         saveService = game.getSaveService();
-        worldRenderer = new WorldRenderer(world.getTileMap());
         cameraController = new CameraController();
-        hudRenderer = new HudRenderer();
         uiSkin = game.getUiSkin();
+        worldRenderer = new WorldRenderer(world.getTileMap(), uiSkin);
+        hudRenderer = new HudRenderer(uiSkin);
         worldMapUi = new WorldMapUi(uiSkin, world);
         gameMenuUi = new GameMenuUi(uiSkin, world.getAvailableRecipes(), world, world, world.getPlayer().getInventory(), game.getLocalizationService(), this::handleSuccessfulCraft, this::handleCraftingOpened);
         activeOverlay = GameOverlay.NONE;
@@ -170,6 +170,12 @@ public class GameScreen implements Screen {
                 openWorldMap();
             }
 
+            if (world.isDepartureRequested()){
+                world.clearDepartureRequest();
+                finishGame();
+                return;
+            }
+
             ItemType requestedScroll = world.getScrollReadRequested();
             if (requestedScroll != null){
                 world.clearScrollReadRequests();
@@ -230,7 +236,7 @@ public class GameScreen implements Screen {
                                               tileTargetingSystem.getWorldY(), targetValid);
         }
 
-        hudRenderer.render(world.getPlayer(), world.getDayNightCycle());
+        hudRenderer.render(world.getPlayer(), world.getDayNightCycle(), world.isCrimsonVeilActive());
 
         if (activeOverlay == GameOverlay.MENU) gameMenuUi.draw();
 
@@ -828,6 +834,11 @@ public class GameScreen implements Screen {
             return;
         }
 
+    }
+
+    private void finishGame(){
+        saveGame();
+        Gdx.app.postRunnable(() -> game.setScreen(new CreditsScreen(game)));
     }
 
     @Override

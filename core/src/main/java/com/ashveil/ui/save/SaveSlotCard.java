@@ -82,10 +82,9 @@ public class SaveSlotCard extends Stack {
 
     private void buildEmptyContent(Table content){
         Stack portraitStack = createStatusIcon();
-        Label slotLabel = new Label("Slot " + slotInfo.getSlot(), skin);
-        slotLabel.setFontScale(1.3f);
+        Label slotLabel = new Label("Slot " + slotInfo.getSlot(), skin, "default");
+        Label emptyLabel = new Label("Empty", skin, "small");
 
-        Label emptyLabel = new Label("Empty", skin);
         TextButton newGameButton = new TextButton("New Game", skin, "save-slot-action");
         bindAction(newGameButton, primaryAction);
 
@@ -109,12 +108,11 @@ public class SaveSlotCard extends Stack {
 
         String displayName = slotInfo.getCharacterName();
         if (displayName == null || displayName.isBlank()) displayName = "Slot " + slotInfo.getSlot();
-        Label slotLabel = new Label(displayName, skin);
 
-        slotLabel.setFontScale(1.3f);
-        Label dayLabel = new Label("Day " + slotInfo.getDayCount(), skin);
-        Label playTimeLabel = new Label("Playtime: " + formatPlayTime(slotInfo.getPlayTimeSeconds()), skin);
-        Label areaLabel = new Label("Area: " + slotInfo.getCurrentAreaId(), skin);
+        Label slotLabel = new Label(displayName, skin);
+        Label dayLabel = new Label("Day " + slotInfo.getDayCount(), skin, "small");
+        Label playTimeLabel = new Label("Playtime: " + formatPlayTime(slotInfo.getPlayTimeSeconds()), skin, "small");
+        Label areaLabel = new Label("Area: " + slotInfo.getCurrentAreaId(), skin, "small");
 
         TextButton playButton = new TextButton("Play", skin, "save-slot-action");
         TextButton deleteButton = new TextButton("Delete", skin, "save-slot-action");
@@ -160,9 +158,8 @@ public class SaveSlotCard extends Stack {
         Stack portraitStack = createStatusIcon();
 
         Label slotLabel = new Label("Slot " + slotInfo.getSlot(), skin);
-        slotLabel.setFontScale(1.3f);
-        Label unavailableLabel = new Label("Unavailable", skin);
-        Label messageLabel = new Label("Save data could not be loaded.", skin);
+        Label unavailableLabel = new Label("Unavailable", skin, "small");
+        Label messageLabel = new Label("Save data could not be loaded.", skin, "small");
 
         TextButton deleteButton = new TextButton("Delete", skin, "save-slot-action");
         bindAction(deleteButton, deleteAction);

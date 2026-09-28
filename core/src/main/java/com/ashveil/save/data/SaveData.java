@@ -16,8 +16,10 @@ public class SaveData {
     public DayNightSaveData dayNight;
     public ProgressionSaveData progressionState;
     public CrimsonVeilSaveData crimsonVeil;
+    public AshenRiteSaveData ashenRite;
 
     public String currentAreaId;
     public List<AreaSaveData> areas = new ArrayList<>();
     public GuidanceSaveData guidance;
+
 }

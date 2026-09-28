@@ -13,6 +13,8 @@ public class GuidanceSystem {
     private boolean messageAcknowledged;
     private final EnumSet<GuideStep> shownContextualSteps;
     private GuideStep activeContextualStep;
+    private final List<GuideStep> ashenRiteRevealSequence;
+    private final List<GuideStep> lastVeilAftermathSequence;
 
     public GuidanceSystem(){
         mainSequence = List.of(
@@ -23,6 +25,23 @@ public class GuidanceSystem {
             GuideStep.OPEN_CRAFTING,
             GuideStep.CRAFT_EQUIPMENT,
             GuideStep.DUSK_WARNING
+        );
+
+        ashenRiteRevealSequence = List.of(
+            GuideStep.ASHEN_RITE_REVEAL_1,
+            GuideStep.ASHEN_RITE_REVEAL_2,
+            GuideStep.ASHEN_RITE_REVEAL_3,
+            GuideStep.ASHEN_RITE_REVEAL_4,
+            GuideStep.ASHEN_RITE_REVEAL_5,
+            GuideStep.ASHEN_RITE_REVEAL_6,
+            GuideStep.ASHEN_RITE_REVEAL_7,
+            GuideStep.LAST_VEIL_START
+        );
+
+        lastVeilAftermathSequence = List.of(
+            GuideStep.LAST_VEIL_AFTERMATH_1,
+            GuideStep.LAST_VEIL_AFTERMATH_2,
+            GuideStep.LAST_VEIL_AFTERMATH_3
         );
 
         currentStepIndex = 0;
@@ -76,6 +95,36 @@ public class GuidanceSystem {
             activateContextualStep(GuideStep.CRIMSON_VEIL_WARNING);
         }
 
+        if (event == GameEvent.ASHEN_RITE_REVEAL_STARTED){
+            activateNextAshenRiteRevealStep();
+            return false;
+        }
+
+        if (event == GameEvent.LAST_VEIL_WAVE_2_CLEARED){
+            activateContextualStep(GuideStep.LAST_VEIL_FIGHT_1);
+            return false;
+        }
+
+        if (event == GameEvent.LAST_VEIL_WAVE_3_CLEARED){
+            activateContextualStep(GuideStep.LAST_VEIL_FIGHT_2);
+            return false;
+        }
+
+        if (event == GameEvent.LAST_VEIL_WAVE_4_CLEARED){
+            activateContextualStep(GuideStep.LAST_VEIL_FIGHT_3);
+            return false;
+        }
+
+        if (event == GameEvent.LAST_VEIL_NEAR_END){
+            activateContextualStep(GuideStep.LAST_VEIL_FIGHT_4);
+            return false;
+        }
+
+        if (event == GameEvent.LAST_VEIL_COMPLETED){
+            activateNextLastVeilAftermathStep();
+            return false;
+        }
+
         return handleEvent(event);
     }
 
@@ -119,8 +168,23 @@ public class GuidanceSystem {
     public boolean acknowledgeActiveContextualStep(){
         if (activeContextualStep == null) return false;
 
+        GuideStep acknowledgedStep = activeContextualStep;
+
         shownContextualSteps.add(activeContextualStep);
         activeContextualStep = null;
+
+        if (acknowledgedStep == GuideStep.VEILSCAR_SCROLL_III_READ){
+            activateContextualStep(GuideStep.VEILSCAR_SCROLL_III_FOLLOWUP);
+            return true;
+        }
+
+        if (ashenRiteRevealSequence.contains(acknowledgedStep)) activateNextAshenRiteRevealStep();
+
+        if (lastVeilAftermathSequence.contains(acknowledgedStep)){
+            activateNextLastVeilAftermathStep();
+            return true;
+        }
+
         return true;
     }
 
@@ -166,6 +230,43 @@ public class GuidanceSystem {
         }
 
         this.activeContextualStep = activeContextualStep;
+    }
+
+    private boolean activateNextAshenRiteRevealStep(){
+        if (activeContextualStep != null) return false;
+
+        for (GuideStep step : ashenRiteRevealSequence){
+            if (shownContextualSteps.contains(step)) continue;
+
+            activeContextualStep = step;
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean activateNextLastVeilAftermathStep(){
+        if (activeContextualStep != null) return false;
+
+        for (GuideStep step : lastVeilAftermathSequence){
+            if (shownContextualSteps.contains(step)) continue;
+
+            activeContextualStep = step;
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isAshenRiteRevealComplete(){
+        return shownContextualSteps.containsAll(ashenRiteRevealSequence);
+    }
+
+    public void ensureAshenRiteRevealActive(){
+        if (isAshenRiteRevealComplete()) return;
+        if (activeContextualStep != null) return;
+
+        activateNextAshenRiteRevealStep();
     }
 
     public GuideStep getActiveContextualStep(){return activeContextualStep;}

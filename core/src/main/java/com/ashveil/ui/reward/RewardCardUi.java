@@ -38,7 +38,7 @@ public class RewardCardUi extends Table {
         descriptionLabel = new Label("", skin);
         descriptionLabel.setAlignment(Align.center);
         descriptionLabel.setWrap(true);
-        descriptionLabel.setFontScale(1f);
+        descriptionLabel.setFontScale(0.75f);
 
         Table descriptionLayer = new Table();
         descriptionLayer.setFillParent(true);

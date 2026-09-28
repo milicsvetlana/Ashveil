@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -13,14 +14,26 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 //kasnije, kad budemo imali teksture i fontove, menjacemo ovu klasu ili iz nje ucitavati pravi skin
 //layout i skin logika ostaju isti
 public final class UiSkinFactory {
-    private UiSkinFactory(){}
-
     private static final String DEFAULT_FONT = "default-font";
+    private static final String SMALL_FONT = "small-font";
+    private static final String TITLE_FONT = "title-font";
+    private static final String HUD_FONT = "hud-font";
+
+    private static final String DEFAULT_FONT_PATH = "fonts/ashveil-text.ttf";
+    private static final String TITLE_FONT_PATH = "fonts/ashveil-title.ttf";
+
+    private static final String EXTRA_CHARACTERS = "ĆćČčŠšŽžĐđ";
+
+    private static final int DEFAULT_FONT_SIZE = 24;
+
+    private UiSkinFactory(){}
 
     public static Skin create(){
         Skin skin = new Skin();
 
         addPlaceholderTextures(skin);
+        addItemIcons(skin);
+        addHudTextures(skin);
         addFonts(skin);
         addDefaultStyles(skin);
         addMainMenuStyles(skin);
@@ -73,34 +86,104 @@ public final class UiSkinFactory {
         skin.add(name, texture);
     }
 
-    private static void addFonts(Skin skin){
-        skin.add(DEFAULT_FONT, createDefaultFont());
+    private static void addItemIcons(Skin skin){
+        addUiTexture(skin, "item-wood", "items/wood.png");
+        addUiTexture(skin, "item-stone", "items/stone.png");
+        addUiTexture(skin, "item-wheat", "items/wheat.png");
+        addUiTexture(skin, "item-wheat-seed", "items/wheat_seed.png");
+        addUiTexture(skin, "item-bread", "items/bread.png");
+        addUiTexture(skin, "item-sapling", "items/sapling.png");
+        addUiTexture(skin, "item-hollowcap", "items/hollowcap.png");
+
+        addUiTexture(skin, "item-wooden-axe", "items/wooden_axe.png");
+        addUiTexture(skin, "item-stone-axe", "items/stone_axe.png");
+        addUiTexture(skin, "item-wooden-pickaxe", "items/wooden_pickaxe.png");
+        addUiTexture(skin, "item-stone-pickaxe", "items/stone_pickaxe.png");
+        addUiTexture(skin, "item-wooden-hoe", "items/wooden_hoe.png");
+        addUiTexture(skin, "item-stone-hoe", "items/stone_hoe.png");
+
+        addUiTexture(skin, "item-wooden-sword", "items/wooden_sword.png");
+        addUiTexture(skin, "item-stone-sword", "items/stone_sword.png");
+        addUiTexture(skin, "item-bloodthirst-sword", "items/bloodthirst_sword.png");
+
+        addUiTexture(skin, "item-fence", "items/fence.png");
+        addUiTexture(skin, "item-thorn-fence", "items/thorn_fence.png");
+        addUiTexture(skin, "item-briar-snare", "items/briar_snare.png");
+        addUiTexture(skin, "item-chest", "items/chest.png");
+
+        addUiTexture(skin, "item-boat-kit", "items/boat_kit.png");
+
+        addUiTexture(skin, "item-scroll-1", "items/scroll_1.png");
+        addUiTexture(skin, "item-scroll-2", "items/scroll_2.png");
+        addUiTexture(skin, "item-scroll-3", "items/scroll_3.png");
+
+        addUiTexture(skin, "item-gold", "items/gold.png");
+        addUiTexture(skin, "item-heart-repair", "items/heart_repair.png");
     }
 
-    private static BitmapFont createDefaultFont(){
-        return new BitmapFont();
+    private static void addHudTextures(Skin skin){
+        addUiTexture(skin, "hud-heart-full", "ui/hud/heart_full.png");
+        addUiTexture(skin, "hud-heart-broken", "ui/hud/heart_broken.png");
+        addUiTexture(skin, "hud-heart-empty", "ui/hud/heart_empty.png");
+
+        addUiTexture(skin, "hud-gold-coin", "ui/hud/gold_coin.png");
+
+        addUiTexture(skin, "hud-clock-dial", "ui/hud/clock_dial.png");
+        addUiTexture(skin, "hud-clock-needle", "ui/hud/clock_needle.png");
+        addUiTexture(skin, "hud-clock-crimson", "ui/hud/clock_crimson_overlay.png");
+
+        addUiTexture(skin, "hud-hotbar-slot", "ui/hud/hotbar_slot.png");
+        addUiTexture(skin, "hud-hotbar-slot-selected", "ui/hud/hotbar_slot_selected.png");
+    }
+
+    private static void addFonts(Skin skin){
+        skin.add(DEFAULT_FONT, createFont(DEFAULT_FONT_PATH, 24));
+        skin.add(SMALL_FONT, createFont(DEFAULT_FONT_PATH, 18));
+        skin.add(TITLE_FONT, createFont(TITLE_FONT_PATH, 42));
+        skin.add(HUD_FONT, createFont(DEFAULT_FONT_PATH, 18));
+    }
+
+    private static BitmapFont createFont(String path, int size){
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
+
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = size;
+        parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + EXTRA_CHARACTERS;
+
+        BitmapFont font = generator.generateFont(parameter);
+        generator.dispose();
+
+        return font;
     }
 
     private static void addDefaultStyles(Skin skin){
-        BitmapFont font = skin.getFont(DEFAULT_FONT);
+        BitmapFont defaultFont = skin.getFont(DEFAULT_FONT);
+        BitmapFont smallFont = skin.getFont(SMALL_FONT);
+        BitmapFont titleFont = skin.getFont(TITLE_FONT);
 
-        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
-        skin.add("default", labelStyle);
+        Label.LabelStyle defaultLabelStyle = new Label.LabelStyle(defaultFont, Color.WHITE);
+        skin.add("default", defaultLabelStyle);
+
+        Label.LabelStyle smallLabelStyle = new Label.LabelStyle(smallFont, Color.WHITE);
+        skin.add("small", smallLabelStyle);
+
+        Label.LabelStyle titleLabelStyle = new Label.LabelStyle(titleFont, Color.WHITE);
+        skin.add("title", titleLabelStyle);
 
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
-        buttonStyle.font = font;
+        buttonStyle.font = defaultFont;
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.overFontColor = Color.LIGHT_GRAY;
         buttonStyle.disabledFontColor = Color.RED;
         buttonStyle.checkedFontColor = Color.YELLOW;
         skin.add("default", buttonStyle);
 
-        Window.WindowStyle windowStyle = new Window.WindowStyle(font, Color.WHITE, skin.getDrawable("menu-background"));
+        Window.WindowStyle windowStyle = new Window.WindowStyle(defaultFont, Color.WHITE, skin.getDrawable("menu-background"));
         skin.add("default", windowStyle);
     }
 
-    private static void addTextButtonStyle(Skin skin, String styleName, String assetPrefix){
-        BitmapFont font = skin.getFont(DEFAULT_FONT);
+    private static void addTextButtonStyle(Skin skin, String styleName, String assetPrefix, String fontName){
+        BitmapFont font = skin.getFont(fontName);
 
         String normalName = styleName + "-normal";
         String hoverName = styleName + "-hover";
@@ -132,7 +215,7 @@ public final class UiSkinFactory {
     }
 
     private static void addMainMenuStyles(Skin skin){
-        addTextButtonStyle(skin, "main-menu", "ui/main-menu/buttons/button");
+        addTextButtonStyle(skin, "main-menu", "ui/main-menu/buttons/button", DEFAULT_FONT);
     }
 
     private static void addSaveSlotStyles(Skin skin){
@@ -140,7 +223,7 @@ public final class UiSkinFactory {
         addUiTexture(skin, "save-slot-card-hover", "ui/save-slots/slot-card-hover.png");
         addUiTexture(skin, "save-slot-card-selected", "ui/save-slots/slot-card-selected.png");
         addUiTexture(skin, "save-slot-card-unavailable", "ui/save-slots/slot-card-unavailable.png");
-        addTextButtonStyle(skin, "save-slot-action", "ui/save-slots/action-button");
+        addTextButtonStyle(skin, "save-slot-action", "ui/save-slots/action-button", SMALL_FONT);
         addUiTexture(skin, "save-slot-portrait-frame", "ui/save-slots/portrait-frame.png");
         addUiTexture(skin, "save-slots-title-divider", "ui/save-slots/save-slots-title-divider.png");
         addUiTexture(skin, "save-slot-empty-icon", "ui/save-slots/slot-card-empty-icon.png");
@@ -151,7 +234,7 @@ public final class UiSkinFactory {
         addUiTexture(skin, "character-name-field", "ui/character-creation/character-name-field.png");
         TextField.TextFieldStyle nameFieldStyle = new TextField.TextFieldStyle();
 
-        nameFieldStyle.font = skin.getFont("default-font");
+        nameFieldStyle.font = skin.getFont(DEFAULT_FONT);
         nameFieldStyle.fontColor = Color.WHITE;
         nameFieldStyle.messageFontColor = new Color(1f, 1f, 1f, 0.45f);
         Drawable fieldBackground = skin.newDrawable("character-name-field");
@@ -184,7 +267,7 @@ public final class UiSkinFactory {
         toggleStyle.checked = sizedDrawable(skin, "settings-toggle-on", 110f, 53f);
         skin.add("settings-toggle", toggleStyle, Button.ButtonStyle.class);
 
-        BitmapFont font = skin.getFont(DEFAULT_FONT);
+        BitmapFont font = skin.getFont(SMALL_FONT);
         Drawable dropdownBackground = sizedDrawable(skin, "settings-dropdown", 330f, 59f);
 
         if (dropdownBackground instanceof BaseDrawable baseDrawable){

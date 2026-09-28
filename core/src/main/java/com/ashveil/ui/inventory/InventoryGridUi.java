@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.utils.Scaling;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,8 +74,9 @@ public class InventoryGridUi extends Table {
                 DragAndDrop.Payload payload = new DragAndDrop.Payload();
                 payload.setObject(new InventoryDragData(sourceIndex, draggedQuantity, splitDrag, inventory));
 
-                Image dragImage = new Image(skin.getDrawable("item-placeholder"));
-                dragImage.setColor(InventorySlotUi.getTemporaryColor(sourceStack.getType()));
+                Image dragImage = new Image(ItemIconUi.getDrawable(skin, sourceStack.getType()));
+                dragImage.setScaling(Scaling.fit);
+
                 Label dragQuantity = new Label("", skin);
                 if (draggedQuantity > 1) dragQuantity.setText(String.valueOf(draggedQuantity));
 

@@ -26,6 +26,7 @@ public class Player extends Entity{
     private int brokenHearts;
 
     private float dashCooldown = 0f;
+    private boolean moving;
 
     public Player(float x, float y) {
         super(x, y, Config.PLAYER_HP, Config.PLAYER_SPEED, MovementType.GROUND);
@@ -35,6 +36,7 @@ public class Player extends Entity{
         wallet = new Wallet();
         selectedHotbarSlot = 0;
         brokenHearts = 0;
+        moving = false;
     }
 
     public void setAreaEnvironment(TileMap tileMap, CollisionSystem collisionSystem){
@@ -53,6 +55,9 @@ public class Player extends Entity{
     }
 
     public void move(float dx, float dy, float delta) {
+        float oldX = x;
+        float oldY = y;
+
         if (dx > 0) facing = Facing.RIGHT;
         else if (dx < 0) facing = Facing.LEFT;
         else if (dy > 0) facing = Facing.UP;
@@ -82,6 +87,7 @@ public class Player extends Entity{
         if (!isCollidingAt(x, newY)) {
             y = newY;
         }
+        moving = x != oldX || y != oldY;
     }
 
     private boolean isCollidingAt(float px, float py) {
@@ -239,4 +245,5 @@ public class Player extends Entity{
     public int getBrokenHearts(){return brokenHearts;}
     public Wallet getWallet(){return wallet;}
     public String getCharacterName(){return characterName;}
+    public boolean isMoving(){return moving;}
 }

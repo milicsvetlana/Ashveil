@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 
 public class GuidanceUi extends Table {
     private final Label messageLabel;
@@ -17,7 +18,6 @@ public class GuidanceUi extends Table {
     private final Label controlHintLabel;
 
     public GuidanceUi(Skin skin){
-
         Texture parchmentTexture = skin.get("guidance-parchment", Texture.class);
         Texture portraitTexture = skin.get("ceca-portrait", Texture.class);
 
@@ -26,31 +26,41 @@ public class GuidanceUi extends Table {
         setTransform(true);
 
         Image portraitImage = new Image(portraitTexture);
+        portraitImage.setScaling(Scaling.fit);
+
         Label nameLabel = new Label("Ceca", skin);
+        nameLabel.setAlignment(Align.left);
 
         messageLabel = new Label("", skin);
         messageLabel.setWrap(true);
-        messageLabel.setAlignment(Align.left);
+        messageLabel.setAlignment(Align.topLeft);
 
         controlHintLabel = new Label("", skin);
         controlHintLabel.setAlignment(Align.left);
 
         Label continueLabel = new Label("[ENTER]", skin);
+        continueLabel.setAlignment(Align.right);
+
+        Table portraitTable = new Table();
+        portraitTable.top().left();
+        portraitTable.add(portraitImage).size(125f).padTop(80f).padLeft(60f);
 
         Table textTable = new Table();
-        textTable.top().left().padTop(30f);
-        textTable.add(nameLabel).left().padBottom(18f);
+        textTable.top().left();
+        textTable.add(nameLabel).growX().left().padTop(64f).padLeft(40f);
         textTable.row();
-        textTable.add(messageLabel).width(650f).left().top().padBottom(8f);
+        textTable.add(messageLabel).width(650f).growX().left().top().padTop(8f).padLeft(40f);
         textTable.row();
-        textTable.add(controlHintLabel).left().padTop(8f).padBottom(6f);
+        textTable.add(controlHintLabel).growX().left().padTop(8f).padLeft(40f);
         textTable.row();
-        textTable.add(continueLabel).right().padTop(4f);
+        textTable.add().growY();
+        textTable.row();
+        textTable.add(continueLabel).growX().right().bottom().padBottom(70f).padRight(25f);
 
-        pad(26f, 105f, 24f, 40f);
+        pad(0f, 55f, 0f, 45f);
 
-        add(portraitImage).size(130f).top().padRight(18f);
-        add(textTable).width(690f).top().left();
+        add(portraitTable).width(170f).growY().top().left();
+        add(textTable).grow().top().left().padTop(30f);
 
         hiding = false;
         setVisible(false);

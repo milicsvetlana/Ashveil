@@ -2,11 +2,15 @@ package com.ashveil.rendering;
 
 import com.ashveil.Config;
 import com.ashveil.combat.Projectile;
+import com.ashveil.entities.Player;
 import com.ashveil.entities.enemies.Enemy;
 import com.ashveil.farming.Crop;
 import com.ashveil.farming.GrowablePlant;
 import com.ashveil.farming.Sapling;
+import com.ashveil.items.inventory.ItemType;
+import com.ashveil.ui.inventory.InventoryGridUi;
 import com.ashveil.objects.*;
+import com.ashveil.ui.inventory.ItemIconUi;
 import com.ashveil.world.*;
 import com.ashveil.world.area.AreaID;
 import com.badlogic.gdx.Gdx;
@@ -19,6 +23,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 import java.lang.constant.DynamicCallSiteDesc;
 
@@ -30,6 +36,26 @@ public class WorldRenderer {
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer tiledMapRenderer;
     private final Matrix4 screenProjection;
+
+    private Texture playerIdleTexture;
+    private Texture swordOverlayTexture;
+
+    private TextureRegion[] playerIdleRegions;
+    private TextureRegion[] swordOverlayRegions;
+
+    private Texture playerWalkTexture;
+    private Texture playerWalk2Texture;
+
+    private TextureRegion[] playerWalkRegions;
+    private TextureRegion[] playerWalk2Regions;
+
+    private float playerWalkTimer;
+
+    private Texture decorationsTexture;
+
+    private TextureRegion treeRegion1;
+    private TextureRegion treeRegion2;
+    private TextureRegion rockRegion;
 
     private Texture farmTileTexture;
     private Texture wheatTexture;
@@ -53,7 +79,10 @@ public class WorldRenderer {
     private Texture hollowcapTexture;
     private TextureRegion hollowcapRegion;
 
-    public WorldRenderer(TileMap tileMap) {
+    private Skin skin;
+
+    public WorldRenderer(TileMap tileMap, Skin skin) {
+        this.skin = skin;
         shapeRenderer = new ShapeRenderer();
         setTileMap(tileMap);
 
@@ -73,6 +102,31 @@ public class WorldRenderer {
     }
 
     public void setTextures(){
+        playerIdleTexture = new Texture("player/body_idle.png");
+        playerIdleTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        playerIdleRegions = createPlayerRegions(playerIdleTexture);
+
+        playerWalkTexture = new Texture("player/body_walk.png");
+        playerWalkTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        playerWalkRegions = createPlayerRegions(playerWalkTexture);
+
+        playerWalk2Texture = new Texture("player/body_walk_2.png");
+        playerWalk2Texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        playerWalk2Regions = createPlayerRegions(playerWalk2Texture);
+
+        swordOverlayTexture = new Texture("player/sword_overlay.png");
+        swordOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        playerIdleRegions = createPlayerRegions(playerIdleTexture);
+        swordOverlayRegions = createPlayerRegions(swordOverlayTexture);
+
+        decorationsTexture = new Texture("tilesets/Decorations/Decorations.png");
+        decorationsTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        treeRegion1 = new TextureRegion(decorationsTexture, 0, 144, 80, 96);
+        treeRegion2 = new TextureRegion(decorationsTexture, 160, 160, 48, 80);
+        rockRegion = new TextureRegion(decorationsTexture, 224, 128, 32, 32);
+
         farmTileTexture = new Texture("textures/farming/farm_tile.png");
         wheatTexture = new Texture("textures/farming/wheat_stages.png");
         TextureRegion[][] regions = TextureRegion.split(wheatTexture, 16, 16);
@@ -110,66 +164,26 @@ public class WorldRenderer {
         tiledMapRenderer.render();
 
         spriteBatch.setProjectionMatrix(cameraController.camera.combined);
+
         spriteBatch.begin();
+
+        drawNaturalResourceTextures(world, false);
         drawFarmingTextures(world);
+        drawGroundItems(world);
+
         for (Enemy enemy : world.getEnemies()) {
             enemyRenderer.render(enemy, spriteBatch);
         }
-        for (Projectile projectile : world.getProjectileSystem().getProjectiles()){
+
+        for (Projectile projectile : world.getProjectileSystem().getProjectiles()) {
             enemyRenderer.renderProjectile(projectile, spriteBatch);
         }
 
         drawObjectTextures(world);
+        drawPlayer(world.getPlayer());
+        drawNaturalResourceTextures(world, true);
 
         spriteBatch.end();
-
-        shapeRenderer.setProjectionMatrix(cameraController.camera.combined);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        shapeRenderer.setColor(1f, 1f, 0f, 1f);
-        shapeRenderer.rect(
-            world.getPlayer().getX() * Config.SCALE,
-            world.getPlayer().getY() * Config.SCALE,
-            Config.TILE_DRAW_SIZE,
-            Config.TILE_DRAW_SIZE
-        );
-
-        for (DestructibleObject o : world.getDestructibleObjects()) {
-
-            if (o.getType() == DestructibleObjectType.CHEST || o.getType().isFence()
-                || o.getType() == DestructibleObjectType.BRIAR_SNARE || o.getType() == DestructibleObjectType.HOLLOWCAP) continue;
-
-            switch(o.getType()){
-                case TREE -> {
-                    shapeRenderer.setColor(Color.GREEN);
-                    break;
-                }
-                case ROCK -> {
-                    shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
-                    break;
-                }
-            }
-
-            shapeRenderer.rect(
-                o.getX() * Config.SCALE,
-                o.getY() * Config.SCALE,
-                Config.TILE_DRAW_SIZE,
-                Config.TILE_DRAW_SIZE
-            );
-        }
-
-        shapeRenderer.setColor(0.5f, 0.5f, 0f, 1f);
-        for (WorldItem i : world.getGroundItems()) {
-            shapeRenderer.rect(
-                i.getX() * Config.SCALE,
-                i.getY() * Config.SCALE,
-                Config.TILE_DRAW_SIZE,
-                Config.TILE_DRAW_SIZE
-            );
-        }
-
-        shapeRenderer.end();
 
         drawEnvironmentOverlay(world);
     }
@@ -183,6 +197,104 @@ public class WorldRenderer {
 
         shapeRenderer.rect(worldX * Config.SCALE, worldY * Config.SCALE, Config.TILE_DRAW_SIZE, Config.TILE_DRAW_SIZE);
         shapeRenderer.end();
+    }
+
+    private int getPlayerDirectionIndex(Player player){
+        return switch (player.getFacing()){
+            case DOWN -> 0;
+            case UP -> 1;
+            case LEFT -> 2;
+            case RIGHT -> 3;
+        };
+    }
+
+    private void drawPlayer(Player player){
+        int directionIndex = getPlayerDirectionIndex(player);
+
+        TextureRegion bodyRegion = getPlayerBodyRegion(player, directionIndex);
+
+        float drawHeight = Config.TILE_DRAW_SIZE * 2.5f;
+        float drawWidth = drawHeight * bodyRegion.getRegionWidth() / bodyRegion.getRegionHeight();
+
+        float drawX = player.getX() * Config.SCALE + (Config.TILE_DRAW_SIZE - drawWidth) / 2f;
+        float drawY = player.getY() * Config.SCALE;
+
+        spriteBatch.draw(bodyRegion, drawX, drawY, drawWidth, drawHeight);
+
+        if (!hasSwordSelected(player)) return;
+
+        TextureRegion swordRegion = swordOverlayRegions[directionIndex];
+        spriteBatch.draw(swordRegion, drawX, drawY, drawWidth, drawHeight);
+    }
+
+    public void drawNaturalResourceTextures(World world, boolean foreground){
+        float playerY = world.getPlayer().getY();
+
+        for (DestructibleObject object : world.getDestructibleObjects()){
+            TextureRegion region;
+
+            if (object.getType() == DestructibleObjectType.TREE){
+                region = getTreeRegion(object);
+            }
+            else if (object.getType() == DestructibleObjectType.ROCK){
+                region = rockRegion;
+            }
+            else continue;
+
+            boolean objectInFrontOfPlayer = object.getY() < playerY;
+            if (objectInFrontOfPlayer != foreground) continue;
+
+            float drawWidth = region.getRegionWidth() * Config.SCALE;
+            float drawHeight = region.getRegionHeight() * Config.SCALE;
+
+            float drawX = object.getX() * Config.SCALE + (Config.TILE_DRAW_SIZE - drawWidth) / 2f;
+            float drawY = object.getY() * Config.SCALE;
+
+            spriteBatch.draw(region, drawX, drawY, drawWidth, drawHeight);
+        }
+    }
+
+    private TextureRegion[] createPlayerRegions(Texture texture){
+        return new TextureRegion[]{
+            new TextureRegion(texture, 0, 0, 439, 595),
+            new TextureRegion(texture, 439, 0, 440, 595),
+            new TextureRegion(texture, 879, 0, 439, 595),
+            new TextureRegion(texture, 1318, 0, 440, 595)
+        };
+    }
+
+    private TextureRegion getPlayerBodyRegion(Player player, int directionIndex){
+        if (!player.isMoving()){
+            playerWalkTimer = 0f;
+            return playerIdleRegions[directionIndex];
+        }
+
+        playerWalkTimer += Gdx.graphics.getDeltaTime();
+
+        float frameDuration = 0.12f;
+        int frame = (int) (playerWalkTimer / frameDuration) % 4;
+
+        return switch (frame){
+            case 0 -> playerWalkRegions[directionIndex];
+            case 1 -> playerIdleRegions[directionIndex];
+            case 2 -> playerWalk2Regions[directionIndex];
+            default -> playerIdleRegions[directionIndex];
+        };
+    }
+
+    private boolean hasSwordSelected(Player player){
+        ItemType itemType = player.getInventory().getItemTypeBySlot(player.getSelectedHotbarSlot());
+
+        return itemType == ItemType.WOODEN_SWORD || itemType == ItemType.STONE_SWORD || itemType == ItemType.BLOODTHIRST_SWORD;
+    }
+
+    private TextureRegion getTreeRegion(DestructibleObject object){
+        int tileX = (int) (object.getX() / Config.TILE_SIZE);
+        int tileY = (int) (object.getY() / Config.TILE_SIZE);
+
+        if ((tileX + tileY) % 2 == 0) return treeRegion1;
+
+        return treeRegion2;
     }
 
     public void drawFarmingTextures(World world){
@@ -330,6 +442,18 @@ public class WorldRenderer {
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
+    private void drawGroundItems(World world){
+        float size = Config.TILE_DRAW_SIZE;
+
+        for (WorldItem item : world.getGroundItems()){Drawable drawable = ItemIconUi.getDrawable(skin, item.getType());
+
+            float drawX = item.getX() * Config.SCALE;
+            float drawY = item.getY() * Config.SCALE;
+
+            drawable.draw(spriteBatch, drawX, drawY, size, size);
+        }
+    }
+
     public int getMapWidthInTiles() {return tiledMap.getProperties().get("width", Integer.class);}
     public int getMapHeightInTiles() {return tiledMap.getProperties().get("height", Integer.class);}
     public float getMapRenderWidth() {return getMapWidthInTiles() * Config.TILE_DRAW_SIZE;}
@@ -341,6 +465,12 @@ public class WorldRenderer {
         spriteBatch.dispose();
         enemyRenderer.dispose();
 
+        playerIdleTexture.dispose();
+        playerWalkTexture.dispose();
+        playerWalk2Texture.dispose();
+        swordOverlayTexture.dispose();
+
+        decorationsTexture.dispose();
         farmTileTexture.dispose();
         wheatTexture.dispose();
         saplingTexture.dispose();

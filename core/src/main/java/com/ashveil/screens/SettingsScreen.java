@@ -53,8 +53,7 @@ public class SettingsScreen implements Screen {
         root.setFillParent(true);
         root.center();
 
-        Label title = new Label(i18n.get("settings.title"), skin);
-        title.setFontScale(1.8f);
+        Label title = new Label(i18n.get("settings.title"), skin, "title");
 
         Image titleDivider = new Image(skin.getDrawable("save-slots-title-divider"));
         titleDivider.setScaling(Scaling.fill);
@@ -145,21 +144,19 @@ public class SettingsScreen implements Screen {
 
     private void addSectionTitle(Table table, String text){
         Label label = new Label(text, skin);
-        label.setFontScale(1.2f);
         table.add(label).colspan(2).left().padTop(10f).padBottom(8f);
         table.row();
     }
 
     private void addSliderRow(Table table, String labelText, Slider slider){
-        Label label = new Label(labelText, skin);
-        label.setFontScale(1.08f);
+        Label label = new Label(labelText, skin, "small");
         table.add(label).left().expandX().padBottom(12f);
         table.add(slider).width(380f).height(46f).right().padBottom(12f);
         table.row();
     }
 
     private void addControlRow(Table table, String labelText, Actor control, float width, float height){
-        Label label = new Label(labelText, skin);
+        Label label = new Label(labelText, skin, "small");
         table.add(label).left().expandX().padBottom(12f);
         table.add(control).width(width).height(height).right().padBottom(12f);
         table.row();

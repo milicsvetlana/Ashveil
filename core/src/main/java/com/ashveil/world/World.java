@@ -6,9 +6,7 @@ import com.ashveil.combat.Hittable;
 import com.ashveil.combat.ProjectileSystem;
 import com.ashveil.economy.ShopAccess;
 import com.ashveil.economy.ShopItem;
-import com.ashveil.encounter.CrimsonVeilSystem;
-import com.ashveil.encounter.GuardianEncounter;
-import com.ashveil.encounter.GuardianEncounterDefinition;
+import com.ashveil.encounter.*;
 import com.ashveil.entities.enemies.*;
 import com.ashveil.entities.Player;
 import com.ashveil.farming.*;
@@ -61,11 +59,13 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     private boolean worldMapRequested;
     private ItemType scrollReadRequested;
     private RewardType rewardRequested;
+    private boolean departureRequested;
 
     private GuardianEncounter guardianEncounter;
     private boolean windyGuardianStartedRequested;
 
     private final CrimsonVeilSystem crimsonVeilSystem;
+    private final AshenRiteSystem ashenRiteSystem;
 
     public World(){
         areaManager = new AreaManager(AreaID.MAIN_ISLAND);
@@ -76,6 +76,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         craftingManager = new CraftingManager(progressionState);
         dayNightCycle = new DayNightCycle();
         crimsonVeilSystem = new CrimsonVeilSystem();
+        ashenRiteSystem = new AshenRiteSystem();
 
         player = new Player(0f, 0f);
 
@@ -105,6 +106,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         worldMapRequested = false;
         scrollReadRequested = null;
         rewardRequested = null;
+        departureRequested = false;
 
         guardianEncounter = null;
         windyGuardianStartedRequested = false;
@@ -118,6 +120,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         craftingManager = new CraftingManager(progressionState);
         dayNightCycle = new DayNightCycle();
         crimsonVeilSystem = new CrimsonVeilSystem();
+        ashenRiteSystem = new AshenRiteSystem();
 
         player = new Player(playerX, playerY);
 
@@ -142,6 +145,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         worldMapRequested = false;
         scrollReadRequested = null;
         rewardRequested = null;
+        departureRequested = false;
 
         guardianEncounter = null;
         windyGuardianStartedRequested = false;
@@ -161,9 +165,6 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         chest.getChestInventory().addItem(ItemType.STONE_HOE, 1);
         chest.getChestInventory().addItem(ItemType.WHEAT_SEED, 5);
         chest.getChestInventory().addItem(ItemType.BOAT_KIT, 1);
-
-        player.getInventory().addItem(ItemType.STONE_SWORD, 1);
-        player.getInventory().addItem(ItemType.FENCE, 5);
     }
 
     public static World createForLoad(AreaID areaID, float playerX, float playerY){
@@ -192,7 +193,8 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
 
         if (!isGuardianEncounterActive()){
 
-            if (crimsonVeilSystem.isActive() || crimsonVeilSystem.isRecovery()) dayNightCycle.update(0f);
+            if (crimsonVeilSystem.isActive() || crimsonVeilSystem.isRecovery() || ashenRiteSystem.blocksDayNightCycle())
+                dayNightCycle.update(0f);
             else dayNightCycle.update(delta);
 
             if (dayNightCycle.justBecameDusk()){
@@ -202,7 +204,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
                 if (crimsonWarningStarted) guidanceSystem.handleEvent(GameEvent.CRIMSON_VEIL_WARNING, progressionState);
             }
 
-            if (dayNightCycle.justBecameNight()){
+            if (dayNightCycle.justBecameNight() && !ashenRiteSystem.blocksDayNightCycle()){
                 boolean crimsonStarted = crimsonVeilSystem.handleNightStarted(dayNightCycle.getDayCount());
                 if (crimsonStarted){
                     getEnemySpawnSystem().endNight();
@@ -214,10 +216,14 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
                 else startOrdinaryNightForCurrentArea();
             }
 
-            if (dayNightCycle.isNight() && !crimsonVeilSystem.isActive() && !crimsonVeilSystem.isRecovery())
+            if (dayNightCycle.isNight() && !crimsonVeilSystem.isActive() && !crimsonVeilSystem.isRecovery()
+                && !ashenRiteSystem.blocksDayNightCycle())
                 getEnemySpawnSystem().update(delta);
 
             if (crimsonVeilSystem.isActive()){
+                getEnemySpawnSystem().update(delta);
+            }
+            if (ashenRiteSystem.isLastVeil()){
                 getEnemySpawnSystem().update(delta);
             }
         }
@@ -242,6 +248,8 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         getEnemies().removeIf(Enemy::shouldBeRemoved);
 
         updateCrimsonVeil(delta);
+        updateLastVeil(delta);
+        updateAshenRiteReveal();
         if (dayNightCycle.justBecameDay()) handleDayStarted();
         updateGuardianEncounter();
         updateScrollProgression();
@@ -319,6 +327,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     private void handleInteract(PlayerInput playerInput){
         if (!playerInput.isInteractPressed()) return;
 
+        if (tryUseAshenRite()) return;
         if (tryUseBoat()) return;
         if (tryOpenChest()) return;
         if (tryHarvestCrop()) return;
@@ -555,8 +564,10 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     public void respawnPlayer(){
         boolean guardianWasActive = isGuardianEncounterActive();
         boolean crimsonWasActive = isCrimsonVeilActive();
+        boolean lastVeilWasActive = ashenRiteSystem.isLastVeil();
 
         if (guardianWasActive) resetActiveGuardianEncounter();
+
         if (crimsonWasActive) {
             getEnemies().clear();
             getProjectileSystem().replaceProjectiles(List.of());
@@ -564,8 +575,19 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         }
 
         player.addBrokenHeart();
-        player.setPosition(checkpointX, checkpointY);
         player.restoreHealth();
+
+        if (lastVeilWasActive){
+            ashenRiteSystem.resetLastVeilAttempt();
+
+            Vector2 ritualCenter = getTileMap().getObjectPosition("Ritual", "ritual_center");
+            player.setPosition(ritualCenter.x, ritualCenter.y);
+
+            updateRitualVisibility();
+            return;
+        }
+
+        player.setPosition(checkpointX, checkpointY);
 
         if (crimsonWasActive){
             crimsonVeilSystem.restartActiveVeil();
@@ -692,7 +714,8 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     @Override
     public boolean travelToArea(AreaID destination){
         if (destination == null) throw new IllegalArgumentException("Destination cannot be null");
-        if (crimsonVeilSystem.isActive() || crimsonVeilSystem.isRecovery()) return false;
+        if (crimsonVeilSystem.isActive() || crimsonVeilSystem.isRecovery() || ashenRiteSystem.blocksDayNightCycle())
+            return false;
 
         if (!progressionState.isBoatBuilt()) return false;
         if (!progressionState.isAreaUnlocked(destination)) return false;
@@ -741,6 +764,12 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
             progressionState.buildBoat();
             updateBoatVisibility();
             guidanceSystem.handleEvent(GameEvent.BOAT_BUILT, progressionState);
+            return true;
+        }
+
+        if (ashenRiteSystem.isAftermath()){
+            ashenRiteSystem.completeGame();
+            departureRequested = true;
             return true;
         }
 
@@ -896,8 +925,8 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
                     AreaID.WINDY_PLAINS,
                     ItemType.SCROLL_I,
                     Map.of(
-                        EnemyType.SHADE, 2,
-                        EnemyType.WISP, 1
+                        EnemyType.SHADE, 4,
+                        EnemyType.WISP, 3
                     )
                 );
 
@@ -906,9 +935,9 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
                     AreaID.DARKROOT_ISLE,
                     ItemType.SCROLL_II,
                     Map.of(
-                        EnemyType.SHADE, 15,
-                        EnemyType.WISP, 15,
-                        EnemyType.WRAITH, 8
+                        EnemyType.SHADE, 8,
+                        EnemyType.WISP, 6,
+                        EnemyType.WRAITH, 6
                     )
                 );
 
@@ -917,9 +946,9 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
                     AreaID.VEILSCAR_PASSAGE,
                     ItemType.SCROLL_III,
                     Map.of(
-                        EnemyType.SHADE, 1,
-                        EnemyType.WISP, 1,
-                        EnemyType.WRAITH, 1
+                        EnemyType.SHADE, 10,
+                        EnemyType.WISP, 10,
+                        EnemyType.WRAITH, 10
                     )
                 );
 
@@ -962,6 +991,169 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         player.getInventory().addItem(ItemType.BLOODTHIRST_SWORD, 1);
     }
 
+    private boolean tryUseAshenRite(){
+        if (currentAreaRuntime.getAreaID() != AreaID.MAIN_ISLAND) return false;
+
+        if (isPlayerNearRitualPoint("ritual_scroll_slot_1")) return tryPlaceRitualScrollI();
+        if (isPlayerNearRitualPoint("ritual_scroll_slot_2")) return tryPlaceRitualScrollII();
+        if (isPlayerNearRitualPoint("ritual_scroll_slot_3")) return tryPlaceRitualScrollIII();
+        if (isPlayerNearRitualPoint("ritual_activator")) return tryPullRitualLever();
+
+        return false;
+    }
+
+    private boolean isPlayerNearRitualPoint(String objectName){
+        Vector2 point = getTileMap().getObjectPosition("Ritual", objectName);
+
+        float deltaX = point.x - player.getCenterX();
+        float deltaY = point.y - player.getCenterY();
+
+        return deltaX * deltaX + deltaY * deltaY <= Config.PLAYER_PICKUP_RANGE * Config.PLAYER_PICKUP_RANGE;
+    }
+
+    private boolean tryPlaceRitualScrollI(){
+        if (ashenRiteSystem.isScrollIPlaced()) return true;
+        if (!progressionState.isScrollIRead()) return true;
+        if (player.getInventory().getQuantity(ItemType.SCROLL_I) <= 0) return true;
+
+        player.getInventory().removeItem(ItemType.SCROLL_I, 1);
+        ashenRiteSystem.placeScrollI();
+        updateRitualVisibility();
+
+        return true;
+    }
+
+    private boolean tryPlaceRitualScrollII(){
+        if (ashenRiteSystem.isScrollIIPlaced()) return true;
+        if (!progressionState.isScrollIIRead()) return true;
+        if (player.getInventory().getQuantity(ItemType.SCROLL_II) <= 0) return true;
+
+        player.getInventory().removeItem(ItemType.SCROLL_II, 1);
+        ashenRiteSystem.placeScrollII();
+        updateRitualVisibility();
+
+        return true;
+    }
+
+    private boolean tryPlaceRitualScrollIII(){
+        if (ashenRiteSystem.isScrollIIIPlaced()) return true;
+        if (!progressionState.isScrollIIIRead()) return true;
+        if (player.getInventory().getQuantity(ItemType.SCROLL_III) <= 0) return true;
+
+        player.getInventory().removeItem(ItemType.SCROLL_III, 1);
+        ashenRiteSystem.placeScrollIII();
+        updateRitualVisibility();
+
+        return true;
+    }
+
+    private boolean tryPullRitualLever(){
+        if (!ashenRiteSystem.pullLever()) return true;
+
+        updateRitualVisibility();
+
+        if (ashenRiteSystem.getState() == AshenRiteState.REVEAL) startAshenRiteReveal();
+        else if (ashenRiteSystem.getState() == AshenRiteState.LAST_VEIL) startLastVeilWave();
+
+        return true;
+    }
+
+    public void updateRitualVisibility(){
+        if (currentAreaRuntime.getAreaID() != AreaID.MAIN_ISLAND) return;
+
+        getTileMap().setLayerVisible("RitualScrollI", ashenRiteSystem.isScrollIPlaced());
+        getTileMap().setLayerVisible("RitualScrollII", ashenRiteSystem.isScrollIIPlaced());
+        getTileMap().setLayerVisible("RitualScrollIII", ashenRiteSystem.isScrollIIIPlaced());
+        getTileMap().setLayerVisible("RitualLeverPulled", ashenRiteSystem.isLeverPulled());
+    }
+
+    private void startAshenRiteReveal(){
+        getEnemies().clear();
+        getProjectileSystem().replaceProjectiles(List.of());
+        getEnemySpawnSystem().endNight();
+
+        guidanceSystem.handleEvent(GameEvent.ASHEN_RITE_REVEAL_STARTED, progressionState);
+    }
+
+    private void updateAshenRiteReveal(){
+        if (ashenRiteSystem.getState() != AshenRiteState.REVEAL) return;
+
+        if (!guidanceSystem.isAshenRiteRevealComplete()){
+            guidanceSystem.ensureAshenRiteRevealActive();
+            return;
+        }
+
+        ashenRiteSystem.startLastVeil();
+        startLastVeilWave();
+    }
+
+    private List<EnemyType> getLastVeilWaveTypes(){
+        return switch (ashenRiteSystem.getCurrentWave()){
+            case 1 -> List.of(EnemyType.SHADE);
+            case 2 -> List.of(EnemyType.WISP);
+            case 3 -> List.of(EnemyType.WRAITH);
+            case 4, 5 -> List.of(EnemyType.SHADE, EnemyType.WISP, EnemyType.WRAITH);
+            default -> throw new IllegalStateException("Invalid Last Veil wave");
+        };
+    }
+
+    private int getLastVeilWaveBudget(){
+        return switch (ashenRiteSystem.getCurrentWave()){
+            case 1 -> Config.LAST_VEIL_WAVE_1_BUDGET;
+            case 2 -> Config.LAST_VEIL_WAVE_2_BUDGET;
+            case 3 -> Config.LAST_VEIL_WAVE_3_BUDGET;
+            case 4 -> Config.LAST_VEIL_WAVE_4_BUDGET;
+            case 5 -> Config.LAST_VEIL_WAVE_5_BUDGET;
+            default -> throw new IllegalStateException("Invalid Last Veil wave");
+        };
+    }
+
+    private void startLastVeilWave(){
+        getEnemySpawnSystem().startThreatWave(getLastVeilWaveBudget(), getLastVeilWaveTypes(),
+                            Config.LAST_VEIL_WAVE_SPAWN_DURATION);
+    }
+
+    private void updateLastVeil(float delta){
+        if (!ashenRiteSystem.isLastVeil()) return;
+
+        if (ashenRiteSystem.getCurrentWave() == 5 && !getEnemySpawnSystem().hasPendingSpawns()
+            && getEnemies().size() <= 2 && !getEnemies().isEmpty()){
+
+            guidanceSystem.handleEvent(GameEvent.LAST_VEIL_NEAR_END, progressionState);
+        }
+
+        if (ashenRiteSystem.isWaitingForNextWave()){
+            if (ashenRiteSystem.updateWaveBreak(delta)) startLastVeilWave();
+            return;
+        }
+
+        if (!getEnemies().isEmpty()) return;
+        if (getEnemySpawnSystem().hasPendingSpawns()) return;
+
+        if (ashenRiteSystem.getCurrentWave() >= Config.LAST_VEIL_WAVE_COUNT){
+            getEnemySpawnSystem().endNight();
+            getProjectileSystem().replaceProjectiles(List.of());
+
+            ashenRiteSystem.completeLastVeil();
+            dayNightCycle.forceDay();
+
+            guidanceSystem.handleEvent(GameEvent.LAST_VEIL_COMPLETED, progressionState);
+            return;
+        }
+
+        int clearedWave = ashenRiteSystem.getCurrentWave();
+
+        switch (clearedWave){
+            case 2 -> guidanceSystem.handleEvent(GameEvent.LAST_VEIL_WAVE_2_CLEARED, progressionState);
+            case 3 -> guidanceSystem.handleEvent(GameEvent.LAST_VEIL_WAVE_3_CLEARED, progressionState);
+            case 4 -> guidanceSystem.handleEvent(GameEvent.LAST_VEIL_WAVE_4_CLEARED, progressionState);
+        }
+
+        ashenRiteSystem.beginWaveBreak();
+
+        ashenRiteSystem.beginWaveBreak();
+    }
+
     public void setTargetMode(TargetMode targetMode){this.targetMode = targetMode;}
     public void cancelTargeting(){targetMode = TargetMode.NONE;}
     public void closeChest(){activeChest = null;}
@@ -993,6 +1185,9 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     public boolean isCrimsonVeilActive(){return crimsonVeilSystem.isActive();}
     public boolean isCrimsonVeilRecovery(){return crimsonVeilSystem.isRecovery();}
     public CrimsonVeilSystem getCrimsonVeilSystem(){return crimsonVeilSystem;}
+    public AshenRiteSystem getAshenRiteSystem(){return ashenRiteSystem;}
+    public boolean isDepartureRequested(){return departureRequested;}
+    public void clearDepartureRequest(){departureRequested = false;}
 
     public AreaRuntime getOrCreateAreaRuntimeForLoad(AreaID areaID){
         if (areaID == null) throw new IllegalArgumentException("Area id cannot be null.");

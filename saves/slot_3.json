@@ -1,624 +1,167 @@
 {
-"saveVersion": 1,
-"savedAt": 1790516213551,
-"playTimeSeconds": 8.367441301932558,
+"saveVersion": 2,
+"savedAt": 1790559970550,
+"playTimeSeconds": 4509.3545302494895,
 "player": {
-	"characterName": "da",
-	"x": 1019.4002,
-	"y": 1292.9412,
-	"checkPointX": 1024,
-	"checkPointY": 1072,
+	"characterName": "Veilscar Demo",
+	"x": 648.7072,
+	"y": 646.9025,
+	"checkPointX": 512,
+	"checkPointY": 32,
 	"health": 10,
 	"brokenHearts": 0,
-	"gold": 0,
+	"gold": 500,
 	"selectedHotbarSlot": 0,
 	"inventory": [
 		{
 			"slot": 0,
-			"itemType": "STONE_SWORD",
+			"itemType": "BLOODTHIRST_SWORD",
 			"quantity": 1,
-			"durability": 80
+			"durability": 0
 		},
 		{
 			"slot": 1,
-			"itemType": "FENCE",
-			"quantity": 5,
+			"itemType": "BREAD",
+			"quantity": 15,
+			"durability": 0
+		},
+		{
+			"slot": 2,
+			"itemType": "HEART_REPAIR",
+			"quantity": 3,
+			"durability": 0
+		},
+		{
+			"slot": 3,
+			"itemType": "THORN_FENCE",
+			"quantity": 12,
+			"durability": 0
+		},
+		{
+			"slot": 4,
+			"itemType": "BRIAR_SNARE",
+			"quantity": 12,
+			"durability": 0
+		},
+		{
+			"slot": 5,
+			"itemType": "STONE_AXE",
+			"quantity": 1,
+			"durability": 60
+		},
+		{
+			"slot": 6,
+			"itemType": "STONE_PICKAXE",
+			"quantity": 1,
+			"durability": 60
+		},
+		{
+			"slot": 7,
+			"itemType": "SCROLL_I",
+			"quantity": 1,
+			"durability": 0
+		},
+		{
+			"slot": 8,
+			"itemType": "SCROLL_II",
+			"quantity": 1,
+			"durability": 0
+		},
+		{
+			"slot": 9,
+			"itemType": "SCROLL_III",
+			"quantity": 1,
 			"durability": 0
 		}
 	]
 },
 "dayNight": {
-	"dayCount": 1,
-	"phase": "NIGHT",
-	"phaseTimer": 0.0016269684
+	"dayCount": 5,
+	"phase": "DAY",
+	"phaseTimer": 64.354454
 },
 "progressionState": {
-	"firstTreeDropClaimed": false,
-	"wispNightUnlocked": false,
-	"wraithNightUnlocked": false,
-	"boatKitCrafted": false,
-	"boatBuilt": false,
-	"foundOldJetty": false,
-	"scrollIRead": false,
-	"scrollIIRead": false,
-	"scrollIIIRead": false,
+	"firstTreeDropClaimed": true,
+	"wispNightUnlocked": true,
+	"wraithNightUnlocked": true,
+	"boatKitCrafted": true,
+	"boatBuilt": true,
+	"foundOldJetty": true,
+	"scrollIRead": true,
+	"scrollIIRead": true,
+	"scrollIIIRead": true,
 	"unlockedCraftingCategories": [
-		"BUILDING",
 		"FOOD",
+		"BUILDING",
+		"BLACKTHORN",
 		"WEAPONS",
 		"TOOLS"
 	],
 	"unlockedAreas": [
 		"MAIN_ISLAND",
-		"WINDY_PLAINS"
+		"WINDY_PLAINS",
+		"DARKROOT_ISLE",
+		"VEILSCAR_PASSAGE"
 	],
-	"windyWardCleared": false,
-	"dashUnlocked": false,
-	"darkrootWardCleared": false,
-	"veilscarWardCleared": false
+	"windyWardCleared": true,
+	"dashUnlocked": true,
+	"darkrootWardCleared": true,
+	"veilscarWardCleared": true
 },
 "crimsonVeil": {
-	"state": "ACTIVE",
-	"nextVeilDay": 1,
+	"state": "INACTIVE",
+	"nextVeilDay": 6,
 	"completedVeils": 0,
-	"currentWave": 1,
-	"totalThreatBudget": 9,
-	"waveTimer": 0.37414914,
+	"currentWave": 0,
+	"totalThreatBudget": 0,
+	"waveTimer": 0,
 	"clearGraceTimer": 0,
 	"recoveryTimer": 0
 },
-"currentAreaId": "MAIN_ISLAND",
+"ashenRite": {
+	"state": "ASSEMBLING",
+	"scrollIPlaced": false,
+	"scrollIIPlaced": false,
+	"scrollIIIPlaced": false
+},
+"currentAreaId": "VEILSCAR_PASSAGE",
 "areas": [
 	{
-		"areaId": "MAIN_ISLAND",
-		"destructibleObjects": [
-			{
-				"objectType": "TREE",
-				"x": 800,
-				"y": 1680,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 608,
-				"y": 768,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1312,
-				"y": 1104,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 496,
-				"y": 960,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 912,
-				"y": 1264,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 992,
-				"y": 1184,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1040,
-				"y": 944,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 992,
-				"y": 960,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1040,
-				"y": 1248,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 624,
-				"y": 304,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 624,
-				"y": 976,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1408,
-				"y": 368,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1440,
-				"y": 336,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 368,
-				"y": 1520,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 800,
-				"y": 992,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1568,
-				"y": 1344,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1664,
-				"y": 944,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1296,
-				"y": 1712,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1808,
-				"y": 1120,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1312,
-				"y": 880,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 192,
-				"y": 1600,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 944,
-				"y": 1536,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 400,
-				"y": 560,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1232,
-				"y": 1328,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 848,
-				"y": 1808,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1216,
-				"y": 432,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 896,
-				"y": 1360,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 688,
-				"y": 1280,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 768,
-				"y": 1312,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 624,
-				"y": 1552,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1216,
-				"y": 1664,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1696,
-				"y": 624,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 192,
-				"y": 832,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1056,
-				"y": 1488,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1056,
-				"y": 688,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1488,
-				"y": 848,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 944,
-				"y": 1312,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1008,
-				"y": 160,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 256,
-				"y": 1696,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1328,
-				"y": 1616,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1504,
-				"y": 1536,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1056,
-				"y": 1872,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 736,
-				"y": 272,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1584,
-				"y": 448,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 832,
-				"y": 1232,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 816,
-				"y": 1728,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1216,
-				"y": 1712,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1024,
-				"y": 1472,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 736,
-				"y": 160,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1456,
-				"y": 1024,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 544,
-				"y": 1424,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 1696,
-				"y": 1088,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 576,
-				"y": 400,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 976,
-				"y": 1184,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 736,
-				"y": 1056,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 800,
-				"y": 1728,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1008,
-				"y": 1504,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 896,
-				"y": 592,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 464,
-				"y": 800,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "TREE",
-				"x": 1552,
-				"y": 992,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 864,
-				"y": 1360,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "ROCK",
-				"x": 704,
-				"y": 1344,
-				"currentHp": 3,
-				"chestKind": null,
-				"chestInventory": []
-			},
-			{
-				"objectType": "CHEST",
-				"x": 1056,
-				"y": 1072,
-				"currentHp": 4,
-				"chestKind": "STANDARD",
-				"chestInventory": [
-					{
-						"slot": 0,
-						"itemType": "STONE_HOE",
-						"quantity": 1,
-						"durability": 60
-					},
-					{
-						"slot": 1,
-						"itemType": "WHEAT_SEED",
-						"quantity": 5,
-						"durability": 0
-					},
-					{
-						"slot": 2,
-						"itemType": "BOAT_KIT",
-						"quantity": 1,
-						"durability": 0
-					}
-				]
-			}
-		],
+		"areaId": "VEILSCAR_PASSAGE",
+		"destructibleObjects": [],
 		"tilledTiles": [],
 		"plants": [],
 		"groundItems": [],
 		"enemies": [],
 		"projectiles": [],
 		"nightSpawn": {
-			"remainingQueue": [
-				"SHADE",
-				"SHADE"
-			],
-			"spawnTimer": 0.37414914,
-			"spawnInterval": 1
+			"remainingQueue": [],
+			"spawnTimer": 0,
+			"spawnInterval": 0
 		},
 		"lastDepartureDayCount": -1,
 		"ordinaryNighDayCount": -1
 	}
 ],
 "guidance": {
-	"currentStep": "STARTER_CHEST",
+	"currentStep": null,
 	"triggerSatisfied": false,
-	"messageAcknowledged": true,
+	"messageAcknowledged": false,
 	"shownContextualSteps": [
-		"CRIMSON_VEIL_WARNING"
+		"HEALING",
+		"BOAT_KIT_FIND_JETTY",
+		"OLD_JETTY_FOUND",
+		"BOAT_KIT_RETURN_TO_JETTY",
+		"BOAT_BUILT",
+		"WINDY_ARRIVAL",
+		"WINDY_GUARDIAN_STARTED",
+		"WINDY_SCROLL_I_READ",
+		"WISP_GLOBAL_UNLOCKED",
+		"DARKROOT_ARRIVAL",
+		"DARKROOT_SCROLL_II_READ",
+		"VEILSCAR_ARRIVAL",
+		"VEILSCAR_SCROLL_III_READ",
+		"VEILSCAR_SCROLL_III_FOLLOWUP"
 	],
 	"activeContextualStep": null
 }

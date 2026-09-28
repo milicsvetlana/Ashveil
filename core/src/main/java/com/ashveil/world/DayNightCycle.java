@@ -99,6 +99,16 @@ public class DayNightCycle {
         justBecameDay = true;
     }
 
+    public float getCycleProgress(){
+        float phaseProgress = getPhaseProgress();
+
+        return switch (dayPhase){
+            case DAY -> phaseProgress * Config.DAY_PHASE_RATIO;
+            case DUSK -> Config.DAY_PHASE_RATIO + phaseProgress * Config.DUSK_PHASE_RATIO;
+            case NIGHT -> Config.DAY_PHASE_RATIO + Config.DUSK_PHASE_RATIO + phaseProgress * Config.NIGHT_PHASE_RATIO;
+        };
+    }
+
     public float getPhaseProgress(){
         return phaseTimer / currentPhaseDuration; //koristi se za sat
     }

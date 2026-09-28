@@ -27,9 +27,11 @@ public class InventorySlotUi extends Stack {
 
     private boolean selected;
     private boolean keyboardPickedUp;
+    private final Skin skin;
 
     public InventorySlotUi(int slotIndex, boolean hotbarSlot, Skin skin) {
         this.slotIndex = slotIndex;
+        this.skin = skin;
 
         String backgroundName = hotbarSlot ? "hotbar-slot" : "inventory-slot";
 
@@ -66,7 +68,7 @@ public class InventorySlotUi extends Stack {
 
     private Table createItemLayer() {
         Table itemLayer = new Table();
-        itemLayer.add(itemImage).grow().pad(10);
+        itemLayer.add(itemImage).grow().pad(8);
         return itemLayer;
     }
 
@@ -107,8 +109,12 @@ public class InventorySlotUi extends Stack {
     }
 
     private void showItem(ItemStack itemStack) {
+        itemImage.setDrawable(
+            ItemIconUi.getDrawable(skin, itemStack.getType())
+        );
+
+        itemImage.setColor(Color.WHITE);
         itemImage.setVisible(true);
-        itemImage.setColor(getTemporaryColor(itemStack.getType()));
     }
 
     private void updateQuantity(ItemStack itemStack) {
@@ -125,28 +131,6 @@ public class InventorySlotUi extends Stack {
         }
 
         durabilityBar.setDurability(itemStack.getDurability(), type.getMaxDurability());
-    }
-
-    public static Color getTemporaryColor(ItemType type) {
-        return switch (type) {
-            case WOOD -> new Color(0.45f, 0.25f, 0.1f, 1f);
-            case STONE -> Color.GRAY;
-            case WHEAT, BREAD -> new Color(0.9f, 0.75f, 0.2f, 1f);
-            case WHEAT_SEED -> new Color(0.2f, 0.65f, 0.2f, 1f);
-            case WOODEN_AXE, WOODEN_PICKAXE, WOODEN_HOE, WOODEN_SWORD -> new Color(0.65f, 0.3f, 0.15f, 1f);
-            case STONE_AXE, STONE_PICKAXE, STONE_HOE, STONE_SWORD -> new Color(0.55f, 0.55f, 0.6f, 1f);
-            case FENCE -> new Color(0.5f, 0.3f, 0.12f, 1f);
-            case THORN_FENCE -> new Color(Color.PURPLE);
-            case BRIAR_SNARE -> new Color(Color.RED);
-            case HOLLOWCAP -> new Color(Color.LIGHT_GRAY);
-            case BOAT_KIT -> new Color(0.35f, 0.55f, 0.7f, 1f);
-            case SCROLL_I, SCROLL_II, SCROLL_III -> new Color(0.65f, 0.4f, 0.75f, 1f);
-            case GOLD -> Color.GOLD;
-            case HEART_REPAIR -> Color.BLACK;
-            case CHEST -> new Color(0.60f, 0.38f, 0.12f, 1f);
-            case SAPLING -> new Color(Color.GREEN);
-            case BLOODTHIRST_SWORD -> new Color(Color.RED);
-        };
     }
 
     public void setSelected(boolean selected) {

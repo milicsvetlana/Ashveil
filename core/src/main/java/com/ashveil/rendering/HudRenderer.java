@@ -3,13 +3,16 @@ package com.ashveil.rendering;
 import com.ashveil.Config;
 import com.ashveil.entities.Player;
 import com.ashveil.items.inventory.ItemStack;
-import com.ashveil.items.inventory.ItemType;
+import com.ashveil.ui.inventory.ItemIconUi;
 import com.ashveil.world.DayNightCycle;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -17,185 +20,196 @@ import static com.ashveil.Config.SCREEN_HEIGHT;
 import static com.ashveil.Config.SCREEN_WIDTH;
 
 public class HudRenderer {
-    private ShapeRenderer shapeRenderer;
-    private SpriteBatch batch;
-    private BitmapFont font;
-    private OrthographicCamera hudCamera;
-    private Viewport hudViewport;
 
-    public HudRenderer(){
-        shapeRenderer = new ShapeRenderer();
+    private final SpriteBatch batch;
+    private final BitmapFont font;
+    private final OrthographicCamera hudCamera;
+    private final Viewport hudViewport;
+    private final Skin skin;
+
+    private final Drawable heartEmpty;
+    private final Drawable heartBroken;
+    private final Drawable goldCoin;
+
+    private final Drawable clockDial;
+    private final Drawable clockCrimsonOverlay;
+
+    private final Drawable hotbarSlot;
+    private final Drawable hotbarSlotSelected;
+
+    private final TextureRegion heartFullRegion;
+    private final TextureRegion heartHalfRegion;
+    private final TextureRegion clockNeedleRegion;
+
+    public HudRenderer(Skin skin){
+        if (skin == null) throw new IllegalArgumentException("Skin cannot be null.");
+
+        this.skin = skin;
+
         batch = new SpriteBatch();
-        font = new BitmapFont();
+        font = skin.getFont("hud-font");
+
         hudCamera = new OrthographicCamera();
         hudViewport = new ExtendViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
+
+        heartEmpty = skin.getDrawable("hud-heart-empty");
+        heartBroken = skin.getDrawable("hud-heart-broken");
+        goldCoin = skin.getDrawable("hud-gold-coin");
+
+        clockDial = skin.getDrawable("hud-clock-dial");
+        clockCrimsonOverlay = skin.getDrawable("hud-clock-crimson");
+
+        hotbarSlot = skin.getDrawable("hud-hotbar-slot");
+        hotbarSlotSelected = skin.getDrawable("hud-hotbar-slot-selected");
+
+        Texture heartFullTexture = skin.get("hud-heart-full", Texture.class);
+        heartFullRegion = new TextureRegion(heartFullTexture);
+
+        heartHalfRegion = new TextureRegion(heartFullTexture, 0, 0,
+            heartFullTexture.getWidth() / 2, heartFullTexture.getHeight()
+        );
+
+        Texture clockNeedleTexture = skin.get("hud-clock-needle", Texture.class);
+        clockNeedleRegion = new TextureRegion(clockNeedleTexture);
     }
 
-    public void render(Player player, DayNightCycle dayNightCycle){
+    public void render(Player player, DayNightCycle dayNightCycle, boolean crimsonVeilActive){
         hudViewport.apply();
-        shapeRenderer.setProjectionMatrix(hudCamera.combined);
         batch.setProjectionMatrix(hudCamera.combined);
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        drawHearts(player);
-        drawGoldIcon();
-        drawHotbar(player);
-        drawDayNightIcon(dayNightCycle);
-        shapeRenderer.end();
-
         batch.begin();
-        drawDayText(dayNightCycle);
-        drawGoldText(player);
-        drawHotbarText(player);
+
+        drawClock(dayNightCycle, crimsonVeilActive);
+        drawHearts(player);
+        drawGold(player);
+        drawHotbar(player);
         drawFps();
+
         batch.end();
     }
 
-    public void dispose(){
-        shapeRenderer.dispose();
-        batch.dispose();
-        font.dispose();
-    }
-
     private void drawHearts(Player player){
-        int hp = player.getCurrentHp();
-        int maxHp = player.getMaxHp();
+        int totalHearts = Config.PLAYER_HEART_SLOTS;
+        int brokenHearts = player.getBrokenHearts();
 
-        int heartCount = (maxHp + 1) / 2;
+        float heartSize = 29f;
+        float gap = 2f;
+        float rightMargin = 16f;
 
-        float heartSize = 20f;
-        float heartGap = 5f;
+        float totalWidth = totalHearts * heartSize + (totalHearts - 1) * gap;
+        float startX = hudViewport.getWorldWidth() - rightMargin - totalWidth;
+        float y = hudViewport.getWorldHeight() - 200f;
 
-        float totalWidth = heartCount * heartSize + (heartCount - 1) * heartGap;
-        float startX = hudViewport.getWorldWidth() - 20f - totalWidth;
-        float y = hudViewport.getWorldHeight() - 85f;
+        for (int i = 0; i < totalHearts; i++){
+            float x = startX + i * (heartSize + gap);
 
-        for (int i = 0; i < heartCount; i++){
-            int hpInThisHeart = hp - i * 2;
-
-            float x = startX + i * (heartSize + heartGap);
-
-            shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1f);
-            shapeRenderer.rect(x, y, heartSize, heartSize);
-
-            if (hpInThisHeart >= 2){
-                shapeRenderer.setColor(1f, 0f, 0f, 1f);
-                shapeRenderer.rect(x, y, heartSize, heartSize);
+            boolean broken = i >= totalHearts - brokenHearts;
+            if (broken){
+                heartBroken.draw(batch, x, y, heartSize, heartSize);
+                continue;
             }
-            else if (hpInThisHeart == 1){
-                shapeRenderer.setColor(1f, 0f, 0f, 1f);
-                shapeRenderer.rect(x, y, heartSize / 2f, heartSize);
-            }
+
+            heartEmpty.draw(batch, x, y, heartSize, heartSize);
+
+            int hpInHeart = player.getCurrentHp() - i * Config.HP_PER_HEART;
+            if (hpInHeart >= Config.HP_PER_HEART) batch.draw(heartFullRegion, x, y, heartSize, heartSize);
+            else if (hpInHeart > 0) batch.draw(heartHalfRegion, x, y, heartSize / 2f, heartSize);
         }
     }
 
-    private void drawGoldIcon(){
-        float x = hudViewport.getWorldWidth() - 95f;
-        float y = hudViewport.getWorldHeight() - 120f;
+    private void drawGold(Player player){
+        float coinSize = 28f;
 
-        shapeRenderer.setColor(1f, 0.78f, 0.12f, 1f);
-        shapeRenderer.circle(x, y, 7f);
+        float x = hudViewport.getWorldWidth() - 70f;
+        float y = hudViewport.getWorldHeight() - 167f;
+
+        goldCoin.draw(batch, x, y, coinSize, coinSize);
+
+        font.setColor(1f, 1f, 1f, 1f);
+        font.draw(batch, String.valueOf(player.getWallet().getGold()), x + coinSize + 10f, y + 21f);
     }
 
-    private void drawHotbar(Player player) {
-        int slotSize = 40;
-        int slotGap = 5;
-        int slotY = 10;
+    private void drawClock(
+        DayNightCycle dayNightCycle,
+        boolean crimsonVeilActive
+    ){
+        float clockSize = 120f;
+        float rightMargin = 26f;
+        float topMargin = 12f;
 
-        int hotbarWidth = Config.HOTBAR_SIZE * slotSize
-            + (Config.HOTBAR_SIZE - 1) * slotGap;
+        float x = hudViewport.getWorldWidth() - clockSize - rightMargin;
+        float y = hudViewport.getWorldHeight() - clockSize - topMargin;
 
+        clockDial.draw(batch, x, y, clockSize, clockSize);
+
+        if (crimsonVeilActive) clockCrimsonOverlay.draw(batch, x, y, clockSize, clockSize);
+
+        float rotation = getClockRotation(dayNightCycle);
+
+        batch.draw(clockNeedleRegion, x, y, clockSize / 2f, clockSize / 2f, clockSize, clockSize, 1f, 1f, rotation);
+        font.setColor(1f, 1f, 1f, 1f);
+        font.draw(batch, "DAY " + dayNightCycle.getDayCount(), x + 0f, y - 14f);
+    }
+
+    private float getClockRotation(DayNightCycle dayNightCycle){
+        float progress = dayNightCycle.getPhaseProgress();
+        return switch (dayNightCycle.getDayPhase()){
+            case DAY -> 55f + (-110f - 55f) * progress;
+            case DUSK -> -110f + (-180f + 110f) * progress;
+            case NIGHT -> -180f + (-305f + 180f) * progress;
+        };
+    }
+
+    private void drawHotbar(Player player){
+        float slotSize = 40f;
+        float slotGap = 14f;
+        float slotY = 10f;
+
+        float frameSize = 68f;
+        float frameOffset = (frameSize - slotSize) / 2f;
+
+        float hotbarWidth = Config.HOTBAR_SIZE * slotSize + (Config.HOTBAR_SIZE - 1) * slotGap;
         float startX = (hudViewport.getWorldWidth() - hotbarWidth) / 2f;
 
-        for (int i = 0; i < Config.HOTBAR_SIZE; i++) {
+        // PRVO crtamo samo velike okvire
+        for (int i = 0; i < Config.HOTBAR_SIZE; i++){
             float slotX = startX + i * (slotSize + slotGap);
 
-            if (i == player.getSelectedHotbarSlot()) {
-                shapeRenderer.setColor(1f, 1f, 1f, 1f);
-                shapeRenderer.rect(slotX - 3, slotY - 3, slotSize + 6, slotSize + 6);
-            }
+            Drawable slotDrawable = i == player.getSelectedHotbarSlot() ? hotbarSlotSelected : hotbarSlot;
+            slotDrawable.draw(batch, slotX - frameOffset, slotY - frameOffset, frameSize, frameSize);
+        }
 
-            shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 1f);
-            shapeRenderer.rect(slotX, slotY, slotSize, slotSize);
-
+        // ONDA crtamo postojeće iteme BEZ PROMENE
+        for (int i = 0; i < Config.HOTBAR_SIZE; i++){
             ItemStack item = player.getInventory().getSlot(i);
             if (item == null) continue;
 
-            setTemporaryItemColor(item.getType());
-            shapeRenderer.rect(slotX + 7, slotY + 7, slotSize - 14, slotSize - 14);
+            float slotX = startX + i * (slotSize + slotGap);
+            float padding = 4f;
+            float iconSize = slotSize - padding * 2f;
+
+            Drawable icon = ItemIconUi.getDrawable(skin, item.getType());
+
+            icon.draw(batch, slotX + padding, slotY + padding, iconSize, iconSize);
+
+            if (item.getQuantity() > 1){
+                font.setColor(1f, 1f, 1f, 1f);
+                font.draw(batch, String.valueOf(item.getQuantity()), slotX + slotSize - 14f, slotY + 14f);
+            }
         }
-    }
-
-    private void drawDayNightIcon(DayNightCycle dayNightCycle){
-        switch (dayNightCycle.getDayPhase()) {
-            case DAY ->
-                shapeRenderer.setColor(1f, 0.9f, 0f, 1f);
-
-            case DUSK ->
-                shapeRenderer.setColor(0.9f, 0.35f, 0.08f, 1f);
-
-            case NIGHT ->
-                shapeRenderer.setColor(0.1f, 0.1f, 0.4f, 1f);
-        }
-        shapeRenderer.rect(hudViewport.getWorldWidth() - 20f - 36,  hudViewport.getWorldHeight() - 20f - 36, 36, 36);
-    }
-
-    private void drawDayText(DayNightCycle dayNightCycle){
-        font.draw(batch, "DAY: " + dayNightCycle.getDayCount(),
-            hudViewport.getWorldWidth() - 125f,
-            hudViewport.getWorldHeight() - 30f);
     }
 
     private void drawFps(){
         font.setColor(1f, 1f, 1f, 1f);
-        font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), hudViewport.getWorldWidth() - 95f, hudViewport.getWorldHeight() - 95f);
-    }
-
-    private void drawGoldText(Player player){
-        font.setColor(1f, 1f, 1f, 1f);
-        font.draw(batch, String.valueOf(player.getWallet().getGold()), hudViewport.getWorldWidth() - 80f, hudViewport.getWorldHeight() - 144f);
+        font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(),
+            hudViewport.getWorldWidth() - 70f, 24f);
     }
 
     public void resize(int width, int height){
         hudViewport.update(width, height, true);
     }
 
-    private void setTemporaryItemColor(ItemType type) {
-        switch (type) {
-            case WOOD -> shapeRenderer.setColor(0.45f, 0.25f, 0.1f, 1f);
-            case STONE -> shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
-            case WHEAT, BREAD -> shapeRenderer.setColor(0.9f, 0.75f, 0.2f, 1f);
-            case WHEAT_SEED -> shapeRenderer.setColor(0.2f, 0.65f, 0.2f, 1f);
-            case WOODEN_AXE, WOODEN_PICKAXE, WOODEN_HOE, WOODEN_SWORD -> shapeRenderer.setColor(0.65f, 0.25f, 0.15f, 1f);
-            default -> shapeRenderer.setColor(0.6f, 0.4f, 0.7f, 1f);
-        }
+    public void dispose(){
+        batch.dispose();
     }
-
-    private void drawHotbarText(Player player) {
-        int slotSize = 40;
-        int slotGap = 5;
-        int slotY = 10;
-
-        int hotbarWidth = Config.HOTBAR_SIZE * slotSize
-            + (Config.HOTBAR_SIZE - 1) * slotGap;
-
-        float startX = (hudViewport.getWorldWidth() - hotbarWidth) / 2f;
-
-        font.setColor(1f, 1f, 1f, 1f);
-
-        for (int i = 0; i < Config.HOTBAR_SIZE; i++) {
-            ItemStack item = player.getInventory().getSlot(i);
-            if (item == null) continue;
-
-            float slotX = startX + i * (slotSize + slotGap);
-
-            font.draw(
-                batch,
-                String.valueOf(item.getQuantity()),
-                slotX + slotSize - 14,
-                slotY + 14
-            );
-        }
-    }
-
 }

@@ -22,12 +22,12 @@ public class ScrollUi extends Stack implements Disposable {
 
         titleLabel = new Label("", skin);
         titleLabel.setAlignment(Align.center);
-        titleLabel.setFontScale(1.5f);
+        titleLabel.setFontScale(1.4f);
 
         bodyLabel = new Label("", skin);
         bodyLabel.setWrap(true);
         bodyLabel.setAlignment(Align.topLeft);
-        bodyLabel.setFontScale(1.5f);
+        bodyLabel.setFontScale(1.15f);
 
         Table content = new Table();
 

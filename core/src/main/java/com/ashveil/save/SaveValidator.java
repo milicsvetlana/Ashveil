@@ -1,6 +1,7 @@
 package com.ashveil.save;
 
 import com.ashveil.Config;
+import com.ashveil.encounter.AshenRiteState;
 import com.ashveil.encounter.CrimsonVeilState;
 import com.ashveil.entities.enemies.EnemyType;
 import com.ashveil.farming.CropType;
@@ -26,6 +27,7 @@ public class SaveValidator {
         if (!progressionIsValid(saveData.progressionState)) return false;
         if (!dayNightIsValid(saveData.dayNight)) return false;
         if (!crimsonVeilIsValid(saveData.crimsonVeil)) return false;
+        if (!ashenRiteIsValid(saveData.ashenRite)) return false;
         if (saveData.currentAreaId == null) return false;
         if (saveData.areas == null) return false;
 
@@ -348,5 +350,24 @@ public class SaveValidator {
         if (state == CrimsonVeilState.RECOVERY && data.currentWave != Config.CRIMSON_VEIL_WAVE_COUNT) return false;
 
         return true;
+    }
+
+    private boolean ashenRiteIsValid(AshenRiteSaveData data){
+        if (data == null) return false;
+        if (data.state == null) return false;
+
+        AshenRiteState state;
+
+        try{
+            state = AshenRiteState.valueOf(data.state);
+        }
+        catch(IllegalArgumentException exception){
+            return false;
+        }
+
+        boolean allScrollsPlaced = data.scrollIPlaced && data.scrollIIPlaced && data.scrollIIIPlaced;
+        if (state == AshenRiteState.ASSEMBLING) return !allScrollsPlaced;
+
+        return allScrollsPlaced;
     }
 }

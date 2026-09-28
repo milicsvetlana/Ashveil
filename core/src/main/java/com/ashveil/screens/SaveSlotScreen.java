@@ -54,7 +54,7 @@ public class SaveSlotScreen implements Screen {
         root.setFillParent(true);
         root.center();
 
-        Label title = new Label("SELECT SAVE", skin);
+        Label title = new Label("SELECT SAVE", skin, "title");
         Image titleDivider = new Image(skin.getDrawable("save-slots-title-divider"));
         titleDivider.setScaling(Scaling.fill);
         Table titleBlock = new Table();

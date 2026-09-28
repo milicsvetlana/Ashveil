@@ -25,8 +25,26 @@ public enum GuideStep {
 
     VEILSCAR_ARRIVAL("guidance.veilscarArrival", null),
     VEILSCAR_SCROLL_III_READ("guidance.veilscarScrollIIIRead", null),
+    VEILSCAR_SCROLL_III_FOLLOWUP("guidance.veilscarScrollIIIFollowup", null),
 
-    CRIMSON_VEIL_WARNING("guidance.crimsonVeilWarning", null);
+    CRIMSON_VEIL_WARNING("guidance.crimsonVeilWarning", null),
+    ASHEN_RITE_REVEAL_1("guidance.ashenRiteReveal1", null),
+    ASHEN_RITE_REVEAL_2("guidance.ashenRiteReveal2", null),
+    ASHEN_RITE_REVEAL_3("guidance.ashenRiteReveal3", null),
+    ASHEN_RITE_REVEAL_4("guidance.ashenRiteReveal4", null),
+    ASHEN_RITE_REVEAL_5("guidance.ashenRiteReveal5", null),
+    ASHEN_RITE_REVEAL_6("guidance.ashenRiteReveal6", null),
+    ASHEN_RITE_REVEAL_7("guidance.ashenRiteReveal7", null),
+    LAST_VEIL_START("guidance.lastVeilStart", null),
+
+    LAST_VEIL_FIGHT_1("guidance.lastVeilFight1", null),
+    LAST_VEIL_FIGHT_2("guidance.lastVeilFight2", null),
+    LAST_VEIL_FIGHT_3("guidance.lastVeilFight3", null),
+    LAST_VEIL_FIGHT_4("guidance.lastVeilFight4", null),
+
+    LAST_VEIL_AFTERMATH_1("guidance.lastVeilAftermath1", null),
+    LAST_VEIL_AFTERMATH_2("guidance.lastVeilAftermath2", null),
+    LAST_VEIL_AFTERMATH_3("guidance.lastVeilAftermath3", null);
 
     private final String messageKey;
     private final GuideTrigger trigger;
