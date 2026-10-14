@@ -38,31 +38,42 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 public class GameScreen implements Screen {
 
     private GameApp game;
+    private World world;
+
+    private final int saveSlot;
+    private SaveService saveService;
+
     private WorldRenderer worldRenderer;
     private HudRenderer hudRenderer;
-    private GameMenuUi gameMenuUi;
-    private World world;
-    private CameraController cameraController;
-    private GameOverlay activeOverlay;
-    private KeyBindings keyBindings;
-    private DeathTransitionState deathTransitionState;
-    private float deathFadeAlpha;
     private ShapeRenderer fadeRenderer;
+
+    private CameraController cameraController;
+
+    private KeyBindings keyBindings;
     private TileTargetingSystem tileTargetingSystem;
+
+    private GameOverlay activeOverlay;
+
+    private Skin uiSkin;
+    private GameMenuUi gameMenuUi;
+    private WorldMapUi worldMapUi;
+
     private Stage overlayStage;
     private ChestUI chestUi;
     private PauseMenuUi pauseMenuUi;
-    private SaveService saveService;
-    private final int saveSlot;
-    private Skin uiSkin;
+
+
+    private DeathTransitionState deathTransitionState;
+    private float deathFadeAlpha;
 
     private Stage guidanceStage;
     private GuidanceSystem guidanceSystem;
     private GuidanceUi guidanceUi;
+
     private boolean guidanceMessagePending;
     private float guidanceMessageDelay;
     private boolean contextualGuidanceVisible;
-    private WorldMapUi worldMapUi;
+
 
     private ScrollUi scrollUi;
     private ItemType openedScroll;

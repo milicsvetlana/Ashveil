@@ -34,21 +34,27 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
 
     private final AreaManager areaManager;
 
+    private final Map<AreaID, AreaRuntime> areaRuntimes;
+    private AreaRuntime currentAreaRuntime;
+
     private final Player player;
 
     private final CombatSystem combatSystem;
-
     private final CraftingManager craftingManager;
+
     private final ProgressionState progressionState;
     private final GuidanceSystem guidanceSystem;
     private final DayNightCycle dayNightCycle;
 
-    private final Map<AreaID, AreaRuntime> areaRuntimes;
-    private AreaRuntime currentAreaRuntime;
+    private final CrimsonVeilSystem crimsonVeilSystem;
+    private final AshenRiteSystem ashenRiteSystem;
+
+    private GuardianEncounter guardianEncounter;
 
     private TargetMode targetMode;
-    private Chest activeChest;
     private Rectangle targetBounds;
+
+    private Chest activeChest;
 
     private float checkpointX;
     private float checkpointY;
@@ -61,11 +67,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     private RewardType rewardRequested;
     private boolean departureRequested;
 
-    private GuardianEncounter guardianEncounter;
     private boolean windyGuardianStartedRequested;
-
-    private final CrimsonVeilSystem crimsonVeilSystem;
-    private final AshenRiteSystem ashenRiteSystem;
 
     public World(){
         areaManager = new AreaManager(AreaID.MAIN_ISLAND);
@@ -165,6 +167,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         chest.getChestInventory().addItem(ItemType.STONE_HOE, 1);
         chest.getChestInventory().addItem(ItemType.WHEAT_SEED, 5);
         chest.getChestInventory().addItem(ItemType.BOAT_KIT, 1);
+        player.getWallet().addGold(500);
     }
 
     public static World createForLoad(AreaID areaID, float playerX, float playerY){

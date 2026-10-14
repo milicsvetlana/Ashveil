@@ -135,7 +135,7 @@ public enum ItemType {
         "Wooden Axe",
         "A basic wooden tool used for chopping trees.",
         1,
-        20,
+        30,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
@@ -153,7 +153,7 @@ public enum ItemType {
         "Stone Axe",
         "A durable stone tool used for chopping trees more efficiently.",
         1,
-        60,
+        100,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
@@ -171,7 +171,7 @@ public enum ItemType {
         "Wooden Pickaxe",
         "A basic wooden tool capable of breaking rocks.",
         1,
-        20,
+        30,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
@@ -189,7 +189,7 @@ public enum ItemType {
         "Stone Pickaxe",
         "A durable stone tool used for breaking rocks more efficiently.",
         1,
-        60,
+        100,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
@@ -241,7 +241,7 @@ public enum ItemType {
         "Wooden Sword",
         "A basic wooden weapon used against hostile entities.",
         1,
-        20,
+        40,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
@@ -258,7 +258,7 @@ public enum ItemType {
         "Stone Sword",
         "A durable stone weapon that deals increased damage to hostile entities.",
         1,
-        80,
+        150,
         true,
         new DamageProfile(
             Config.PLAYER_BASE_DAMAGE,
