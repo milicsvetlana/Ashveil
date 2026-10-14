@@ -1,0 +1,56 @@
+ASHVEIL WEBSITE — INSTALLATION
+
+Copy these folders into the ROOT of the Ashveil repository:
+
+site/
+.github/workflows/deploy-site.yml
+
+The deployment workflow also copies the repository's existing media/ directory
+into the published website, so the site can use:
+
+media/screenshots/main-menu.png
+media/gifs/boat-travel.gif
+media/gifs/arena-combat.gif
+media/gifs/inventory-crafting.gif
+
+Expected repository structure:
+
+Ashveil/
+├── .github/
+│   └── workflows/
+│       └── deploy-site.yml
+├── site/
+│   ├── index.html
+│   ├── styles.css
+│   └── script.js
+├── media/
+│   ├── gifs/
+│   ├── screenshots/
+│   └── videos/
+├── core/
+├── lwjgl3/
+├── assets/
+├── docs/
+└── README.md
+
+After pushing the files:
+
+1. Open the GitHub repository.
+2. Settings → Pages.
+3. Under "Build and deployment", choose "GitHub Actions" as the source.
+4. Push to main (or manually run the "Deploy Ashveil site" workflow from Actions).
+5. The site should publish at:
+   https://milicsvetlana.github.io/Ashveil/
+
+DOWNLOAD BUTTON
+
+The site points to:
+
+https://github.com/milicsvetlana/Ashveil/releases/latest/download/Ashveil-Windows.zip
+
+For that link to work, every public release should contain an asset named EXACTLY:
+
+Ashveil-Windows.zip
+
+You do not need to edit the website when you make a new release. The /latest/
+URL automatically points to the latest published release.

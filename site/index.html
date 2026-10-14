@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Ashveil — a 2D dark-fantasy survival/adventure game built in Java with LibGDX.">
+  <meta name="theme-color" content="#0b0c0e">
+  <title>Ashveil</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Ashveil home">ASHVEIL</a>
+
+    <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="#world">World</a>
+      <a href="#combat">Combat</a>
+      <a href="#systems">Systems</a>
+      <a href="#engineering">Engineering</a>
+      <a class="nav-download" href="https://github.com/milicsvetlana/Ashveil/releases/latest/download/Ashveil-Windows.zip">Download</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section-dark">
+      <div class="hero-copy reveal">
+        <div class="eyebrow">Dark-fantasy survival / adventure</div>
+        <h1>Survive what waits<br>beneath the veil.</h1>
+        <p>
+          Explore cursed islands, gather resources, craft and build during the day,
+          and survive increasingly hostile nights.
+        </p>
+
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://github.com/milicsvetlana/Ashveil/releases/latest/download/Ashveil-Windows.zip">
+            Download for Windows
+          </a>
+          <a class="button button-secondary" href="https://github.com/milicsvetlana/Ashveil" target="_blank" rel="noreferrer">
+            View source ↗
+          </a>
+        </div>
+
+        <div class="hero-meta">
+          <span>Java 17</span>
+          <span>LibGDX</span>
+          <span>Desktop</span>
+          <span id="release-label">Latest build</span>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal">
+        <figure class="frame frame-hero">
+          <img src="media/screenshots/main-menu.png" alt="Ashveil main menu">
+        </figure>
+      </div>
+    </section>
+
+    <section class="statement section-paper reveal">
+      <p class="section-index">01 / ASHVEIL</p>
+      <div class="statement-grid">
+        <h2>A persistent world built around preparation, exploration and survival.</h2>
+        <p>
+          Ashveil began as an object-oriented programming university project and grew into
+          a multi-system desktop game with combat, enemy AI, crafting, farming, area travel,
+          narrative guidance and persistent save state.
+        </p>
+      </div>
+    </section>
+
+    <section id="world" class="feature section-dark">
+      <div class="section-heading reveal">
+        <p class="section-index">02 / THE WORLD</p>
+        <h2>Leave the shore.</h2>
+        <p>
+          Travel between distinct areas, unlock new progression paths and return to locations
+          whose runtime state persists across visits.
+        </p>
+      </div>
+
+      <div class="media-block reveal">
+        <figure class="frame">
+          <img src="media/gifs/boat-travel.gif" alt="Ashveil boat travel and world map">
+        </figure>
+      </div>
+
+      <div class="area-list reveal">
+        <div><span>01</span><strong>Main Island</strong></div>
+        <div><span>02</span><strong>Windy Plains</strong></div>
+        <div><span>03</span><strong>Darkroot Isle</strong></div>
+        <div><span>04</span><strong>Veilscar Passage</strong></div>
+      </div>
+    </section>
+
+    <section id="combat" class="feature split section-paper">
+      <div class="split-copy reveal">
+        <p class="section-index">03 / SURVIVE THE NIGHT</p>
+        <h2>Different enemies.<br>Shared systems.</h2>
+        <p>
+          Shades, Wisps and Wraiths specialize movement and attack behavior while sharing
+          common combat and navigation infrastructure.
+        </p>
+
+        <div class="mini-specs">
+          <div>
+            <span class="mini-kicker">Navigation</span>
+            <strong>BFS distance fields</strong>
+          </div>
+          <div>
+            <span class="mini-kicker">Combat</span>
+            <strong>Melee + projectiles</strong>
+          </div>
+          <div>
+            <span class="mini-kicker">Encounters</span>
+            <strong>State-driven waves</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="split-media reveal">
+        <figure class="frame frame-light">
+          <img src="media/gifs/arena-combat.gif" alt="Ashveil combat and enemy AI">
+        </figure>
+      </div>
+    </section>
+
+    <section class="crimson section-crimson">
+      <div class="crimson-copy reveal">
+        <p class="section-index">04 / CRIMSON VEIL</p>
+        <h2>When the veil turns crimson, preparation ends.</h2>
+        <p>
+          Crimson Veil is a multi-wave encounter layered on top of the ordinary day/night
+          and enemy-spawning systems.
+        </p>
+      </div>
+
+      <div class="crimson-rule"></div>
+
+      <div class="crimson-facts reveal">
+        <span>Escalating waves</span>
+        <span>Encounter timers</span>
+        <span>World restrictions</span>
+        <span>Persistent state</span>
+      </div>
+    </section>
+
+    <section id="systems" class="feature section-dark">
+      <div class="section-heading reveal">
+        <p class="section-index">05 / PREPARE</p>
+        <h2>Gather. Craft. Build.</h2>
+        <p>
+          Inventory, crafting, farming and placement are connected to the same persistent
+          world state rather than existing as isolated UI features.
+        </p>
+      </div>
+
+      <div class="media-block reveal">
+        <figure class="frame">
+          <img src="media/gifs/inventory-crafting.gif" alt="Ashveil inventory and crafting">
+        </figure>
+      </div>
+
+      <div class="system-grid reveal">
+        <article>
+          <span>Inventory</span>
+          <h3>Persistent items</h3>
+          <p>Stacking, hotbar selection, drops and chest-to-player transfers.</p>
+        </article>
+        <article>
+          <span>Crafting</span>
+          <h3>Recipe driven</h3>
+          <p>Recipes define material requirements without embedding crafting rules in the UI.</p>
+        </article>
+        <article>
+          <span>Farming</span>
+          <h3>World state</h3>
+          <p>Tilled ground, growth stages and harvest results persist with the active area.</p>
+        </article>
+        <article>
+          <span>Building</span>
+          <h3>Validated placement</h3>
+          <p>Dedicated targeting logic verifies placement before the world is modified.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="ceca section-paper">
+      <div class="ceca-copy reveal">
+        <p class="section-index">06 / CECA</p>
+        <h2>Guidance without a permanent quest list.</h2>
+        <p>
+          Ceca appears contextually as the player progresses. Gameplay systems emit events,
+          the guidance system determines the relevant step, and the UI presents the message.
+        </p>
+
+        <div class="flow">
+          <span>Gameplay Event</span>
+          <i>→</i>
+          <span>GuidanceSystem</span>
+          <i>→</i>
+          <span>GuideStep</span>
+          <i>→</i>
+          <span>Guidance UI</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="engineering" class="engineering section-dark">
+      <div class="section-heading reveal">
+        <p class="section-index">07 / UNDER THE HOOD</p>
+        <h2>Built as a game,<br>structured as software.</h2>
+        <p>
+          The project separates rendering, input, UI, gameplay, navigation, persistence and
+          progression so individual systems can evolve without turning the game loop into one
+          large class.
+        </p>
+      </div>
+
+      <div class="engineering-grid reveal">
+        <article>
+          <span>01</span>
+          <h3>AI & Navigation</h3>
+          <p>BFS-generated distance fields with shared navigation infrastructure and specialized enemy behavior.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Async Persistence</h3>
+          <p>Background file I/O keeps disk access away from the render loop while world reconstruction remains separate.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Persistent Areas</h3>
+          <p>Each area can preserve farming, world objects, enemies, projectiles and encounter state independently.</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>State Machines</h3>
+          <p>Special encounters such as Crimson Veil and Ashen Rite use explicit state rather than scattered flags.</p>
+        </article>
+      </div>
+
+      <div class="stack-line reveal">
+        <span>JAVA 17</span>
+        <span>LIBGDX</span>
+        <span>LWJGL3</span>
+        <span>SCENE2D</span>
+        <span>TILED</span>
+        <span>GRADLE</span>
+      </div>
+    </section>
+
+    <section class="download section-paper">
+      <div class="download-card reveal">
+        <div>
+          <p class="section-index">08 / PLAY</p>
+          <h2>Enter the Ashveil.</h2>
+          <p>
+            Download the latest Windows build or explore the source and technical documentation on GitHub.
+          </p>
+        </div>
+
+        <div class="download-actions">
+          <a class="button button-primary button-dark" href="https://github.com/milicsvetlana/Ashveil/releases/latest/download/Ashveil-Windows.zip">
+            Download for Windows
+          </a>
+          <a class="button button-secondary button-dark-outline" href="https://github.com/milicsvetlana/Ashveil" target="_blank" rel="noreferrer">
+            GitHub repository ↗
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> Ashveil</span>
+    <span>Built with Java + LibGDX</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
