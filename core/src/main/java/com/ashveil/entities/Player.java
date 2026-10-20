@@ -21,6 +21,7 @@ public class Player extends Entity{
 
     private float damageCooldown = 0f;
     private float primaryActionCooldown  = 0f;
+    private float actionAnimationTimer = 0f;
 
     private int selectedHotbarSlot;
     private int brokenHearts;
@@ -52,6 +53,7 @@ public class Player extends Entity{
         if (damageCooldown > 0) damageCooldown -= delta;
         if (primaryActionCooldown  > 0) primaryActionCooldown  -= delta;
         if (dashCooldown > 0f) dashCooldown = Math.max(0f, dashCooldown - delta);
+        if (actionAnimationTimer > 0f) actionAnimationTimer = Math.max(0f, actionAnimationTimer - delta);
     }
 
     public void move(float dx, float dy, float delta) {
@@ -235,6 +237,18 @@ public class Player extends Entity{
 
         if (moved) dashCooldown = Config.PLAYER_DASH_COOLDOWN;
         return moved;
+    }
+
+    public void startActionAnimation() {
+        actionAnimationTimer = 0.30f;
+    }
+
+    public boolean isActionAnimating() {
+        return actionAnimationTimer > 0f;
+    }
+
+    public float getActionAnimationProgress() {
+        return 1f - actionAnimationTimer / 0.30f;
     }
 
     public Facing getFacing() {return facing;}

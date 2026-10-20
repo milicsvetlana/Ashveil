@@ -77,6 +77,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         combatSystem = new CombatSystem();
         craftingManager = new CraftingManager(progressionState);
         dayNightCycle = new DayNightCycle();
+
         crimsonVeilSystem = new CrimsonVeilSystem();
         ashenRiteSystem = new AshenRiteSystem();
 
@@ -167,6 +168,11 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
         chest.getChestInventory().addItem(ItemType.STONE_HOE, 1);
         chest.getChestInventory().addItem(ItemType.WHEAT_SEED, 5);
         chest.getChestInventory().addItem(ItemType.BOAT_KIT, 1);
+        chest.getChestInventory().addItem(ItemType.WOODEN_AXE, 1);
+        chest.getChestInventory().addItem(ItemType.WOODEN_HOE, 1);
+        chest.getChestInventory().addItem(ItemType.WOODEN_PICKAXE, 1);
+        chest.getChestInventory().addItem(ItemType.STONE_SWORD, 1);
+        chest.getChestInventory().addItem(ItemType.BLOODTHIRST_SWORD, 1);
         player.getWallet().addGold(500);
     }
 
@@ -316,6 +322,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
             targets.addAll(getDestructibleObjectSystem().getObjects());
 
             combatSystem.performPrimaryAction(player, targets);
+            player.startActionAnimation();
             player.resetPrimaryActionCooldown();
         }
     }
@@ -638,6 +645,7 @@ public class World implements CraftingAccess, WorldMapAccess, ShopAccess {
     private void tillTarget(int tileX, int tileY, float worldX, float worldY){
         getFarmingSystem().till(tileX, tileY);
         player.getInventory().getSlot(player.getSelectedHotbarSlot()).reduceDurability(1);
+        player.startActionAnimation();
     }
 
     private void handleMatureSaplings(){

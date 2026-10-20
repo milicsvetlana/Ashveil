@@ -39,9 +39,11 @@ public class WorldRenderer {
 
     private Texture playerIdleTexture;
     private Texture swordOverlayTexture;
+    private Texture bloodthirstSwordOverlayTexture;
 
     private TextureRegion[] playerIdleRegions;
     private TextureRegion[] swordOverlayRegions;
+    private TextureRegion[] bloodthirstSwordOverlayRegions;
 
     private Texture playerWalkTexture;
     private Texture playerWalk2Texture;
@@ -79,6 +81,26 @@ public class WorldRenderer {
     private Texture hollowcapTexture;
     private TextureRegion hollowcapRegion;
 
+    private Texture hoeOverlayTexture;
+    private Texture pickaxeOverlayTexture;
+    private Texture stoneAxeOverlayTexture;
+
+    private Texture hoeActionOverlayTexture;
+    private Texture pickaxeActionOverlayTexture;
+    private Texture stoneAxeActionOverlayTexture;
+    private Texture swordAttackOverlayTexture;
+    private Texture bloodthirstSwordAttackOverlayTexture;
+
+    private TextureRegion[] hoeOverlayRegions;
+    private TextureRegion[] pickaxeOverlayRegions;
+    private TextureRegion[] stoneAxeOverlayRegions;
+
+    private TextureRegion[][] hoeActionOverlayRegions;
+    private TextureRegion[][] pickaxeActionOverlayRegions;
+    private TextureRegion[][] stoneAxeActionOverlayRegions;
+    private TextureRegion[][] swordAttackOverlayRegions;
+    private TextureRegion[][] bloodthirstSwordAttackOverlayRegions;
+
     private Skin skin;
 
     public WorldRenderer(TileMap tileMap, Skin skin) {
@@ -114,11 +136,47 @@ public class WorldRenderer {
         playerWalk2Texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         playerWalk2Regions = createPlayerRegions(playerWalk2Texture);
 
+        hoeOverlayTexture = new Texture("player/hoe_overlay.png");
+        hoeOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        hoeOverlayRegions = createPlayerRegions(hoeOverlayTexture);
+
+        pickaxeOverlayTexture = new Texture("player/pickaxe_overlay.png");
+        pickaxeOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        pickaxeOverlayRegions = createPlayerRegions(pickaxeOverlayTexture);
+
+        stoneAxeOverlayTexture = new Texture("player/stone_axe_overlay.png");
+        stoneAxeOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        stoneAxeOverlayRegions = createPlayerRegions(stoneAxeOverlayTexture);
+
+        bloodthirstSwordOverlayTexture = new Texture("player/bloodthirst_sword_overlay.png");
+        bloodthirstSwordOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        bloodthirstSwordOverlayRegions = createPlayerRegions(bloodthirstSwordOverlayTexture);
+
         swordOverlayTexture = new Texture("player/sword_overlay.png");
         swordOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-
-        playerIdleRegions = createPlayerRegions(playerIdleTexture);
         swordOverlayRegions = createPlayerRegions(swordOverlayTexture);
+
+        hoeActionOverlayTexture = new Texture("player/hoe_action_overlay.png");
+        hoeActionOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        hoeActionOverlayRegions = createActionRegions(hoeActionOverlayTexture);
+
+        pickaxeActionOverlayTexture = new Texture("player/pickaxe_action_overlay.png");
+        pickaxeActionOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        pickaxeActionOverlayRegions = createActionRegions(pickaxeActionOverlayTexture);
+
+        stoneAxeActionOverlayTexture = new Texture("player/stone_axe_action_overlay.png");
+        stoneAxeActionOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        stoneAxeActionOverlayRegions = createActionRegions(stoneAxeActionOverlayTexture);
+
+        swordAttackOverlayTexture = new Texture("player/sword_attack_overlay.png");
+        swordAttackOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        swordAttackOverlayRegions = createActionRegions(swordAttackOverlayTexture);
+
+        bloodthirstSwordAttackOverlayTexture = new Texture("player/bloodthirst_sword_attack_overlay.png");
+        bloodthirstSwordAttackOverlayTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        bloodthirstSwordAttackOverlayRegions = createActionRegions(bloodthirstSwordAttackOverlayTexture);
+
+        decorationsTexture = new Texture("tilesets/Decorations/Decorations.png");
 
         decorationsTexture = new Texture("tilesets/Decorations/Decorations.png");
         decorationsTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -157,6 +215,19 @@ public class WorldRenderer {
         hollowcapTexture = new Texture("textures/objects/hollowcap.png");
         hollowcapTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         hollowcapRegion = new TextureRegion(hollowcapTexture);
+    }
+
+    private TextureRegion[][] createActionRegions(Texture texture){
+        TextureRegion[][] result = new TextureRegion[3][4];
+
+        for (int frame=0; frame < 3; frame++){
+            result[frame][0] = new TextureRegion(texture, 0, frame * 595, 439, 595);
+            result[frame][1] = new TextureRegion(texture, 439, frame * 595, 440, 595);
+            result[frame][2] = new TextureRegion(texture, 879, frame * 595, 439, 595);
+            result[frame][3] = new TextureRegion(texture, 1318, frame * 595, 440, 595);
+        }
+
+        return result;
     }
 
     public void render(World world, CameraController cameraController) {
@@ -210,7 +281,6 @@ public class WorldRenderer {
 
     private void drawPlayer(Player player){
         int directionIndex = getPlayerDirectionIndex(player);
-
         TextureRegion bodyRegion = getPlayerBodyRegion(player, directionIndex);
 
         float drawHeight = Config.TILE_DRAW_SIZE * 2.5f;
@@ -221,10 +291,21 @@ public class WorldRenderer {
 
         spriteBatch.draw(bodyRegion, drawX, drawY, drawWidth, drawHeight);
 
-        if (!hasSwordSelected(player)) return;
+        ItemType selectedItem = player.getInventory().getItemTypeBySlot(player.getSelectedHotbarSlot());
+        if (selectedItem == null) return;
 
-        TextureRegion swordRegion = swordOverlayRegions[directionIndex];
-        spriteBatch.draw(swordRegion, drawX, drawY, drawWidth, drawHeight);
+        if (player.isActionAnimating()){
+            int actionFrame = getActionFrame(player);
+            TextureRegion actionRegion = getActionRegion(selectedItem, actionFrame, directionIndex);
+
+            if (actionRegion != null){
+                spriteBatch.draw(actionRegion, drawX, drawY, drawWidth, drawHeight);
+                return;
+            }
+        }
+
+        TextureRegion heldRegion = getHeldOverlayRegion(selectedItem, directionIndex);
+        if (heldRegion != null) spriteBatch.draw(heldRegion, drawX, drawY, drawWidth, drawHeight);
     }
 
     public void drawNaturalResourceTextures(World world, boolean foreground){
@@ -286,6 +367,28 @@ public class WorldRenderer {
         ItemType itemType = player.getInventory().getItemTypeBySlot(player.getSelectedHotbarSlot());
 
         return itemType == ItemType.WOODEN_SWORD || itemType == ItemType.STONE_SWORD || itemType == ItemType.BLOODTHIRST_SWORD;
+    }
+
+    private TextureRegion getHeldOverlayRegion(ItemType itemType, int directionIndex){
+        return switch (itemType){
+            case WOODEN_HOE, STONE_HOE -> hoeOverlayRegions[directionIndex];
+            case WOODEN_PICKAXE, STONE_PICKAXE -> pickaxeOverlayRegions[directionIndex];
+            case WOODEN_AXE, STONE_AXE -> stoneAxeOverlayRegions[directionIndex];
+            case WOODEN_SWORD, STONE_SWORD -> swordOverlayRegions[directionIndex];
+            case BLOODTHIRST_SWORD -> bloodthirstSwordOverlayRegions[directionIndex];
+            default -> null;
+        };
+    }
+
+    private TextureRegion getActionRegion(ItemType itemType, int actionFrame, int directionIndex){
+        return switch (itemType){
+            case WOODEN_HOE, STONE_HOE -> hoeActionOverlayRegions[actionFrame][directionIndex];
+            case WOODEN_PICKAXE, STONE_PICKAXE -> pickaxeActionOverlayRegions[actionFrame][directionIndex];
+            case WOODEN_AXE, STONE_AXE -> stoneAxeActionOverlayRegions[actionFrame][directionIndex];
+            case WOODEN_SWORD, STONE_SWORD -> swordAttackOverlayRegions[actionFrame][directionIndex];
+            case BLOODTHIRST_SWORD -> bloodthirstSwordAttackOverlayRegions[actionFrame][directionIndex];
+            default -> null;
+        };
     }
 
     private TextureRegion getTreeRegion(DestructibleObject object){
@@ -454,6 +557,45 @@ public class WorldRenderer {
         }
     }
 
+    private TextureRegion[][] createHoeActionRegions(Texture texture) {
+        TextureRegion[][] result = new TextureRegion[3][4];
+        int[] xOffsets = {0, 439, 879, 1318};
+        int[] widths = {439, 440, 439, 440};
+
+        for (int frame = 0; frame < 3; frame++) {
+            int y = frame * 595;
+            for (int direction = 0; direction < 4; direction++) {
+                result[frame][direction] = new TextureRegion(texture, xOffsets[direction], y, widths[direction], 595);
+            }
+        }
+
+        return result;
+    }
+
+    private TextureRegion[][] createThreeByFourActionRegions(Texture texture) {
+        int frameWidth = texture.getWidth() / 3;
+        int frameHeight = texture.getHeight() / 4;
+
+        TextureRegion[][] result = new TextureRegion[3][4];
+
+        for (int direction = 0; direction < 4; direction++) {
+
+            for (int frame = 0; frame < 3; frame++) {
+                result[frame][direction] = new TextureRegion(texture, frame * frameWidth, direction * frameHeight, frameWidth, frameHeight);
+            }
+        }
+
+        return result;
+    }
+
+    private int getActionFrame(Player player) {
+        float progress = player.getActionAnimationProgress();
+
+        if (progress < 1f / 3f) return 0;
+        if (progress < 2f / 3f) return 1;
+        return 2;
+    }
+
     public int getMapWidthInTiles() {return tiledMap.getProperties().get("width", Integer.class);}
     public int getMapHeightInTiles() {return tiledMap.getProperties().get("height", Integer.class);}
     public float getMapRenderWidth() {return getMapWidthInTiles() * Config.TILE_DRAW_SIZE;}
@@ -468,7 +610,13 @@ public class WorldRenderer {
         playerIdleTexture.dispose();
         playerWalkTexture.dispose();
         playerWalk2Texture.dispose();
+
         swordOverlayTexture.dispose();
+        bloodthirstSwordOverlayTexture.dispose();
+        hoeActionOverlayTexture.dispose();
+        pickaxeActionOverlayTexture.dispose();
+        stoneAxeActionOverlayTexture.dispose();
+        swordAttackOverlayTexture.dispose();
 
         decorationsTexture.dispose();
         farmTileTexture.dispose();
